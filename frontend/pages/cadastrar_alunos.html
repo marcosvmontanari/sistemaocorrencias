@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Alunos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navbar copiada do dashboard -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Sistema de Ocorrências</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="userWelcome">Bem-vindo</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-danger" onclick="logout()">Sair</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h2 class="mt-4">Cadastro de Alunos</h2>
+        <form id="formAluno" class="mt-4">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="nome" required>
+            </div>
+            <div class="mb-3">
+                <label for="turma" class="form-label">Turma</label>
+                <input type="text" class="form-control" id="turma" required>
+            </div>
+            <div class="mb-3">
+                <label for="curso" class="form-label">Curso</label>
+                <!-- Campo SELECT com cursos agrupados -->
+                <select class="form-select" id="curso" required>
+                    <option value="" selected disabled>Selecione o curso</option>
+                    <optgroup label="Cursos Técnicos Integrados ao Ensino Médio">
+                        <option>Técnico em Administração</option>
+                        <option>Técnico em Agropecuária</option>
+                        <option>Técnico em Agropecuária em Regime de Alternância</option>
+                        <option>Técnico em Informática</option>
+                        <option>Técnico em Zootecnia</option>
+                    </optgroup>
+                    <optgroup label="Curso Técnico Subsequente">
+                        <option>Técnico em Enfermagem</option>
+                    </optgroup>
+                    <optgroup label="Cursos Superiores">
+                        <option>Engenharia Agronômica</option>
+                        <option>Tecnólogo em Analise e Desenvolvimento de Sistemas</option>
+                        <option>Tecnólogo em Processos Gerenciais</option>
+                    </optgroup>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
+        </form>
+
+        <h3 class="mt-5">Lista de Alunos</h3>
+        <table class="table mt-3">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Turma</th>
+                    <th>Curso</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaAlunos">
+                <!-- Preenchido via JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="../js/cadastrar_alunos.js"></script>
+</body>
+
+</html>

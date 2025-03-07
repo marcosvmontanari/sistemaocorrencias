@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Sistema de Ocorrências</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="../dashboard.html">Sistema de Ocorrências</a>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="userWelcome">Bem-vindo</a>
+                </li>
+                <li class="nav-item">
+                    <button class="btn btn-danger" onclick="logout()">Sair</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Gerar Relatórios</h2>
+    
+        <!-- Filtros -->
+        <form id="formRelatorio" class="row g-3">
+            <div class="col-md-4">
+                <label for="tipo_infracao" class="form-label">Tipo de Infração</label>
+                <select id="tipo_infracao" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="LEVE">Leve</option>
+                    <option value="GRAVE">Grave</option>
+                    <option value="GRAVÍSSIMA">Gravíssima</option>
+                </select>
+            </div>
+    
+            <div class="col-md-4">
+                <label for="data_inicio" class="form-label">Data Início</label>
+                <input type="date" id="data_inicio" class="form-control">
+            </div>
+    
+            <div class="col-md-4">
+                <label for="data_fim" class="form-label">Data Fim</label>
+                <input type="date" id="data_fim" class="form-control">
+            </div>
+    
+            <div class="col-md-6">
+                <label for="aluno" class="form-label">Aluno</label>
+                <select id="aluno" class="form-select">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+    
+            <div class="col-md-6">
+                <label for="servidor" class="form-label">Servidor Responsável</label>
+                <select id="servidor" class="form-select">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+    
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+        </form>
+    
+        <!-- Tabela para exibir os relatórios antes da exportação -->
+        <div class="mt-4">
+            <h3>Resultados</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Aluno</th>
+                        <th>Infração</th>
+                        <th>Local</th>
+                        <th>Descrição</th>
+                        <th>Data/Hora</th>
+                        <th>Servidor</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaRelatorios">
+                    <tr>
+                        <td colspan="7" class="text-center">Nenhum relatório gerado ainda.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    
+        <button class="btn btn-success mt-3" onclick="gerarRelatorioPDF()">Exportar para PDF</button>
+    </div>
+
+
+    <script src="../js/relatorios.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

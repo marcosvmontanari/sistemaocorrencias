@@ -1,0 +1,69 @@
+/* Fundo apenas na tela de login */
+.login-page {
+    background: url('../assets/img/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
+/* Sobreposição para melhorar a legibilidade */
+.login-page::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    /* Transparência no fundo */
+    z-index: -1;
+}
+
+/* Estilização do formulário de login */
+.login-container {
+    background: rgba(255, 255, 255, 0.9);
+    /* Fundo com transparência */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    margin: auto;
+    margin-top: 100px;
+}
+
+/* Estilização do formulário */
+.login-container {
+    background: rgba(255, 255, 255, 0.9);
+    /* Fundo com transparência */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    margin: auto;
+    margin-top: 100px;
+}
+
+/* Estilização da logo */
+.logo {
+    max-width: 200px;
+    margin-bottom: 10px;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.list-group {
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.list-group-item {
+    cursor: pointer;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}

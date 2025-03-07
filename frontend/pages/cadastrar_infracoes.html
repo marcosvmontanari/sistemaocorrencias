@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Infrações</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <body>
+        <!-- Navbar copiada do dashboard -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Sistema de Ocorrências</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="userWelcome">Bem-vindo</a>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-danger" onclick="logout()">Sair</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    
+        <!-- O restante do conteúdo já existente da página vem aqui -->
+
+    <div class="container mt-4">
+        <h2>Cadastro de Infrações</h2>
+
+        <!-- Formulário para cadastro -->
+        <form id="formInfracao" class="mt-4">
+            <div class="mb-3">
+                <label for="descricao" class="form-label">Descrição da Infração</label>
+                <input type="text" class="form-control" id="descricao" required
+                    placeholder="Informe a descrição da infração">
+            </div>
+
+            <div class="mb-3">
+                <label for="tipo" class="form-label">Tipo da Infração</label>
+                <select class="form-select" id="tipo" required>
+                    <option value="" selected disabled>Selecione o tipo</option>
+                    <option value="LEVE">LEVE</option>
+                    <option value="GRAVE">GRAVE</option>
+                    <option value="GRAVISSIMA">GRAVÍSSIMA</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Cadastrar Infração</button>
+        </form>
+
+        <!-- Tabela para listar infrações -->
+        <h3 class="mt-5">Lista de Infrações Cadastradas</h3>
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaInfracoes">
+                <!-- Linhas preenchidas via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="../js/cadastrar_infracoes.js"></script>
+</body>
+
+</html>
