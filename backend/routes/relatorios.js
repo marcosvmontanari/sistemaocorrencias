@@ -10,78 +10,124 @@ const moment = require("moment");
 router.get("/gerar", async (req, res) => {
     try {
         const { tipoInfracao, dataInicio, dataFim, aluno, servidor } = req.query;
-        const ocorrencias = await RelatorioModel.listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servidor);
+        const ocorrencias = await RelatorioModel.listarOcorrencias(
+            tipoInfracao, dataInicio, dataFim, aluno, servidor
+        );
 
-        // Configuração do PDF
-        const doc = new PDFDocument({ margin: 40, size: "A4" });
+        const doc = new PDFDocument({
+            size: "A4",
+            layout: "landscape",
+            margins: { top: 40, left: 30, right: 30, bottom: 40 },
+        });
 
-        res.setHeader("Content-Disposition", "attachment; filename=relatorio_ocorrencias.pdf");
-        res.setHeader("Content-Type", "application/pdf");
+        const fileName = `relatorio_${Date.now()}.pdf`;
+        const filePath = path.join(__dirname, "..", "uploads", fileName);
+        const stream = fs.createWriteStream(filePath);
+        doc.pipe(stream);
 
-        doc.pipe(res);
-
-        // 🔹 Adicionar a logo no topo
-        const logoPath = path.join(__dirname, "../uploads/logo.png");
+        // 🔹 Adicionando a logo no canto superior esquerdo
+        const logoPath = path.join(__dirname, "..", "assets", "logo.png");
         if (fs.existsSync(logoPath)) {
-            doc.image(logoPath, 50, 40, { width: 120 });
+            doc.image(logoPath, 30, 20, { width: 100 });
         }
 
-        // 🔹 Título do Relatório
-        doc
-            .fontSize(18)
-            .text("Relatório de Ocorrências", { align: "center" })
-            .moveDown(2);
+        // 🔹 Cabeçalho do relatório
+        doc.fontSize(20).text("Relatório de Ocorrências", 150, 30, { align: "center" });
+        doc.moveDown(1);
 
-        // 🔹 Informações sobre o filtro aplicado
-        doc.fontSize(10);
+        // 🔹 Informações do filtro
+        doc.fontSize(12);
+        doc.text(`Data de Emissão: ${moment().format("DD/MM/YYYY HH:mm")}`);
         if (tipoInfracao) doc.text(`Tipo de Infração: ${tipoInfracao}`);
-        if (dataInicio) doc.text(`Período: ${moment(dataInicio).format("DD/MM/YYYY")} até ${dataFim ? moment(dataFim).format("DD/MM/YYYY") : "Hoje"}`);
-        if (aluno) doc.text(`Aluno Filtrado: ID ${aluno}`);
-        if (servidor) doc.text(`Servidor Responsável: ID ${servidor}`);
-        doc.moveDown(1.5);
+        if (dataInicio) doc.text(`Data Início: ${dataInicio}`);
+        if (dataFim) doc.text(`Data Fim: ${dataFim}`);
+        if (aluno) doc.text(`Aluno: ${aluno}`);
+        if (servidor) doc.text(`Servidor: ${servidor}`);
+        doc.moveDown(1);
 
-        // 🔹 Verificar se há ocorrências a serem listadas
-        if (ocorrencias.length === 0) {
-            doc.text("Nenhuma ocorrência encontrada para os filtros aplicados.", { align: "center" }).moveDown();
-        } else {
-            // 🔹 Criar Tabela
-            const tableTop = doc.y + 10;
-            const columnSpacing = 80;
+        // 🔹 Definição das posições das colunas
+        const colPositions = {
+            id: 30,
+            aluno: 70,
+            infracao: 220,
+            local: 320,
+            descricao: 520,
+            dataHora: 700,
+            servidor: 850
+        };
 
-            // 🔹 Cabeçalho da Tabela (com espaçamento adequado)
-            doc
-                .fontSize(12)
-                .text("Aluno", 50, tableTop, { bold: true })
-                .text("Infração", 140, tableTop)
-                .text("Local", 240, tableTop)
-                .text("Data/Hora", 340, tableTop)
-                .text("Servidor", 440, tableTop);
+        let y = doc.y;
 
-            // Linha separadora do cabeçalho
-            doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
+        // 🔹 Cabeçalho da tabela
+        doc.fontSize(12).font("Helvetica-Bold");
+        doc.rect(25, y - 5, 850, 25).fill("#f0f0f0");
+        doc.fillColor("black");
 
-            // 🔹 Listar Ocorrências na Tabela com Formatação da Data
-            let y = tableTop + 25;
-            ocorrencias.forEach((ocorrencia) => {
-                doc
-                    .fontSize(10)
-                    .text(ocorrencia.aluno, 50, y)
-                    .text(ocorrencia.infracao, 140, y)
-                    .text(ocorrencia.local, 240, y)
-                    .text(moment(ocorrencia.data_hora).format("DD/MM/YYYY - HH:mm"), 340, y) // 🔹 Formatação da Data/Hora
-                    .text(ocorrencia.servidor, 440, y);
+        doc.text("ID", colPositions.id, y, { width: 30 });
+        doc.text("Aluno", colPositions.aluno, y, { width: 150 });
+        doc.text("Infração", colPositions.infracao, y, { width: 100 });
+        doc.text("Local", colPositions.local, y, { width: 180 });
+        doc.text("Descrição", colPositions.descricao, y, { width: 200 });
+        doc.text("Data/Hora", colPositions.dataHora, y, { width: 120 });
+        doc.text("Servidor", colPositions.servidor, y, { width: 120 });
 
-                y += 20;
-            });
+        doc.moveDown(0.5);
+        y = doc.y + 5;
 
-            doc.moveDown();
-        }
+        // 🔹 Linhas da tabela com ajuste de altura
+        doc.font("Helvetica").fontSize(10);
+        ocorrencias.forEach((ocorrencia, index) => {
+            // 🔹 Calcular a altura máxima necessária para esta linha
+            const rowHeights = [
+                doc.heightOfString(ocorrencia.id, { width: 30 }),
+                doc.heightOfString(ocorrencia.aluno, { width: 150 }),
+                doc.heightOfString(ocorrencia.infracao, { width: 100 }),
+                doc.heightOfString(ocorrencia.local, { width: 180 }),
+                doc.heightOfString(ocorrencia.descricao, { width: 200 }),
+                doc.heightOfString(moment(ocorrencia.data_hora).format("DD/MM/YYYY HH:mm"), { width: 120 }),
+                doc.heightOfString(ocorrencia.servidor, { width: 120 })
+            ];
 
-        // 🔹 Finalizar PDF
+            // 🔹 Define a altura da linha como a maior altura calculada
+            const rowHeight = Math.max(...rowHeights) + 5;
+
+            // 🔹 Fundo alternado para melhor leitura
+            if (index % 2 === 0) {
+                doc.rect(25, y - 5, 850, rowHeight).fill("#e8e8e8");
+                doc.fillColor("black");
+            }
+
+            // 🔹 Posiciona os textos corretamente
+            doc.text(`${ocorrencia.id}`, colPositions.id, y, { width: 30 });
+            doc.text(`${ocorrencia.aluno}`, colPositions.aluno, y, { width: 150 });
+            doc.text(`${ocorrencia.infracao}`, colPositions.infracao, y, { width: 100 });
+            doc.text(`${ocorrencia.local}`, colPositions.local, y, { width: 180, lineGap: 2 });
+            doc.text(`${ocorrencia.descricao}`, colPositions.descricao, y, { width: 200, lineGap: 2 });
+            doc.text(moment(ocorrencia.data_hora).format("DD/MM/YYYY HH:mm"), colPositions.dataHora, y, { width: 120 });
+            doc.text(`${ocorrencia.servidor}`, colPositions.servidor, y, { width: 120 });
+
+            y += rowHeight; // 🔹 Agora cada linha ocupa o espaço correto
+
+            // 🔹 Se a página estiver cheia, cria uma nova
+            if (y > 500) {
+                doc.addPage();
+                y = 50;
+            }
+        });
+
         doc.end();
+
+        stream.on("finish", () => {
+            res.download(filePath, fileName, (err) => {
+                if (err) {
+                    console.error("Erro no download do PDF:", err);
+                    res.status(500).send("Erro ao baixar o PDF");
+                }
+            });
+        });
     } catch (error) {
-        console.error("Erro ao gerar relatório:", error);
-        res.status(500).json({ mensagem: "Erro ao gerar relatório." });
+        console.error("Erro ao gerar relatório PDF:", error);
+        res.status(500).send("Erro ao gerar relatório PDF");
     }
 });
 
