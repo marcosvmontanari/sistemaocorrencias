@@ -1,6 +1,7 @@
 console.log("🔹 Script dashboard.js carregado corretamente!");
 
-let paginaAtual = "";
+// ✅ Controla o script carregado dinamicamente
+let scriptAtual = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -61,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// ✅ Função para carregar páginas dinamicamente
 async function carregarPagina(pagina) {
     const conteudoDinamico = document.getElementById("conteudoDinamico");
     const tituloDashboard = document.getElementById("tituloDashboard");
@@ -86,13 +88,18 @@ async function carregarPagina(pagina) {
     }
 }
 
+// ✅ Função para carregar e executar o módulo da página
 async function carregarESexecutarModulo(pagina) {
     try {
         let modulo = null;
 
         switch (pagina) {
             case "cadastrar_servidores.html":
+                // Aqui, carregamos o script de servidores
                 modulo = await import(`../js/cadastrar_servidores.js?cache=${Date.now()}`);
+                if (modulo && typeof modulo.init === "function") {
+                    modulo.init(); // Chama a função init() após o carregamento do módulo
+                }
                 break;
             case "cadastrar_alunos.html":
                 modulo = await import(`../js/cadastrar_alunos.js?cache=${Date.now()}`);
@@ -123,6 +130,8 @@ async function carregarESexecutarModulo(pagina) {
     }
 }
 
+
+// ✅ Modal de alteração de senha no primeiro login
 function abrirModalAlterarSenha() {
     const modalHtml = `
     <div class="modal fade" id="modalAlterarSenha" tabindex="-1">
@@ -145,6 +154,7 @@ function abrirModalAlterarSenha() {
     modal.show();
 }
 
+// ✅ Função de alterar senha
 async function alterarSenha() {
     const novaSenha = document.getElementById("novaSenha").value;
     const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -165,6 +175,7 @@ async function alterarSenha() {
     }
 }
 
+// ✅ Função de logout
 function logout() {
     localStorage.removeItem("usuario");
     window.location.href = "index.html";

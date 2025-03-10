@@ -54,6 +54,7 @@ async function initServidores() {
                         <td>
                             <button class="btn btn-warning btn-sm" data-id="${servidor.id}">Editar</button>
                             <button class="btn btn-danger btn-sm" data-id="${servidor.id}">Excluir</button>
+                            <button class="btn btn-info btn-sm" data-id="${servidor.id}" onclick="resetarSenha(${servidor.id}, '${servidor.siape}')">Resetar Senha</button> <!-- Novo botão -->
                         </td>
                     </tr>
                 `;
@@ -173,9 +174,35 @@ async function initServidores() {
             console.error("❌ Erro ao atualizar servidor:", error);
         }
     }
+
+    // ✅ Função para resetar a senha do servidor
+    async function resetarSenha(id, siape) {
+        if (confirm("Tem certeza que deseja resetar a senha desse servidor?")) {
+            try {
+                const resposta = await fetch(`http://localhost:3000/servidores/${id}/resetarSenha`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ senha: siape, alterou_senha: 0 })
+                });
+
+                if (resposta.ok) {
+                    alert("✅ Senha resetada com sucesso! O servidor será forçado a mudar a senha no próximo login.");
+                    carregarServidores();
+                } else {
+                    alert("❌ Erro ao resetar a senha!");
+                }
+            } catch (error) {
+                console.error("❌ Erro ao resetar senha:", error);
+            }
+        }
+    }
 }
 
 // ✅ Inicialização automática após o DOM ser montado (depois do HTML ser injetado)
 requestAnimationFrame(() => {
     initServidores();
 });
+
+export function init() {
+    carregarServidores();
+}
