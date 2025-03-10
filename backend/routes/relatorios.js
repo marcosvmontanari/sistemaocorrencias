@@ -74,7 +74,7 @@ router.get("/gerar", async (req, res) => {
         doc.moveDown(0.5);
         y = doc.y + 5;
 
-        // 🔹 Linhas da tabela com ajuste de altura
+        // 🔹 Linhas da tabela com espaçamento melhorado
         doc.font("Helvetica").fontSize(10);
         ocorrencias.forEach((ocorrencia, index) => {
             // 🔹 Calcular a altura máxima necessária para esta linha
@@ -88,8 +88,8 @@ router.get("/gerar", async (req, res) => {
                 doc.heightOfString(ocorrencia.servidor, { width: 120 })
             ];
 
-            // 🔹 Define a altura da linha como a maior altura calculada
-            const rowHeight = Math.max(...rowHeights) + 5;
+            // 🔹 Define a altura mínima da linha como 25px
+            const rowHeight = Math.max(...rowHeights) + 10; // Adicionamos um espaçamento extra
 
             // 🔹 Fundo alternado para melhor leitura
             if (index % 2 === 0) {
@@ -106,7 +106,7 @@ router.get("/gerar", async (req, res) => {
             doc.text(moment(ocorrencia.data_hora).format("DD/MM/YYYY HH:mm"), colPositions.dataHora, y, { width: 120 });
             doc.text(`${ocorrencia.servidor}`, colPositions.servidor, y, { width: 120 });
 
-            y += rowHeight; // 🔹 Agora cada linha ocupa o espaço correto
+            y += rowHeight; // 🔹 Agora cada linha terá mais espaço
 
             // 🔹 Se a página estiver cheia, cria uma nova
             if (y > 500) {

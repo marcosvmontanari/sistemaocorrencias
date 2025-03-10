@@ -1,11 +1,11 @@
-/* Fundo apenas na tela de login */
+/* 🔹 Fundo apenas na tela de login */
 .login-page {
     background: url('../assets/img/background.jpg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
 }
 
-/* Sobreposição para melhorar a legibilidade */
+/* 🔹 Sobreposição para melhorar a legibilidade */
 .login-page::before {
     content: "";
     position: absolute;
@@ -14,14 +14,12 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.4);
-    /* Transparência no fundo */
     z-index: -1;
 }
 
-/* Estilização do formulário de login */
+/* 🔹 Estilização do formulário de login */
 .login-container {
     background: rgba(255, 255, 255, 0.9);
-    /* Fundo com transparência */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
@@ -30,24 +28,13 @@
     margin-top: 100px;
 }
 
-/* Estilização do formulário */
-.login-container {
-    background: rgba(255, 255, 255, 0.9);
-    /* Fundo com transparência */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    margin: auto;
-    margin-top: 100px;
-}
-
-/* Estilização da logo */
+/* 🔹 Estilização da logo */
 .logo {
     max-width: 200px;
     margin-bottom: 10px;
 }
 
+/* 🔹 Estilização de elementos gerais */
 .card {
     border-radius: 10px;
 }
@@ -67,3 +54,129 @@
 .list-group-item:hover {
     background-color: #f8f9fa;
 }
+
+/* 🔹 Ajusta a Navbar */
+.navbar {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1030;
+    background-color: #00A65A !important;
+}
+
+/* 🔹 Ajuste do menu lateral */
+#menuLateral {
+    width: 250px;
+    height: calc(100vh - 56px);
+    position: fixed;
+    top: 56px;
+    left: 0;
+    background-color: #00A65A !important;
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: width 0.3s ease-in-out;
+}
+
+/* 🔹 Ajuste do cabeçalho do menu */
+#menuLateral h4 {
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 15px 0;
+    color: white;
+}
+
+/* 🔹 Esconde a barra de rolagem no Chrome e Edge */
+#menuLateral::-webkit-scrollbar {
+    display: none;
+}
+
+/* 🔹 Ajuste dos itens do menu lateral */
+#menuDashboard .list-group-item {
+    background: none;
+    color: white !important;
+    border: none;
+    font-size: 15px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: padding 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+/* 🔹 Efeito hover nos itens do menu */
+#menuDashboard .list-group-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+/* 🔹 Ajuste do layout quando o menu está oculto */
+#menuLateral.hidden-menu,
+#menuLateral.d-none {
+    transform: translateX(-100%);
+}
+
+/* 🔹 Menu minimizado (exibe apenas os ícones) */
+#menuLateral.minimized {
+    width: 60px;
+}
+
+/* 🔹 Quando o menu está minimizado, os textos somem */
+#menuLateral.minimized .list-group-item span {
+    display: none;
+}
+
+/* 🔹 Os itens do menu lateral são centralizados quando minimizado */
+#menuLateral.minimized .list-group-item {
+    padding: 10px;
+    justify-content: center;
+}
+
+/* 🔹 Expande o menu automaticamente ao passar o mouse */
+#menuLateral.minimized:hover {
+    width: 250px;
+}
+
+/* 🔹 Quando o menu expande ao passar o mouse, os textos reaparecem */
+#menuLateral.minimized:hover .list-group-item span {
+    display: inline;
+}
+
+/* 🔹 Ajuste no conteúdo */
+#conteudoPrincipal {
+    margin-left: 250px;
+    margin-top: 70px;
+    padding: 20px;
+    width: calc(100% - 250px);
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* 🔹 Ajuste no conteúdo quando o menu está minimizado */
+#menuLateral.minimized+#conteudoPrincipal {
+    margin-left: 60px;
+    width: calc(100% - 60px);
+}
+
+    /* 🔹 Estilização do botão sanduíche */
+    #toggleMenu {
+        font-size: 24px;
+        border: none;
+        background: none;
+        color: white;
+        cursor: pointer;
+    }
+
+    /* 🔹 Ajuste do espaçamento dos ícones */
+    #menuLateral .list-group-item i {
+        font-size: 20px;
+        width: 25px;
+        text-align: center;
+    }
+
+    /* 🔹 Remove a barra de rolagem quando não for necessária */
+    #menuDashboard::-webkit-scrollbar {
+        display: none;
+    }

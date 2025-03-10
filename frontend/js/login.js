@@ -51,14 +51,12 @@ function abrirModalAlterarSenha() {
 // 🔹 Função para alterar a senha
 async function alterarSenha() {
     const novaSenha = document.getElementById("novaSenha").value;
-    const confirmarSenha = document.getElementById("confirmarSenha").value;
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-    if (novaSenha !== confirmarSenha) {
-        alert("As senhas não coincidem.");
+    if (!novaSenha) {
+        alert("❌ A nova senha não pode estar vazia!");
         return;
     }
-
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
 
     try {
         const resposta = await fetch(`http://localhost:3000/servidores/${usuario.id}/alterarSenha`, {
@@ -67,17 +65,16 @@ async function alterarSenha() {
             body: JSON.stringify({ senha: novaSenha })
         });
 
-        const resultado = await resposta.json();
+        const dados = await resposta.json();
 
         if (resposta.ok) {
-            alert("Senha alterada com sucesso! Faça login novamente.");
-            localStorage.removeItem("usuario");
-            window.location.reload();
+            alert("✅ Senha alterada com sucesso!");
+            localStorage.setItem("usuario", JSON.stringify({ ...usuario, alterou_senha: 1 }));
+            window.location.reload(); // Recarrega a página para atualizar o estado do usuário
         } else {
-            alert("Erro ao alterar senha: " + resultado.erro);
+            alert("❌ Erro ao alterar senha: " + (dados.erro || "Erro desconhecido"));
         }
     } catch (error) {
-        console.error("Erro ao conectar ao servidor:", error);
-        alert("Erro ao conectar com o servidor!");
+        console.error("❌ Erro ao conectar ao servidor:", error);
     }
 }

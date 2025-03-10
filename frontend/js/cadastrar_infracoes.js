@@ -1,34 +1,59 @@
-console.log("🔹 Script cadastrar_infracoes.js carregado corretamente!");
+export function init() {
+    carregarInfracoes();
 
-// Função para carregar as infrações cadastradas
-async function carregarInfracoes() {
-    const resposta = await fetch("http://localhost:3000/infracoes");
-    const infracoes = await resposta.json();
-    const tabelaInfracoes = document.getElementById("tabelaInfracoes");
-
-    tabelaInfracoes.innerHTML = ""; // limpa a tabela antes de carregar
-
-    infracoes.forEach(infracao => {
-        tabelaInfracoes.innerHTML += `
-            <tr>
-                <td>${infracao.id}</td>
-                <td>${infracao.descricao}</td>
-                <td>${infracao.tipo}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm" onclick="editarInfracao(${infracao.id})">Editar</button>
-                    <button class="btn btn-danger btn-sm" onclick="excluirInfracao(${infracao.id})">Excluir</button>
-                </td>
-            </tr>
-        `;
+    document.getElementById("formInfracao").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        await cadastrarInfracao();
     });
 }
 
-// Evento para cadastrar uma nova infração
-document.getElementById("formInfracao").addEventListener("submit", async function (event) {
-    event.preventDefault();
+async function carregarInfracoes() {
+    try {
+        const resposta = await fetch("http://localhost:3000/infracoes");
+        const infracoes = await resposta.json();
 
-    const descricao = document.getElementById("descricao").value;
+        const tabela = document.getElementById("tabelaInfracoes");
+        tabela.innerHTML = "";
+
+        infracoes.forEach(infracao => {
+            tabela.innerHTML += `
+                <tr>
+                    <td>${infracao.id}</td>
+                    <td>${infracao.descricao}</td>
+                    <td>${infracao.tipo}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" data-id="${infracao.id}">Editar</button>
+                        <button class="btn btn-danger btn-sm" data-id="${infracao.id}">Excluir</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tabela.querySelectorAll(".btn-warning").forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.getAttribute("data-id");
+                const infracao = infracoes.find(i => i.id == id);
+                abrirModalEdicao(infracao);
+            });
+        });
+
+        tabela.querySelectorAll(".btn-danger").forEach(button => {
+            button.addEventListener('click', () => excluirInfracao(button.getAttribute("data-id")));
+        });
+
+    } catch (error) {
+        console.error("❌ Erro ao carregar infrações:", error);
+    }
+}
+
+async function cadastrarInfracao() {
+    const descricao = document.getElementById("descricao").value.trim();
     const tipo = document.getElementById("tipo").value;
+
+    if (!descricao || !tipo) {
+        alert("⚠️ Preencha todos os campos.");
+        return;
+    }
 
     try {
         const resposta = await fetch("http://localhost:3000/infracoes/cadastrar", {
@@ -38,50 +63,77 @@ document.getElementById("formInfracao").addEventListener("submit", async functio
         });
 
         if (resposta.ok) {
-            alert("✅ Infração cadastrada com sucesso!");
-            document.getElementById("formInfracao").reset(); // limpa o formulário
-            carregarInfracoes(); // atualiza a lista após cadastro
+            alert("✅ Infração cadastrada!");
+            document.getElementById("formInfracao").reset();
+            carregarInfracoes();
         } else {
-            const erro = await resposta.json();
-            alert("❌ Erro ao cadastrar infração: " + erro.erro);
+            alert("❌ Erro ao cadastrar infração.");
         }
     } catch (error) {
-        console.error("Erro ao conectar com o servidor:", error);
-        alert("Erro ao conectar com o servidor!");
+        console.error("❌ Erro ao cadastrar infração:", error);
     }
-});
-
-// Opcional (se quiser implementar posteriormente):
-function editarInfracao(id) {
-    alert("Editar infração de ID: " + id);
-    // Implementar posteriormente
 }
 
 async function excluirInfracao(id) {
-    if (confirm("Deseja realmente excluir esta infração?")) {
-        const resposta = await fetch(`http://localhost:3000/infracoes/${id}`, { method: "DELETE" });
+    if (!confirm("Deseja excluir esta infração?")) return;
+
+    try {
+        const resposta = await fetch(`http://localhost:3000/infracoes/${id}`, {
+            method: "DELETE"
+        });
 
         if (resposta.ok) {
-            alert("✅ Infração excluída com sucesso!");
-            carregarInfracoes(); // atualiza após exclusão
+            alert("✅ Infração excluída!");
+            carregarInfracoes();
         } else {
             alert("❌ Erro ao excluir infração.");
         }
+    } catch (error) {
+        console.error("❌ Erro ao excluir infração:", error);
     }
 }
 
-const usuario = JSON.parse(localStorage.getItem("usuario"));
-if (usuario) {
-    document.getElementById("userWelcome").textContent = `Bem-vindo, ${usuario.nome}`;
-} else {
-    window.location.href = "../index.html"; // Redireciona para login se não estiver logado
+function abrirModalEdicao(infracao) {
+    if (!infracao) return;
+
+    document.getElementById("editId").value = infracao.id;
+    document.getElementById("editDescricao").value = infracao.descricao;
+    document.getElementById("editTipo").value = infracao.tipo;
+
+    const modalElement = document.getElementById("modalEditarInfracao");
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+    // ADICIONANDO O EVENTO DE CLICK NO BOTÃO "SALVAR" APÓS O MODAL SER ABERTO
+    const btnSalvar = modalElement.querySelector("#btnSalvarEdicaoInfracao");
+    btnSalvar.onclick = () => salvarEdicao(modal);
 }
 
-// Função Logout
-function logout() {
-    localStorage.removeItem("usuario");
-    window.location.href = "../index.html";
-}
+async function salvarEdicao(modal) {
+    const id = document.getElementById("editId").value;
+    const descricao = document.getElementById("editDescricao").value.trim();
+    const tipo = document.getElementById("editTipo").value;
 
-// Carrega automaticamente as infrações quando a página é aberta
-carregarInfracoes();
+    if (!descricao || !tipo) {
+        alert("⚠️ Preencha todos os campos.");
+        return;
+    }
+
+    try {
+        const resposta = await fetch(`http://localhost:3000/infracoes/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ descricao, tipo })
+        });
+
+        if (resposta.ok) {
+            alert("✅ Infração atualizada!");
+            carregarInfracoes();
+            modal.hide();
+        } else {
+            alert("❌ Erro ao atualizar infração.");
+        }
+    } catch (error) {
+        console.error("❌ Erro ao atualizar infração:", error);
+    }
+}

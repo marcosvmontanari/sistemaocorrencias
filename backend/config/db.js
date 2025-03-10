@@ -8,5 +8,12 @@ const db = mysql.createPool({
     database: "sistema_ocorrencias"  // nome do banco
 });
 
+const { Sequelize } = require('sequelize');
+
+const sequelize = new Sequelize('nomedobanco', 'usuario', 'senha', {
+    host: 'localhost',
+    dialect: 'mysql'
+});
+
 module.exports = db;
 

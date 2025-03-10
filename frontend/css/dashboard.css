@@ -1,0 +1,26 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+}
+
+.nav-link {
+    font-size: 16px;
+    padding: 10px;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.card {
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
