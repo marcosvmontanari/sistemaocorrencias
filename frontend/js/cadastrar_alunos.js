@@ -11,8 +11,9 @@ async function initAlunos() {
     const tabelaAlunos = document.getElementById("tabelaAlunos");
     const btnCadastrarAluno = document.getElementById("btnCadastrarAluno");
     const btnSalvarEdicaoAluno = document.getElementById("btnSalvarEdicaoAluno");
+    const formUploadCSVAluno = document.getElementById("formUploadCSVAluno");
 
-    if (!tabelaAlunos || !btnCadastrarAluno || !btnSalvarEdicaoAluno) {
+    if (!tabelaAlunos || !btnCadastrarAluno || !btnSalvarEdicaoAluno || !formUploadCSVAluno) {
         console.error("❌ Elementos da página de alunos não encontrados!");
         return;
     }
@@ -31,6 +32,9 @@ async function initAlunos() {
         console.log("✅ Botão de salvar edição clicado!");
         salvarEdicao();
     });
+
+    // Evento de upload de CSV
+    formUploadCSVAluno.addEventListener("submit", handleCSVUpload);
 
     // Funções internas
 
@@ -170,6 +174,34 @@ async function initAlunos() {
             }
         } catch (error) {
             console.error("❌ Erro ao atualizar aluno:", error);
+        }
+    }
+
+    // Função para lidar com o upload de CSV
+    async function handleCSVUpload(event) {
+        event.preventDefault();
+        const fileInput = document.getElementById("fileInputAluno");
+        const file = fileInput.files[0];
+
+        if (file && file.name.endsWith(".csv")) {
+            const formData = new FormData();
+            formData.append("csvFile", file);
+
+            fetch("http://localhost:3000/upload-csv/alunos", {
+                method: "POST",
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    carregarAlunos();  // Recarrega a lista de alunos
+                })
+                .catch(error => {
+                    alert("Erro ao enviar o arquivo.");
+                    console.error("Erro:", error);
+                });
+        } else {
+            alert("Por favor, selecione um arquivo CSV.");
         }
     }
 

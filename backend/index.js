@@ -17,6 +17,9 @@ app.get("/", (req, res) => {
     res.send("Servidor do Sistema de Ocorrências está rodando! 🚀");
 });
 
+const uploadCSVAlunos = require("./routes/uploadCSVAlunos");  // Arquivo com a rota de upload CSV para alunos
+app.use("/upload-csv/alunos", uploadCSVAlunos); 
+
 const authRoutes = require("./routes/auth"); // 🔹 Importa as rotas de login
 app.use("/auth", authRoutes); // 🔹 Registra a rota corretamente
 
@@ -27,6 +30,8 @@ const ocorrenciaRoutes = require("./routes/ocorrencias");
 app.use("/servidores", servidorRoutes);
 app.use("/alunos", alunoRoutes);
 app.use("/ocorrencias", ocorrenciaRoutes);
+
+app.use('/upload-csv', alunoRoutes);
 
 const relatorioRoutes = require("./routes/relatorios");
 app.use("/relatorios", relatorioRoutes);

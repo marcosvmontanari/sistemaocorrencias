@@ -1,5 +1,6 @@
 <h2>Cadastro de Alunos</h2>
 
+<!-- Formulário de Cadastro -->
 <form id="formAluno">
     <div class="mb-3">
         <label for="nome" class="form-label">Nome</label>
@@ -36,6 +37,16 @@
     </div>
 
     <button id="btnCadastrarAluno" type="button" class="btn btn-success">Cadastrar</button>
+</form>
+
+<!-- Cadastro em Lote (Alunos) -->
+<h3>Cadastro em Lote (Alunos)</h3>
+<form id="formUploadCSVAluno" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="fileInputAluno" class="form-label">Selecione o arquivo CSV para alunos</label>
+        <input type="file" class="form-control" id="fileInputAluno" accept=".csv" required>
+    </div>
+    <button type="submit" class="btn btn-success">Enviar CSV</button>
 </form>
 
 <h3 class="mt-4">Lista de Alunos</h3>
@@ -93,7 +104,6 @@
                 </select>
             </div>
             <div class="modal-footer">
-                <!-- ✅ Adicionado id para vincular evento no JS -->
                 <button id="btnSalvarEdicaoAluno" class="btn btn-primary">Salvar</button>
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>
