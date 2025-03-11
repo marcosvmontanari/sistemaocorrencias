@@ -54,7 +54,7 @@ async function initServidores() {
                         <td>
                             <button class="btn btn-warning btn-sm" data-id="${servidor.id}">Editar</button>
                             <button class="btn btn-danger btn-sm" data-id="${servidor.id}">Excluir</button>
-                            <button class="btn btn-info btn-sm" data-id="${servidor.id}" onclick="resetarSenha(${servidor.id}, '${servidor.siape}')">Resetar Senha</button> <!-- Novo botão -->
+                            <button class="btn btn-info btn-sm" data-id="${servidor.id}" id="btnResetarSenha">Resetar Senha</button> <!-- Novo botão -->
                         </td>
                     </tr>
                 `;
@@ -70,6 +70,11 @@ async function initServidores() {
 
             tabelaServidores.querySelectorAll(".btn-danger").forEach(button => {
                 button.addEventListener("click", () => excluirServidor(button.dataset.id));
+            });
+
+            // Evento para o botão de resetar senha
+            tabelaServidores.querySelectorAll("#btnResetarSenha").forEach(button => {
+                button.addEventListener("click", () => resetarSenha(button.dataset.id, servidores));
             });
 
             console.log("✅ Lista de servidores carregada com sucesso!");
@@ -176,16 +181,27 @@ async function initServidores() {
     }
 
     // ✅ Função para resetar a senha do servidor
-    async function resetarSenha(id, siape) {
+    async function resetarSenha(id, servidores) {
         if (confirm("Tem certeza que deseja resetar a senha desse servidor?")) {
             try {
-                const resposta = await fetch(`http://localhost:3000/servidores/${id}/resetarSenha`, {
+                // Pega o servidor diretamente da lista carregada
+                const servidor = servidores.find(s => s.id === parseInt(id));
+
+                if (!servidor) {
+                    alert("❌ Servidor não encontrado!");
+                    return;
+                }
+
+                const siape = servidor.siape;
+
+                // Realiza o reset da senha
+                const resetResponse = await fetch(`http://localhost:3000/servidores/${id}/resetarSenha`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ senha: siape, alterou_senha: 0 })
                 });
 
-                if (resposta.ok) {
+                if (resetResponse.ok) {
                     alert("✅ Senha resetada com sucesso! O servidor será forçado a mudar a senha no próximo login.");
                     carregarServidores();
                 } else {
@@ -202,7 +218,3 @@ async function initServidores() {
 requestAnimationFrame(() => {
     initServidores();
 });
-
-export function init() {
-    carregarServidores();
-}
