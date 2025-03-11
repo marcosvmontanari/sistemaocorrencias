@@ -37,52 +37,44 @@ async function initAlunos() {
     // Evento de upload de CSV
     formUploadCSVAluno.addEventListener("submit", handleCSVUpload);
 
-    // Funções internas
+    // Variáveis de controle de paginação
     let currentPage = 1;  // Página inicial
-    let totalPages = 1;  // Total de páginas, por enquanto 1, será atualizado quando os alunos forem carregados
+    let totalPages = 1;   // Total de páginas, será atualizado ao carregar alunos
 
-    async function carregarAlunos() {
+    async function carregarAlunos(page = 1, limit = 10) {
         try {
             console.log("📌 Carregando lista de alunos...");
-            const resposta = await fetch(`http://localhost:3000/alunos?page=${currentPage}&limit=10`);
+
+            // Passa os parâmetros de paginação para o backend
+            const resposta = await fetch(`http://localhost:3000/alunos?page=${page}&limit=${limit}`);
 
             if (!resposta.ok) throw new Error("Erro ao buscar alunos!");
 
             const data = await resposta.json();
-            const alunos = data.alunos;
-            totalPages = data.totalPages;  // Atualiza o total de páginas
 
+            // Limpa a tabela de alunos antes de preencher com os dados
             tabelaAlunos.innerHTML = "";
-            alunos.forEach(aluno => {
+
+            // Preenche a tabela com os dados dos alunos
+            data.alunos.forEach(aluno => {
                 tabelaAlunos.innerHTML += `
-                    <tr>
-                        <td>${aluno.id}</td>
-                        <td>${aluno.nome}</td>
-                        <td>${aluno.turma}</td>
-                        <td>${aluno.curso}</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" data-id="${aluno.id}">Editar</button>
-                            <button class="btn btn-danger btn-sm" data-id="${aluno.id}">Excluir</button>
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${aluno.id}</td>
+                    <td>${aluno.nome}</td>
+                    <td>${aluno.turma}</td>
+                    <td>${aluno.curso}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" data-id="${aluno.id}">Editar</button>
+                        <button class="btn btn-danger btn-sm" data-id="${aluno.id}">Excluir</button>
+                    </td>
+                </tr>
+            `;
             });
 
-            // Eventos para botões de editar/excluir
-            tabelaAlunos.querySelectorAll('.btn-warning').forEach(button => {
-                button.addEventListener('click', () => {
-                    const aluno = alunos.find(a => a.id === parseInt(button.dataset.id));
-                    abrirModalEdicao(aluno);
-                });
-            });
+            // Atualiza totalPages após carregar a lista
+            totalPages = Math.ceil(data.total / limit);
 
-            tabelaAlunos.querySelectorAll('.btn-danger').forEach(button => {
-                button.addEventListener('click', () => {
-                    excluirAluno(button.dataset.id);
-                });
-            });
-
-            // Controle de paginação
+            // Atualiza os controles de navegação
             updatePaginationControls();
 
             console.log("✅ Lista de alunos carregada com sucesso!");
@@ -91,31 +83,35 @@ async function initAlunos() {
         }
     }
 
+    // Função para atualizar os controles de navegação de página
     function updatePaginationControls() {
         paginationControls.innerHTML = "";
 
+        // Se houver páginas anteriores
         if (currentPage > 1) {
             paginationControls.innerHTML += `<button class="btn btn-secondary" id="prevPageBtn">Anterior</button>`;
         }
 
+        // Exibe a página atual
         paginationControls.innerHTML += `<span> Página ${currentPage} de ${totalPages} </span>`;
 
+        // Se houver páginas seguintes
         if (currentPage < totalPages) {
             paginationControls.innerHTML += `<button class="btn btn-secondary" id="nextPageBtn">Próxima</button>`;
         }
 
-        // Eventos de navegação de página
+        // Eventos para navegação de página
         document.getElementById("prevPageBtn")?.addEventListener("click", () => {
             if (currentPage > 1) {
                 currentPage--;
-                carregarAlunos();
+                carregarAlunos(currentPage);
             }
         });
 
         document.getElementById("nextPageBtn")?.addEventListener("click", () => {
             if (currentPage < totalPages) {
                 currentPage++;
-                carregarAlunos();
+                carregarAlunos(currentPage);
             }
         });
     }
@@ -142,7 +138,7 @@ async function initAlunos() {
             if (resposta.ok) {
                 alert("✅ Aluno cadastrado com sucesso!");
                 document.getElementById("formAluno").reset();
-                carregarAlunos();
+                carregarAlunos(currentPage);  // Recarrega a lista de alunos na página atual
             } else {
                 const erro = await resposta.json();
                 alert("❌ Erro ao cadastrar aluno: " + (erro.erro || "Erro desconhecido"));
@@ -163,7 +159,7 @@ async function initAlunos() {
 
             if (resposta.ok) {
                 alert("✅ Aluno excluído com sucesso!");
-                carregarAlunos();
+                carregarAlunos(currentPage);  // Recarrega a lista de alunos na página atual
             } else {
                 alert("❌ Erro ao excluir aluno!");
             }
@@ -204,7 +200,7 @@ async function initAlunos() {
 
             if (resposta.ok) {
                 alert("✅ Aluno atualizado com sucesso!");
-                carregarAlunos();
+                carregarAlunos(currentPage);  // Recarrega a lista de alunos na página atual
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarAluno")).hide();
             } else {
                 alert("❌ Erro ao atualizar aluno!");
@@ -231,7 +227,7 @@ async function initAlunos() {
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
-                    carregarAlunos();  // Recarrega a lista de alunos
+                    carregarAlunos(currentPage);  // Recarrega a lista de alunos na página atual
                 })
                 .catch(error => {
                     alert("Erro ao enviar o arquivo.");
