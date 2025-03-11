@@ -12,8 +12,9 @@ async function initServidores() {
     const tabelaServidores = document.getElementById("tabelaServidores");
     const btnCadastrarServidor = document.getElementById("btnCadastrarServidor");
     const btnSalvarEdicao = document.getElementById("btnSalvarEdicaoServidor");
+    const formUploadCSVServidor = document.getElementById("formUploadCSVServidor");
 
-    if (!tabelaServidores || !btnCadastrarServidor || !btnSalvarEdicao) {
+    if (!tabelaServidores || !btnCadastrarServidor || !btnSalvarEdicao || !formUploadCSVServidor) {
         console.error("❌ Elementos da página de servidores não encontrados!");
         return;
     }
@@ -27,6 +28,9 @@ async function initServidores() {
     // Eventos de clique
     btnCadastrarServidor.addEventListener("click", cadastrarServidor);
     btnSalvarEdicao.addEventListener("click", salvarEdicao);
+
+    // Evento de upload de CSV
+    formUploadCSVServidor.addEventListener("submit", handleCSVUpload);
 
     // Inicializa a tabela
     carregarServidores();
@@ -210,6 +214,34 @@ async function initServidores() {
             } catch (error) {
                 console.error("❌ Erro ao resetar senha:", error);
             }
+        }
+    }
+
+    // ✅ Função para lidar com o upload de CSV
+    async function handleCSVUpload(event) {
+        event.preventDefault();
+        const fileInput = document.getElementById("fileInputServidor");
+        const file = fileInput.files[0];
+
+        if (file && file.name.endsWith(".csv")) {
+            const formData = new FormData();
+            formData.append("csvFile", file);
+
+            fetch("http://localhost:3000/servidores/upload-csv", {  // Certifique-se de que a URL está correta
+                method: "POST",
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    carregarServidores();  // Recarrega a lista de servidores
+                })
+                .catch(error => {
+                    alert("Erro ao enviar o arquivo.");
+                    console.error("Erro:", error);
+                });
+        } else {
+            alert("Por favor, selecione um arquivo CSV.");
         }
     }
 }

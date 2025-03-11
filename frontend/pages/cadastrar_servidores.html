@@ -28,9 +28,18 @@
     <button id="btnCadastrarServidor" type="button" class="btn btn-success">Cadastrar</button>
 </form>
 
+<!-- Cadastro em Lote (Servidores) -->
+<h3>Cadastro em Lote (Servidores)</h3>
+<form id="formUploadCSVServidor" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="fileInputServidor" class="form-label">Selecione o arquivo CSV para servidores</label>
+        <input type="file" class="form-control" id="fileInputServidor" accept=".csv" required>
+    </div>
+    <button type="submit" class="btn btn-success">Enviar CSV</button>
+</form>
+
 <!-- Tabela de Servidores -->
 <h3 class="mt-4">Servidores Cadastrados</h3>
-
 <table class="table table-striped mt-3">
     <thead>
         <tr>
@@ -85,7 +94,6 @@
             </div>
 
             <div class="modal-footer">
-                <!-- ✅ O botão não tem mais o onclick inline -->
                 <button class="btn btn-primary" id="btnSalvarEdicaoServidor">Salvar</button>
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>

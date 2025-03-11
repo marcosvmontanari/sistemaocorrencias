@@ -2,10 +2,54 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
+const multer = require("multer");
+const csv = require("csv-parser");
+const fs = require("fs");
+
+// Configuração de multer para upload de arquivos CSV
+const upload = multer({ dest: "uploads/" });
 
 // 🔹 Importa o modelo completo e também funções específicas
 const ServidorModel = require("../models/ServidorModel");
 const { criarServidor, buscarServidorPorEmail } = require("../models/ServidorModel");
+
+/**
+ * 🔸 Rota para upload de CSV para servidores
+ * Recebe o arquivo CSV, processa os dados e os insere no banco
+ */
+router.post("/upload-csv", upload.single("csvFile"), (req, res) => {
+    // Processamento do CSV
+    const results = [];
+    fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on("data", (row) => {
+            results.push(row);
+        })
+        .on("end", () => {
+            insertDataBatch(results)  // Função que insere dados no banco
+                .then(() => res.json({ message: "Cadastro em lote realizado com sucesso!" }))
+                .catch((error) => res.status(500).json({ error: "Erro ao processar o CSV", details: error }));
+        });
+});
+
+/**
+ * 🔸 Função para inserir os dados no banco de dados em lote
+ * Processa as linhas do CSV e insere no banco
+ */
+async function insertDataBatch(data) {
+    for (const row of data) {
+        try {
+            const senha = row.senha || row.siape;  // Se não houver senha no CSV, utiliza o SIAPE como senha
+            await db.query(
+                "INSERT INTO servidores (nome, email, siape, tipo, senha) VALUES (?, ?, ?, ?, ?)",
+                [row.nome, row.email, row.siape, row.tipo, senha]
+            );
+        } catch (error) {
+            console.error("Erro ao inserir servidor:", error);
+            throw error;
+        }
+    }
+}
 
 /**
  * 🔸 Rota para criar um novo servidor
@@ -20,7 +64,7 @@ router.post("/cadastrar", async (req, res) => {
     }
 
     try {
-        await criarServidor(nome, email, siape, tipo || 'SERVIDOR');
+        await criarServidor(nome, email, siape, tipo || "SERVIDOR");
         res.status(201).json({ mensagem: "Servidor cadastrado com sucesso!" });
     } catch (error) {
         console.error("❌ Erro ao cadastrar servidor:", error);
@@ -151,10 +195,6 @@ router.put("/:id/resetarSenha", async (req, res) => {
     }
 });
 
-/**
- * 🔸 Rota para alterar a senha do servidor
- * Exige: id como parâmetro, senha no body
- */
 router.put("/:id/alterarSenha", async (req, res) => {
     const { id } = req.params;
     const { senha } = req.body;
@@ -179,16 +219,6 @@ router.put("/:id/alterarSenha", async (req, res) => {
         console.error("❌ Erro ao alterar senha:", error);
         res.status(500).json({ erro: "Erro interno ao alterar senha." });
     }
-});
-
-/**
- * 🔸 Rota protegida de teste para validar autenticação
- */
-router.get("/dados", authMiddleware, async (req, res) => {
-    res.json({
-        mensagem: "Você está autenticado!",
-        usuario: req.usuario
-    });
 });
 
 module.exports = router;

@@ -9,6 +9,7 @@ const app = express();
 
 // Middleware para permitir requisições JSON e CORS
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Rota inicial de teste

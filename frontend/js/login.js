@@ -53,28 +53,19 @@ async function alterarSenha() {
     const novaSenha = document.getElementById("novaSenha").value;
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-    if (!novaSenha) {
-        alert("❌ A nova senha não pode estar vazia!");
-        return;
-    }
+    // Verifique se o ID está sendo passado corretamente
+    const resposta = await fetch(`http://localhost:3000/servidores/${usuario.id}/alterarSenha`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ senha: novaSenha })
+    });
 
-    try {
-        const resposta = await fetch(`http://localhost:3000/servidores/${usuario.id}/alterarSenha`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ senha: novaSenha })
-        });
-
-        const dados = await resposta.json();
-
-        if (resposta.ok) {
-            alert("✅ Senha alterada com sucesso!");
-            localStorage.setItem("usuario", JSON.stringify({ ...usuario, alterou_senha: 1 }));
-            window.location.reload(); // Recarrega a página para atualizar o estado do usuário
-        } else {
-            alert("❌ Erro ao alterar senha: " + (dados.erro || "Erro desconhecido"));
-        }
-    } catch (error) {
-        console.error("❌ Erro ao conectar ao servidor:", error);
+    if (resposta.ok) {
+        alert("Senha alterada com sucesso!");
+        usuario.alterou_senha = 1;
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        window.location.reload();
+    } else {
+        alert("Erro ao alterar senha!");
     }
 }
