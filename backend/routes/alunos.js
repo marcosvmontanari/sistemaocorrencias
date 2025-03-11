@@ -23,14 +23,32 @@ router.post("/cadastrar", async (req, res) => {
     }
 });
 
-// ✅ Rota para listar alunos
+// Rota para listar alunos com paginação
 router.get("/", async (req, res) => {
+    const page = parseInt(req.query.page) || 1; // Página atual
+    const limit = parseInt(req.query.limit) || 10; // Número de registros por página
+    const offset = (page - 1) * limit; // Cálculo do offset para SQL
+
     try {
-        const alunos = await listarAlunos();
-        res.json(alunos);
-    } catch (erro) {
-        console.error("Erro ao buscar alunos:", erro);
-        res.status(500).json({ erro: "Erro ao buscar alunos" });
+        // Consulta paginada no banco de dados
+        const [rows] = await db.execute(
+            "SELECT id, nome, turma, curso FROM alunos LIMIT ? OFFSET ?",
+            [limit, offset]
+        );
+
+        // Contagem total de alunos para cálculo de páginas
+        const [countRows] = await db.execute("SELECT COUNT(*) AS total FROM alunos");
+        const total = countRows[0].total;
+        const totalPages = Math.ceil(total / limit); // Calcula o total de páginas
+
+        res.json({
+            alunos: rows,
+            totalPages: totalPages,
+            currentPage: page
+        });
+    } catch (error) {
+        console.error("❌ Erro ao listar alunos:", error);
+        res.status(500).json({ erro: "Erro interno ao listar alunos." });
     }
 });
 

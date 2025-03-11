@@ -12,8 +12,9 @@ async function initAlunos() {
     const btnCadastrarAluno = document.getElementById("btnCadastrarAluno");
     const btnSalvarEdicaoAluno = document.getElementById("btnSalvarEdicaoAluno");
     const formUploadCSVAluno = document.getElementById("formUploadCSVAluno");
+    const paginationControls = document.getElementById("paginationControls");
 
-    if (!tabelaAlunos || !btnCadastrarAluno || !btnSalvarEdicaoAluno || !formUploadCSVAluno) {
+    if (!tabelaAlunos || !btnCadastrarAluno || !btnSalvarEdicaoAluno || !formUploadCSVAluno || !paginationControls) {
         console.error("❌ Elementos da página de alunos não encontrados!");
         return;
     }
@@ -37,15 +38,19 @@ async function initAlunos() {
     formUploadCSVAluno.addEventListener("submit", handleCSVUpload);
 
     // Funções internas
+    let currentPage = 1;  // Página inicial
+    let totalPages = 1;  // Total de páginas, por enquanto 1, será atualizado quando os alunos forem carregados
 
     async function carregarAlunos() {
         try {
             console.log("📌 Carregando lista de alunos...");
-            const resposta = await fetch("http://localhost:3000/alunos");
+            const resposta = await fetch(`http://localhost:3000/alunos?page=${currentPage}&limit=10`);
 
             if (!resposta.ok) throw new Error("Erro ao buscar alunos!");
 
-            const alunos = await resposta.json();
+            const data = await resposta.json();
+            const alunos = data.alunos;
+            totalPages = data.totalPages;  // Atualiza o total de páginas
 
             tabelaAlunos.innerHTML = "";
             alunos.forEach(aluno => {
@@ -77,10 +82,42 @@ async function initAlunos() {
                 });
             });
 
+            // Controle de paginação
+            updatePaginationControls();
+
             console.log("✅ Lista de alunos carregada com sucesso!");
         } catch (error) {
             console.error("❌ Erro ao carregar alunos:", error);
         }
+    }
+
+    function updatePaginationControls() {
+        paginationControls.innerHTML = "";
+
+        if (currentPage > 1) {
+            paginationControls.innerHTML += `<button class="btn btn-secondary" id="prevPageBtn">Anterior</button>`;
+        }
+
+        paginationControls.innerHTML += `<span> Página ${currentPage} de ${totalPages} </span>`;
+
+        if (currentPage < totalPages) {
+            paginationControls.innerHTML += `<button class="btn btn-secondary" id="nextPageBtn">Próxima</button>`;
+        }
+
+        // Eventos de navegação de página
+        document.getElementById("prevPageBtn")?.addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                carregarAlunos();
+            }
+        });
+
+        document.getElementById("nextPageBtn")?.addEventListener("click", () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                carregarAlunos();
+            }
+        });
     }
 
     async function cadastrarAluno() {

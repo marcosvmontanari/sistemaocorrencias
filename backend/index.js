@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
 });
 
 const uploadCSVAlunos = require("./routes/uploadCSVAlunos");  // Arquivo com a rota de upload CSV para alunos
-app.use("/upload-csv/alunos", uploadCSVAlunos); 
+app.use("/upload-csv/alunos", uploadCSVAlunos);  // Defina corretamente a rota para upload de CSV
 
 const authRoutes = require("./routes/auth"); // 🔹 Importa as rotas de login
 app.use("/auth", authRoutes); // 🔹 Registra a rota corretamente
