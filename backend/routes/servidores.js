@@ -40,17 +40,23 @@ async function insertDataBatch(data) {
     for (const row of data) {
         try {
             const senha = row.senha || row.siape;  // Se não houver senha no CSV, utiliza o SIAPE como senha
-            await db.query(
-                "INSERT INTO servidores (nome, email, siape, tipo, senha) VALUES (?, ?, ?, ?, ?)",
-                [row.nome, row.email, row.siape, row.tipo, senha]
-            );
+            // Verifica se o servidor já existe
+            const [servidorExistente] = await db.execute("SELECT * FROM servidores WHERE siape = ?", [row.siape]);
+            if (servidorExistente.length === 0) {
+                // Insere os dados do servidor no banco
+                await db.query(
+                    "INSERT INTO servidores (nome, email, siape, tipo, senha) VALUES (?, ?, ?, ?, ?)",
+                    [row.nome, row.email, row.siape, row.tipo, senha]
+                );
+            } else {
+                console.log(`Servidor com SIAPE ${row.siape} já cadastrado.`);
+            }
         } catch (error) {
             console.error("Erro ao inserir servidor:", error);
             throw error;
         }
     }
 }
-
 /**
  * 🔸 Rota para criar um novo servidor
  * Exige: nome, email, siape, tipo (ADMIN/SERVIDOR)
@@ -155,18 +161,31 @@ router.post("/login", async (req, res) => {
     }
 });
 
-/**
- * 🔸 Rota para listar todos os servidores
- */
+// Rota para listar os servidores com paginação
 router.get("/", async (req, res) => {
+    const page = parseInt(req.query.page) || 1; // Página atual
+    const limit = parseInt(req.query.limit) || 10; // Número de servidores por página
+    const offset = (page - 1) * limit;
+
     try {
-        const [rows] = await db.execute("SELECT id, nome, email, siape, tipo FROM servidores");
-        res.json(rows);
+        // Ajuste da consulta para incluir limite e offset
+        const [rows] = await db.execute(
+            "SELECT id, nome, email, siape, tipo FROM servidores LIMIT " + db.escape(limit) + " OFFSET " + db.escape(offset)
+        );
+
+        // Para retornar o total de servidores, precisamos de outra consulta
+        const [total] = await db.execute("SELECT COUNT(*) as total FROM servidores");
+
+        res.json({
+            total: total[0].total, // Total de servidores
+            servidores: rows, // Servidores da página atual
+        });
     } catch (error) {
         console.error("❌ Erro ao listar servidores:", error);
         res.status(500).json({ erro: "Erro interno no servidor." });
     }
 });
+
 
 /**
  * 🔸 Rota para resetar a senha do servidor para o SIAPE

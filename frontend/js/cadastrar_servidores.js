@@ -37,20 +37,26 @@ async function initServidores() {
 
     // 🔸 Funções internas
 
-    async function carregarServidores() {
+    let currentPage = 1;  // Página inicial
+    let totalPages = 1;   // Total de páginas, será atualizado ao carregar servidores
+
+    // Função para carregar a lista de servidores com paginação
+    async function carregarServidores(page = 1, limit = 10) {
         try {
             console.log("📦 Carregando servidores...");
-            const resposta = await fetch("http://localhost:3000/servidores");
+            const resposta = await fetch(`http://localhost:3000/servidores?page=${page}&limit=${limit}`);
 
             if (!resposta.ok) throw new Error("Erro ao buscar servidores!");
 
-            const servidores = await resposta.json();
+            const data = await resposta.json();
 
+            // Limpa a tabela de servidores antes de preencher com os dados
             tabelaServidores.innerHTML = "";
-            servidores.forEach(servidor => {
+
+            // Preenche a tabela com os dados dos servidores
+            data.servidores.forEach(servidor => {
                 tabelaServidores.innerHTML += `
                     <tr>
-                        <td>${servidor.id}</td>
                         <td>${servidor.nome}</td>
                         <td>${servidor.email}</td>
                         <td>${servidor.siape}</td>
@@ -58,28 +64,17 @@ async function initServidores() {
                         <td>
                             <button class="btn btn-warning btn-sm" data-id="${servidor.id}">Editar</button>
                             <button class="btn btn-danger btn-sm" data-id="${servidor.id}">Excluir</button>
-                            <button class="btn btn-info btn-sm" data-id="${servidor.id}" id="btnResetarSenha">Resetar Senha</button> <!-- Novo botão -->
+                            <button class="btn btn-info btn-sm" data-id="${servidor.id}" id="btnResetarSenha">Resetar Senha</button>
                         </td>
                     </tr>
                 `;
             });
 
-            // Eventos para os botões editar e excluir
-            tabelaServidores.querySelectorAll(".btn-warning").forEach(button => {
-                button.addEventListener("click", () => {
-                    const servidor = servidores.find(s => s.id === parseInt(button.dataset.id));
-                    abrirModalEdicao(servidor);
-                });
-            });
+            // Atualiza totalPages após carregar a lista
+            totalPages = Math.ceil(data.total / limit);
 
-            tabelaServidores.querySelectorAll(".btn-danger").forEach(button => {
-                button.addEventListener("click", () => excluirServidor(button.dataset.id));
-            });
-
-            // Evento para o botão de resetar senha
-            tabelaServidores.querySelectorAll("#btnResetarSenha").forEach(button => {
-                button.addEventListener("click", () => resetarSenha(button.dataset.id, servidores));
-            });
+            // Atualiza os controles de navegação
+            updatePaginationControls();
 
             console.log("✅ Lista de servidores carregada com sucesso!");
         } catch (error) {
@@ -87,6 +82,42 @@ async function initServidores() {
         }
     }
 
+    // Função para atualizar os controles de navegação de página
+    function updatePaginationControls() {
+        const paginationControls = document.getElementById("pagination");
+
+        paginationControls.innerHTML = "";
+
+        // Se houver páginas anteriores
+        if (currentPage > 1) {
+            paginationControls.innerHTML += `<button class="btn btn-secondary" id="prevPageBtn">Anterior</button>`;
+        }
+
+        // Exibe a página atual
+        paginationControls.innerHTML += `<span> Página ${currentPage} de ${totalPages} </span>`;
+
+        // Se houver páginas seguintes
+        if (currentPage < totalPages) {
+            paginationControls.innerHTML += `<button class="btn btn-secondary" id="nextPageBtn">Próxima</button>`;
+        }
+
+        // Eventos para navegação de página
+        document.getElementById("prevPageBtn")?.addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                carregarServidores(currentPage);
+            }
+        });
+
+        document.getElementById("nextPageBtn")?.addEventListener("click", () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                carregarServidores(currentPage);
+            }
+        });
+    }
+
+    // Função para cadastrar um servidor
     async function cadastrarServidor() {
         const nome = document.getElementById("nome")?.value.trim();
         const email = document.getElementById("email")?.value.trim();
@@ -110,7 +141,7 @@ async function initServidores() {
             if (resposta.ok) {
                 alert("✅ Servidor cadastrado com sucesso!");
                 document.getElementById("formServidor").reset();
-                carregarServidores();
+                carregarServidores(currentPage);
             } else {
                 const erro = await resposta.json();
                 alert("❌ Erro ao cadastrar servidor: " + (erro.erro || "Erro desconhecido"));
@@ -121,6 +152,7 @@ async function initServidores() {
         }
     }
 
+    // Função para excluir um servidor
     async function excluirServidor(id) {
         if (!confirm("Tem certeza que deseja excluir este servidor?")) return;
 
@@ -131,7 +163,7 @@ async function initServidores() {
 
             if (resposta.ok) {
                 alert("✅ Servidor excluído com sucesso!");
-                carregarServidores();
+                carregarServidores(currentPage);
             } else {
                 alert("❌ Erro ao excluir servidor!");
             }
@@ -140,6 +172,7 @@ async function initServidores() {
         }
     }
 
+    // Função para editar um servidor
     function abrirModalEdicao(servidor) {
         if (!servidor) return;
 
@@ -153,6 +186,7 @@ async function initServidores() {
         modal.show();
     }
 
+    // Função para salvar edição de servidor
     async function salvarEdicao() {
         const id = document.getElementById("editId")?.value;
         const nome = document.getElementById("editNome")?.value.trim();
@@ -174,7 +208,7 @@ async function initServidores() {
 
             if (resposta.ok) {
                 alert("✅ Servidor atualizado com sucesso!");
-                carregarServidores();
+                carregarServidores(currentPage);
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarServidor")).hide();
             } else {
                 alert("❌ Erro ao atualizar servidor!");
@@ -184,7 +218,7 @@ async function initServidores() {
         }
     }
 
-    // ✅ Função para resetar a senha do servidor
+    // Função para resetar a senha do servidor
     async function resetarSenha(id, servidores) {
         if (confirm("Tem certeza que deseja resetar a senha desse servidor?")) {
             try {
@@ -207,7 +241,7 @@ async function initServidores() {
 
                 if (resetResponse.ok) {
                     alert("✅ Senha resetada com sucesso! O servidor será forçado a mudar a senha no próximo login.");
-                    carregarServidores();
+                    carregarServidores(currentPage);
                 } else {
                     alert("❌ Erro ao resetar a senha!");
                 }
@@ -217,7 +251,7 @@ async function initServidores() {
         }
     }
 
-    // ✅ Função para lidar com o upload de CSV
+    // Função para lidar com o upload de CSV
     async function handleCSVUpload(event) {
         event.preventDefault();
         const fileInput = document.getElementById("fileInputServidor");
@@ -234,7 +268,7 @@ async function initServidores() {
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
-                    carregarServidores();  // Recarrega a lista de servidores
+                    carregarServidores(currentPage);  // Recarrega a lista de servidores
                 })
                 .catch(error => {
                     alert("Erro ao enviar o arquivo.");

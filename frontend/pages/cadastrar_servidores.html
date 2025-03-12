@@ -30,20 +30,15 @@
 
 <!-- Cadastro em Lote (Servidores) -->
 <h3>Cadastro em Lote (Servidores)</h3>
-<form id="formUploadCSVServidor" enctype="multipart/form-data">
-    <div class="mb-3">
-        <label for="fileInputServidor" class="form-label">Selecione o arquivo CSV para servidores</label>
-        <input type="file" class="form-control" id="fileInputServidor" accept=".csv" required>
-    </div>
-    <button type="submit" class="btn btn-success">Enviar CSV</button>
-</form>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCadastroLote">
+    Cadastrar Servidores em Lote
+</button>
 
 <!-- Tabela de Servidores -->
 <h3 class="mt-4">Servidores Cadastrados</h3>
 <table class="table table-striped mt-3">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Nome</th>
             <th>E-mail</th>
             <th>SIAPE</th>
@@ -51,11 +46,36 @@
             <th>Ações</th>
         </tr>
     </thead>
-
     <tbody id="tabelaServidores">
         <!-- Os servidores serão carregados aqui -->
     </tbody>
 </table>
+
+<!-- Paginação -->
+<div id="pagination" class="mt-4"></div>
+
+<!-- Modal de Cadastro em Lote -->
+<div class="modal fade" id="modalCadastroLote" tabindex="-1" aria-labelledby="modalCadastroLoteLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCadastroLoteLabel">Cadastro de Servidores em Lote</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formUploadCSVServidor" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="fileInputServidor" class="form-label">Selecione o arquivo CSV para
+                            servidores</label>
+                        <input type="file" class="form-control" id="fileInputServidor" accept=".csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Enviar CSV</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal de Edição de Servidor -->
 <div class="modal fade" id="modalEditarServidor" tabindex="-1">
