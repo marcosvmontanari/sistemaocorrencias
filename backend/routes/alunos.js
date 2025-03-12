@@ -26,28 +26,41 @@ router.post("/cadastrar", async (req, res) => {
 // Rota para listar os alunos com paginação
 router.get("/", async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; // Página atual
-        const limit = parseInt(req.query.limit) || 10; // Número de alunos por página
+        let page = parseInt(req.query.page, 10) || 1; // Página atual
+        let limit = parseInt(req.query.limit, 10) || 10; // Número de alunos por página
+
+        // Verifica se os parâmetros são válidos
+        console.log("📌 Parâmetros de paginação:", { page, limit });
+
+        // Verificação para garantir que os valores de page e limit são válidos
+        if (isNaN(page) || isNaN(limit)) {
+            return res.status(400).json({ erro: "Parâmetros inválidos!" });
+        }
+
         const offset = (page - 1) * limit;
 
-        // Ajuste da consulta para incluir limite e offset
-        const [rows] = await db.execute(
-            "SELECT id, nome, turma, curso FROM alunos LIMIT ? OFFSET ?",
-            [limit, offset]
-        );
+        // Debugar valores de offset
+        console.log("📌 Calculando offset:", offset);
 
-        // Para retornar o total de alunos, precisamos de outra consulta
+        // Ajuste da consulta para incluir LIMIT e OFFSET diretamente na string SQL
+        const query = `SELECT id, nome, turma, curso FROM alunos LIMIT ${limit} OFFSET ${offset}`;
+        const [rows] = await db.execute(query);
+
+        // Debugar valores das linhas
+        console.log("📌 Alunos encontrados:", rows);
+
         const [total] = await db.execute("SELECT COUNT(*) as total FROM alunos");
 
         res.json({
-            total: total[0].total, // Total de alunos
-            alunos: rows, // Alunos da página atual
+            total: total[0].total,
+            alunos: rows,
         });
     } catch (error) {
         console.error("❌ Erro ao listar alunos:", error);
-        res.status(500).json({ erro: "Erro interno no servidor." });
+        res.status(500).json({ erro: "Erro interno ao listar alunos." });
     }
 });
+
 
 // ✅ Rota para atualizar um aluno
 router.put("/:id", async (req, res) => {

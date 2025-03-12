@@ -12,7 +12,7 @@ async function initAlunos() {
     const btnCadastrarAluno = document.getElementById("btnCadastrarAluno");
     const btnSalvarEdicaoAluno = document.getElementById("btnSalvarEdicaoAluno");
     const formUploadCSVAluno = document.getElementById("formUploadCSVAluno");
-    const paginationControls = document.getElementById("paginationControls");
+    const paginationControls = document.getElementById("pagination");
 
     if (!tabelaAlunos || !btnCadastrarAluno || !btnSalvarEdicaoAluno || !formUploadCSVAluno || !paginationControls) {
         console.error("❌ Elementos da página de alunos não encontrados!");
