@@ -59,7 +59,6 @@ async function initAlunos() {
             data.alunos.forEach(aluno => {
                 tabelaAlunos.innerHTML += `
                 <tr>
-                    <td>${aluno.id}</td>
                     <td>${aluno.nome}</td>
                     <td>${aluno.turma}</td>
                     <td>${aluno.curso}</td>

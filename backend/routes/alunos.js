@@ -122,19 +122,43 @@ router.post("/upload-csv/alunos", upload.single("csvFile"), (req, res) => {
  * 🔸 Função para inserir os dados no banco de dados em lote
  * Processa as linhas do CSV e insere no banco
  */
+// Função para inserir os dados no banco de dados em lote
+// Função para inserir os dados no banco de dados em lote
+// Função para inserir os dados no banco de dados em lote
 async function insertDataBatch(data) {
+    let alunosCadastrados = 0;  // Para contar quantos alunos foram realmente cadastrados
+
     for (const row of data) {
         try {
-            // Insira cada aluno no banco de dados
-            await db.query(
-                'INSERT INTO alunos (nome, turma, curso) VALUES (?, ?, ?)',
+            // Verifica se o aluno já existe com base no nome, turma e curso
+            const [existingAluno] = await db.execute(
+                "SELECT id FROM alunos WHERE nome = ? AND turma = ? AND curso = ?",
                 [row.nome, row.turma, row.curso]
             );
+
+            // Se já existe um aluno com os mesmos dados, pula a inserção
+            if (existingAluno.length > 0) {
+                console.log(`Aluno já existe: ${row.nome} - ${row.turma} - ${row.curso}`);
+                continue; // Pula este aluno e vai para o próximo
+            }
+
+            // Insere o novo aluno
+            await db.execute(
+                "INSERT INTO alunos (nome, turma, curso) VALUES (?, ?, ?)",
+                [row.nome, row.turma, row.curso]
+            );
+
+            alunosCadastrados++;  // Conta o aluno inserido
+            console.log(`Aluno ${row.nome} cadastrado com sucesso!`);
+
         } catch (error) {
-            console.error('Erro ao inserir aluno:', error);
-            throw error;
+            console.error("Erro ao inserir aluno:", error);
+            continue; // Continua para o próximo aluno mesmo que um erro tenha ocorrido
         }
     }
+
+    // Retorna a quantidade de alunos cadastrados
+    return alunosCadastrados;
 }
 
 

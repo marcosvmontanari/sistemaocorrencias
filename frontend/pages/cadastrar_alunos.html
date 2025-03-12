@@ -39,21 +39,38 @@
     <button id="btnCadastrarAluno" type="button" class="btn btn-success">Cadastrar</button>
 </form>
 
-<!-- Cadastro em Lote (Alunos) -->
-<h3>Cadastro em Lote (Alunos)</h3>
-<form id="formUploadCSVAluno" enctype="multipart/form-data">
-    <div class="mb-3">
-        <label for="fileInputAluno" class="form-label">Selecione o arquivo CSV para alunos</label>
-        <input type="file" class="form-control" id="fileInputAluno" accept=".csv" required>
+<!-- Cadastro em Lote (Alunos) - Modal -->
+<h3 class="mt-4">Cadastro em Lote (Alunos)</h3>
+<button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalCadastroLote">
+    Cadastrar em Lote
+</button>
+
+<!-- Modal para Cadastro em Lote -->
+<div class="modal fade" id="modalCadastroLote" tabindex="-1" aria-labelledby="modalCadastroLoteLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCadastroLoteLabel">Cadastro em Lote (Alunos)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formUploadCSVAluno" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="fileInputAluno" class="form-label">Selecione o arquivo CSV para alunos</label>
+                        <input type="file" class="form-control" id="fileInputAluno" accept=".csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Enviar CSV</button>
+                </form>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-success">Enviar CSV</button>
-</form>
+</div>
 
 <h3 class="mt-4">Lista de Alunos</h3>
 <table class="table table-striped mt-3">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Nome</th>
             <th>Turma</th>
             <th>Curso</th>
