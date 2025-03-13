@@ -1,15 +1,22 @@
 const db = require("../config/db");
 
-// Criar infração (apenas descricao e tipo agora)
+// Função para criar infração
 async function criarInfracao(descricao, tipo) {
-    const query = `INSERT INTO infracoes (descricao, tipo) VALUES (?, ?)`;
-    await db.execute(query, [descricao, tipo]);
+    await db.execute(
+        'INSERT INTO infracoes (descricao, tipo) VALUES (?, ?)',
+        [descricao, tipo]
+    );
 }
 
-// Listar infrações
+// Função para listar infrações (verificar duplicação)
 async function listarInfracoes() {
-    const [rows] = await db.execute("SELECT * FROM infracoes");
-    return rows;
+    try {
+        const [rows] = await db.execute("SELECT * FROM infracoes");
+        return rows; // Retorna todos os registros encontrados
+    } catch (error) {
+        console.error("Erro ao listar infrações:", error);
+        throw error;
+    }
 }
 
 // Buscar infração por ID

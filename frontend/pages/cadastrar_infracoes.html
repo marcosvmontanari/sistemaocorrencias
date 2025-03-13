@@ -1,5 +1,6 @@
 <h2>Cadastro de Infrações</h2>
 
+<!-- Formulário de Cadastro -->
 <form id="formInfracao">
     <div class="mb-3">
         <label for="descricao" class="form-label">Descrição da Infração</label>
@@ -17,12 +18,15 @@
     <button type="submit" class="btn btn-primary">Cadastrar Infração</button>
 </form>
 
+<!-- Botão de Cadastro em Lote (Modal) -->
+<button class="btn btn-secondary mt-3" data-bs-toggle="modal" data-bs-target="#modalCadastroLote">Cadastro em
+    Lote</button>
+
 <h3 class="mt-4">Lista de Infrações Cadastradas</h3>
 
 <table class="table table-striped mt-3">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Descrição</th>
             <th>Tipo</th>
             <th>Ações</th>
@@ -30,7 +34,7 @@
     </thead>
     <tbody id="tabelaInfracoes">
         <tr>
-            <td colspan="4" class="text-center">Nenhuma infração cadastrada ainda.</td>
+            <td colspan="3" class="text-center">Nenhuma infração cadastrada ainda.</td>
         </tr>
     </tbody>
 </table>
@@ -55,9 +59,31 @@
                 </select>
             </div>
             <div class="modal-footer">
-                <!-- Botão de salvar com ID correto -->
                 <button id="btnSalvarEdicaoInfracao" class="btn btn-primary">Salvar</button>
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cadastro em Lote (Infrações) -->
+<div class="modal fade" id="modalCadastroLote" tabindex="-1" aria-labelledby="modalCadastroLoteLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCadastroLoteLabel">Cadastro de Infrações em Lote</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formUploadCSVInfracoes" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="fileInputInfracoes" class="form-label">Selecione o arquivo CSV para
+                            infrações</label>
+                        <input type="file" class="form-control" id="fileInputInfracao" accept=".csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Enviar CSV</button>
+                </form>
             </div>
         </div>
     </div>

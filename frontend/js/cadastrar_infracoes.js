@@ -1,50 +1,48 @@
-export function init() {
+console.log("🔹 cadastrar_infracoes.js (Módulo) carregado corretamente!");
+
+async function init() {
     carregarInfracoes();
 
+    // Formulário de cadastro de infração
     document.getElementById("formInfracao").addEventListener("submit", async function (event) {
         event.preventDefault();
         await cadastrarInfracao();
     });
+
+    // Evento de upload do CSV para cadastro em lote
+    document.getElementById("formUploadCSVInfracoes").addEventListener("submit", handleCSVUpload);
 }
 
 async function carregarInfracoes() {
     try {
-        const resposta = await fetch("http://localhost:3000/infracoes");
+        const resposta = await fetch("http://localhost:3000/infracoes"); // Certifique-se de que essa URL está correta
         const infracoes = await resposta.json();
 
         const tabela = document.getElementById("tabelaInfracoes");
-        tabela.innerHTML = "";
+        tabela.innerHTML = ""; // Limpa a tabela antes de preencher com novos dados
 
-        infracoes.forEach(infracao => {
-            tabela.innerHTML += `
-                <tr>
-                    <td>${infracao.id}</td>
-                    <td>${infracao.descricao}</td>
-                    <td>${infracao.tipo}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" data-id="${infracao.id}">Editar</button>
-                        <button class="btn btn-danger btn-sm" data-id="${infracao.id}">Excluir</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        tabela.querySelectorAll(".btn-warning").forEach(button => {
-            button.addEventListener('click', () => {
-                const id = button.getAttribute("data-id");
-                const infracao = infracoes.find(i => i.id == id);
-                abrirModalEdicao(infracao);
+        // Verifique se a resposta tem dados antes de preenchê-los
+        if (infracoes.length === 0) {
+            tabela.innerHTML = `<tr><td colspan="4" class="text-center">Nenhuma infração cadastrada.</td></tr>`;
+        } else {
+            infracoes.forEach(infracao => {
+                tabela.innerHTML += `
+                    <tr>
+                        <td>${infracao.descricao}</td>
+                        <td>${infracao.tipo}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-id="${infracao.id}">Editar</button>
+                            <button class="btn btn-danger btn-sm" data-id="${infracao.id}">Excluir</button>
+                        </td>
+                    </tr>
+                `;
             });
-        });
-
-        tabela.querySelectorAll(".btn-danger").forEach(button => {
-            button.addEventListener('click', () => excluirInfracao(button.getAttribute("data-id")));
-        });
-
+        }
     } catch (error) {
-        console.error("❌ Erro ao carregar infrações:", error);
+        console.error("Erro ao carregar infrações:", error);
     }
 }
+
 
 async function cadastrarInfracao() {
     const descricao = document.getElementById("descricao").value.trim();
@@ -137,3 +135,42 @@ async function salvarEdicao(modal) {
         console.error("❌ Erro ao atualizar infração:", error);
     }
 }
+
+async function handleCSVUpload(event) {
+    event.preventDefault();
+
+    // Verifique se o elemento com o ID existe no DOM
+    const fileInput = document.getElementById("fileInputInfracao");
+
+    // Verifique se o campo de arquivo está corretamente acessado
+    if (!fileInput) {
+        console.error("❌ Elemento 'fileInputInfracao' não encontrado!");
+        return;
+    }
+
+    const file = fileInput.files[0];
+
+    if (file && file.name.endsWith(".csv")) {
+        const formData = new FormData();
+        formData.append("csvFile", file);
+
+        fetch("http://localhost:3000/infracoes/upload-csv", {  // URL correta para o servidor
+            method: "POST",
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                carregarInfracoes();  // Recarrega a lista de infrações
+            })
+            .catch(error => {
+                alert("Erro ao enviar o arquivo.");
+                console.error("Erro:", error);
+            });
+    } else {
+        alert("Por favor, selecione um arquivo CSV.");
+    }
+}
+
+
+init();
