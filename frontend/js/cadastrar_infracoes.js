@@ -38,11 +38,24 @@ async function carregarInfracoes() {
                 `;
             });
         }
+
+        // Adicionando os eventos para os botões de editar e excluir
+        tabela.querySelectorAll(".btn-warning").forEach(button => {
+            button.addEventListener('click', () => {
+                const id = button.getAttribute("data-id");
+                const infracao = infracoes.find(i => i.id == id);
+                abrirModalEdicao(infracao);
+            });
+        });
+
+        tabela.querySelectorAll(".btn-danger").forEach(button => {
+            button.addEventListener('click', () => excluirInfracao(button.getAttribute("data-id")));
+        });
+
     } catch (error) {
         console.error("Erro ao carregar infrações:", error);
     }
 }
-
 
 async function cadastrarInfracao() {
     const descricao = document.getElementById("descricao").value.trim();
