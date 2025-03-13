@@ -24,6 +24,10 @@ async function initAlunos() {
         userWelcome.textContent = `Bem-vindo, ${usuario.nome}`;
     }
 
+    // Variáveis para controle de dados de alunos
+    let alunosData = [];
+
+    // Event listeners para os botões de ação
     btnCadastrarAluno.addEventListener("click", () => {
         console.log("✅ Botão de cadastrar aluno clicado!");
         cadastrarAluno();
@@ -52,19 +56,22 @@ async function initAlunos() {
 
             const data = await resposta.json();
 
+            // Armazenando os dados dos alunos
+            alunosData = data.alunos;
+
             // Limpa a tabela de alunos antes de preencher com os dados
             tabelaAlunos.innerHTML = "";
 
             // Preenche a tabela com os dados dos alunos
-            data.alunos.forEach(aluno => {
+            alunosData.forEach(aluno => {
                 tabelaAlunos.innerHTML += `
                 <tr>
                     <td>${aluno.nome}</td>
                     <td>${aluno.turma}</td>
                     <td>${aluno.curso}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm" data-id="${aluno.id}">Editar</button>
-                        <button class="btn btn-danger btn-sm" data-id="${aluno.id}">Excluir</button>
+                        <button class="btn btn-warning btn-sm editBtn" data-id="${aluno.id}">Editar</button>
+                        <button class="btn btn-danger btn-sm deleteBtn" data-id="${aluno.id}">Excluir</button>
                     </td>
                 </tr>
             `;
@@ -75,6 +82,9 @@ async function initAlunos() {
 
             // Atualiza os controles de navegação
             updatePaginationControls();
+
+            // Adiciona os eventos aos botões de Editar e Excluir
+            addEventListeners();
 
             console.log("✅ Lista de alunos carregada com sucesso!");
         } catch (error) {
@@ -112,6 +122,22 @@ async function initAlunos() {
                 currentPage++;
                 carregarAlunos(currentPage);
             }
+        });
+    }
+
+    // Função para adicionar os eventos de Editar e Excluir
+    function addEventListeners() {
+        document.querySelectorAll('.editBtn').forEach(button => {
+            button.addEventListener('click', () => {
+                const aluno = alunosData.find(a => a.id === parseInt(button.dataset.id));
+                abrirModalEdicao(aluno);
+            });
+        });
+
+        document.querySelectorAll('.deleteBtn').forEach(button => {
+            button.addEventListener('click', () => {
+                excluirAluno(button.dataset.id);
+            });
         });
     }
 

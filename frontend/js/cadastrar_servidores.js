@@ -62,8 +62,8 @@ async function initServidores() {
                         <td>${servidor.siape}</td>
                         <td>${servidor.tipo}</td>
                         <td>
-                            <button class="btn btn-warning btn-sm" data-id="${servidor.id}">Editar</button>
-                            <button class="btn btn-danger btn-sm" data-id="${servidor.id}">Excluir</button>
+                            <button class="btn btn-warning btn-sm" data-id="${servidor.id}" id="btnEditar">Editar</button>
+                            <button class="btn btn-danger btn-sm" data-id="${servidor.id}" id="btnExcluir">Excluir</button>
                             <button class="btn btn-info btn-sm" data-id="${servidor.id}" id="btnResetarSenha">Resetar Senha</button>
                         </td>
                     </tr>
@@ -75,6 +75,28 @@ async function initServidores() {
 
             // Atualiza os controles de navegação
             updatePaginationControls();
+
+            // Atribuir eventos de edição e exclusão aos botões
+            document.querySelectorAll("#btnEditar").forEach(button => {
+                button.addEventListener("click", () => {
+                    const id = button.dataset.id;
+                    abrirModalEdicao(id);
+                });
+            });
+
+            document.querySelectorAll("#btnExcluir").forEach(button => {
+                button.addEventListener("click", () => {
+                    const id = button.dataset.id;
+                    excluirServidor(id);
+                });
+            });
+
+            document.querySelectorAll("#btnResetarSenha").forEach(button => {
+                button.addEventListener("click", () => {
+                    const id = button.dataset.id;
+                    resetarSenha(id);
+                });
+            });
 
             console.log("✅ Lista de servidores carregada com sucesso!");
         } catch (error) {
@@ -173,20 +195,36 @@ async function initServidores() {
     }
 
     // Função para editar um servidor
-    function abrirModalEdicao(servidor) {
-        if (!servidor) return;
-
-        document.getElementById("editId").value = servidor.id;
-        document.getElementById("editNome").value = servidor.nome;
-        document.getElementById("editEmail").value = servidor.email;
-        document.getElementById("editSiape").value = servidor.siape;
-        document.getElementById("editTipo").value = servidor.tipo;
+    function abrirModalEdicao(id) {
+        if (!id) return;
 
         const modal = new bootstrap.Modal(document.getElementById("modalEditarServidor"));
         modal.show();
+
+        // Preenche os campos do modal com os dados do servidor
+        document.getElementById("editId").value = id;
+
+        // Buscar dados do servidor e preencher o modal
+        fetch(`http://localhost:3000/servidores/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar dados do servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById("editNome").value = data.nome;
+                document.getElementById("editEmail").value = data.email;
+                document.getElementById("editSiape").value = data.siape;
+                document.getElementById("editTipo").value = data.tipo;
+            })
+            .catch(error => {
+                alert("❌ Erro ao carregar dados do servidor para edição.");
+                console.error(error);
+            });
     }
 
-    // Função para salvar edição de servidor
+    // Função para salvar a edição do servidor
     async function salvarEdicao() {
         const id = document.getElementById("editId")?.value;
         const nome = document.getElementById("editNome")?.value.trim();
@@ -219,27 +257,16 @@ async function initServidores() {
     }
 
     // Função para resetar a senha do servidor
-    async function resetarSenha(id, servidores) {
+    async function resetarSenha(id) {
         if (confirm("Tem certeza que deseja resetar a senha desse servidor?")) {
             try {
-                // Pega o servidor diretamente da lista carregada
-                const servidor = servidores.find(s => s.id === parseInt(id));
-
-                if (!servidor) {
-                    alert("❌ Servidor não encontrado!");
-                    return;
-                }
-
-                const siape = servidor.siape;
-
-                // Realiza o reset da senha
-                const resetResponse = await fetch(`http://localhost:3000/servidores/${id}/resetarSenha`, {
+                const resposta = await fetch(`http://localhost:3000/servidores/${id}/resetarSenha`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ senha: siape, alterou_senha: 0 })
                 });
 
-                if (resetResponse.ok) {
+                if (resposta.ok) {
                     alert("✅ Senha resetada com sucesso! O servidor será forçado a mudar a senha no próximo login.");
                     carregarServidores(currentPage);
                 } else {
@@ -261,7 +288,7 @@ async function initServidores() {
             const formData = new FormData();
             formData.append("csvFile", file);
 
-            fetch("http://localhost:3000/servidores/upload-csv", {  // Certifique-se de que a URL está correta
+            fetch("http://localhost:3000/servidores/upload-csv", {
                 method: "POST",
                 body: formData,
             })

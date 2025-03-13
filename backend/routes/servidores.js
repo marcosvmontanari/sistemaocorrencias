@@ -240,4 +240,21 @@ router.put("/:id/alterarSenha", async (req, res) => {
     }
 });
 
+// Rota para buscar um servidor pelo ID
+router.get("/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const [servidor] = await db.execute("SELECT * FROM servidores WHERE id = ?", [id]);
+        if (servidor.length === 0) {
+            return res.status(404).json({ erro: "Servidor não encontrado." });
+        }
+        res.json(servidor[0]);
+    } catch (error) {
+        console.error("❌ Erro ao buscar servidor:", error);
+        res.status(500).json({ erro: "Erro ao buscar servidor." });
+    }
+});
+
+
 module.exports = router;
