@@ -61,10 +61,10 @@ async function initServidores() {
                         <td>${servidor.email}</td>
                         <td>${servidor.siape}</td>
                         <td>${servidor.tipo}</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" data-id="${servidor.id}" id="btnEditar">Editar</button>
-                            <button class="btn btn-danger btn-sm" data-id="${servidor.id}" id="btnExcluir">Excluir</button>
-                            <button class="btn btn-info btn-sm" data-id="${servidor.id}" id="btnResetarSenha">Resetar Senha</button>
+                        <td class="action-column">
+                            <i class="fas fa-edit text-warning" data-id="${servidor.id}" style="cursor: pointer;" id="btnEditar"></i>
+                            <i class="fas fa-trash-alt text-danger" data-id="${servidor.id}" style="cursor: pointer;" id="btnExcluir"></i>
+                            <i class="fas fa-key text-info" data-id="${servidor.id}" style="cursor: pointer;" id="btnResetarSenha"></i>
                         </td>
                     </tr>
                 `;

@@ -36,14 +36,14 @@
         </select>
     </div>
 
-    <button id="btnCadastrarAluno" type="button" class="btn btn-success">Cadastrar</button>
+    <!-- Botões lado a lado -->
+    <div class="d-flex justify-content-between">
+        <button id="btnCadastrarAluno" type="button" class="btn btn-primary">Cadastrar Aluno</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCadastroLote">
+            Cadastro em Lote
+        </button>
+    </div>
 </form>
-
-<!-- Cadastro em Lote (Alunos) - Modal -->
-<h3 class="mt-4">Cadastro em Lote (Alunos)</h3>
-<button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalCadastroLote">
-    Cadastrar em Lote
-</button>
 
 <!-- Modal para Cadastro em Lote -->
 <div class="modal fade" id="modalCadastroLote" tabindex="-1" aria-labelledby="modalCadastroLoteLabel"
@@ -74,7 +74,7 @@
             <th>Nome</th>
             <th>Turma</th>
             <th>Curso</th>
-            <th>Ações</th>
+            <th class="action-column">Ações</th> <!-- Ação com a largura fixa -->
         </tr>
     </thead>
     <tbody id="tabelaAlunos">
@@ -87,7 +87,7 @@
     <!-- Aqui vai aparecer a navegação de páginas -->
 </div>
 
-<!-- 🔹 Modal para editar aluno -->
+<!-- Modal para editar aluno -->
 <div class="modal fade" id="modalEditarAluno" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">

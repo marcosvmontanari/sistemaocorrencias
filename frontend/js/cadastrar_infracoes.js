@@ -31,26 +31,33 @@ async function carregarInfracoes() {
                         <td>${infracao.descricao}</td>
                         <td>${infracao.tipo}</td>
                         <td>
-                            <button class="btn btn-warning btn-sm" data-id="${infracao.id}">Editar</button>
-                            <button class="btn btn-danger btn-sm" data-id="${infracao.id}">Excluir</button>
+                            <div class="acoes-icons">
+                                <!-- Ícones de ação com Font Awesome -->
+                                <i class="fas fa-edit text-warning" data-id="${infracao.id}" style="cursor: pointer;"></i>
+                                <i class="fas fa-trash-alt text-danger" data-id="${infracao.id}" style="cursor: pointer;"></i>
+                            </div>    
                         </td>
                     </tr>
                 `;
             });
-        }
 
-        // Adicionando os eventos para os botões de editar e excluir
-        tabela.querySelectorAll(".btn-warning").forEach(button => {
-            button.addEventListener('click', () => {
-                const id = button.getAttribute("data-id");
-                const infracao = infracoes.find(i => i.id == id);
-                abrirModalEdicao(infracao);
+            // Adicionando eventos de clique diretamente nos ícones de editar e excluir
+            tabela.querySelectorAll(".fa-edit").forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const id = icon.getAttribute("data-id");
+                    const infracao = infracoes.find(i => i.id == id);
+                    abrirModalEdicao(infracao);
+                });
             });
-        });
 
-        tabela.querySelectorAll(".btn-danger").forEach(button => {
-            button.addEventListener('click', () => excluirInfracao(button.getAttribute("data-id")));
-        });
+            tabela.querySelectorAll(".fa-trash-alt").forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const id = icon.getAttribute("data-id");
+                    excluirInfracao(id);
+                });
+            });
+
+        }
 
     } catch (error) {
         console.error("Erro ao carregar infrações:", error);
@@ -184,6 +191,5 @@ async function handleCSVUpload(event) {
         alert("Por favor, selecione um arquivo CSV.");
     }
 }
-
 
 init();

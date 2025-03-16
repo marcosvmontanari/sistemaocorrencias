@@ -13,20 +13,58 @@ document.getElementById("userWelcome").textContent = `Bem-vindo, ${usuario.nome}
 // 🔹 Carrega alunos no select
 async function carregarAlunos() {
     try {
-        const resposta = await fetch("http://localhost:3000/alunos");
-        const alunos = await resposta.json();
+        console.log("🔹 Buscando alunos no servidor...");
+
+        const resposta = await fetch("http://localhost:3000/alunos/todos");
+        
+        if (!resposta.ok) throw new Error("❌ Falha ao buscar alunos!");
+
+        const data = await resposta.json();  // <- Recebe o objeto completo
+        const alunos = data.alunos;          // <- Extrai o array de alunos
+
+        console.log(`✅ ${alunos.length} alunos carregados!`);
 
         const selectAluno = document.getElementById("aluno");
+
+        if (!selectAluno) {
+            console.error("❌ Elemento <select id='aluno'> não encontrado!");
+            return;
+        }
+
+        // Limpa o select antes de preencher
+        selectAluno.innerHTML = `<option value="">Selecione o aluno...</option>`;
+
         alunos.forEach(aluno => {
             let option = document.createElement("option");
             option.value = aluno.id;
             option.textContent = aluno.nome;
             selectAluno.appendChild(option);
         });
+
+        // Remove a instância anterior do TomSelect (caso tenha)
+        if (selectAluno.tomselect) {
+            selectAluno.tomselect.destroy();
+        }
+
+        // Inicia o TomSelect para o campo aluno
+        new TomSelect("#aluno", {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: "Selecione o aluno..."
+        });
+
+        console.log("✅ TomSelect inicializado para o campo Aluno!");
+
     } catch (error) {
-        console.error("Erro ao carregar alunos:", error);
+        console.error("❌ Erro ao carregar alunos:", error);
     }
 }
+
+
+
 
 // 🔹 Carrega tipos de infração no select
 async function carregarInfracoes() {
@@ -40,6 +78,15 @@ async function carregarInfracoes() {
             option.value = infracao.id;
             option.textContent = `${infracao.tipo} - ${infracao.descricao}`;
             selectInfracao.appendChild(option);
+        });
+
+        // Inicializa o Tom Select após carregar as infrações
+        new TomSelect("#tipo_infracao", {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            }
         });
     } catch (error) {
         console.error("Erro ao carregar infrações:", error);

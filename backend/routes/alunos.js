@@ -161,5 +161,20 @@ async function insertDataBatch(data) {
     return alunosCadastrados;
 }
 
+// ✅ Rota para listar todos os alunos sem paginação (para selects)
+router.get("/todos", async (req, res) => {
+    try {
+        const query = `SELECT id, nome FROM alunos ORDER BY nome ASC`;
+        const [rows] = await db.execute(query);
+
+        res.json({
+            total: rows.length,
+            alunos: rows
+        });
+    } catch (error) {
+        console.error("❌ Erro ao listar todos os alunos:", error);
+        res.status(500).json({ erro: "Erro interno ao listar todos os alunos." });
+    }
+});
 
 module.exports = router;

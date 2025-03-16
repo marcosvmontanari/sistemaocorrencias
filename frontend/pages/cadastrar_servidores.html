@@ -25,14 +25,14 @@
         </select>
     </div>
 
-    <button id="btnCadastrarServidor" type="button" class="btn btn-success">Cadastrar</button>
+    <!-- Botões alinhados lado a lado -->
+    <div class="d-flex justify-content-between">
+        <button id="btnCadastrarServidor" type="button" class="btn btn-primary">Cadastrar Servidor</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCadastroLote">
+            Cadastro em Lote
+        </button>
+    </div>
 </form>
-
-<!-- Cadastro em Lote (Servidores) -->
-<h3>Cadastro em Lote (Servidores)</h3>
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCadastroLote">
-    Cadastrar Servidores em Lote
-</button>
 
 <!-- Tabela de Servidores -->
 <h3 class="mt-4">Servidores Cadastrados</h3>

@@ -1,35 +1,46 @@
 <h2>Cadastrar Ocorrência</h2>
 
-<form>
+<form id="formOcorrencia">
+    <!-- Aluno -->
     <div class="mb-3">
         <label for="aluno" class="form-label">Aluno:</label>
-        <input type="text" class="form-control" id="aluno" placeholder="Nome do aluno" required>
+        <select id="aluno" name="aluno" class="form-select" required></select>
     </div>
 
+    <!-- Tipo de Infração -->
     <div class="mb-3">
-        <label for="tipo" class="form-label">Tipo de Infração:</label>
-        <input type="text" class="form-control" id="tipo" placeholder="Tipo de Infração" required>
+        <label for="tipo_infracao" class="form-label">Tipo de Infração:</label>
+        <select id="tipo_infracao" name="tipo_infracao" class="form-select" required>
+            <option value="">Selecione a infração...</option>
+            <!-- As infrações serão carregadas aqui via JS -->
+        </select>
     </div>
 
+    <!-- Local da Ocorrência -->
     <div class="mb-3">
         <label for="local" class="form-label">Local da Ocorrência:</label>
-        <input type="text" class="form-control" id="local" placeholder="Informe o local" required>
+        <input type="text" id="local" name="local" class="form-control" placeholder="Informe o local" required>
     </div>
 
+    <!-- Descrição -->
     <div class="mb-3">
         <label for="descricao" class="form-label">Descrição:</label>
-        <textarea class="form-control" id="descricao" rows="3" placeholder="Descreva a ocorrência" required></textarea>
+        <textarea id="descricao" name="descricao" class="form-control" placeholder="Descreva a ocorrência" rows="4"
+            required></textarea>
     </div>
 
+    <!-- Data e Hora -->
     <div class="mb-3">
-        <label for="data" class="form-label">Data e Hora:</label>
-        <input type="datetime-local" class="form-control" id="data" required>
+        <label for="data_hora" class="form-label">Data e Hora:</label>
+        <input type="datetime-local" id="data_hora" name="data_hora" class="form-control" required>
     </div>
 
+    <!-- Imagem -->
     <div class="mb-3">
         <label for="imagem" class="form-label">Anexar Imagem (Opcional):</label>
-        <input type="file" class="form-control" id="imagem">
+        <input type="file" id="imagem" name="imagem" class="form-control" accept="image/*">
     </div>
 
-    <button class="btn btn-primary">Cadastrar</button>
+    <!-- Botão de Enviar -->
+    <button type="submit" class="btn btn-primary">Cadastrar</button>
 </form>

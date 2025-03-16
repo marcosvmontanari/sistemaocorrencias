@@ -69,9 +69,9 @@ async function initAlunos() {
                     <td>${aluno.nome}</td>
                     <td>${aluno.turma}</td>
                     <td>${aluno.curso}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm editBtn" data-id="${aluno.id}">Editar</button>
-                        <button class="btn btn-danger btn-sm deleteBtn" data-id="${aluno.id}">Excluir</button>
+                    <td class="action-column">
+                        <i class="fas fa-edit text-warning" data-id="${aluno.id}" style="cursor: pointer;"></i>
+                        <i class="fas fa-trash-alt text-danger" data-id="${aluno.id}" style="cursor: pointer;"></i>
                     </td>
                 </tr>
             `;
@@ -83,7 +83,7 @@ async function initAlunos() {
             // Atualiza os controles de navegação
             updatePaginationControls();
 
-            // Adiciona os eventos aos botões de Editar e Excluir
+            // Adiciona os eventos aos ícones de Editar e Excluir
             addEventListeners();
 
             console.log("✅ Lista de alunos carregada com sucesso!");
@@ -127,14 +127,16 @@ async function initAlunos() {
 
     // Função para adicionar os eventos de Editar e Excluir
     function addEventListeners() {
-        document.querySelectorAll('.editBtn').forEach(button => {
+        // Adiciona eventos para editar aluno
+        document.querySelectorAll('.fa-edit').forEach(button => {
             button.addEventListener('click', () => {
                 const aluno = alunosData.find(a => a.id === parseInt(button.dataset.id));
                 abrirModalEdicao(aluno);
             });
         });
 
-        document.querySelectorAll('.deleteBtn').forEach(button => {
+        // Adiciona eventos para excluir aluno
+        document.querySelectorAll('.fa-trash-alt').forEach(button => {
             button.addEventListener('click', () => {
                 excluirAluno(button.dataset.id);
             });
@@ -142,9 +144,9 @@ async function initAlunos() {
     }
 
     async function cadastrarAluno() {
-        const nome = document.getElementById("nome")?.value.trim();
-        const turma = document.getElementById("turma")?.value.trim();
-        const curso = document.getElementById("curso")?.value.trim();
+        const nome = document.getElementById("nome").value.trim();
+        const turma = document.getElementById("turma").value.trim();
+        const curso = document.getElementById("curso").value.trim();
 
         console.log("📦 Enviando dados:", { nome, turma, curso });
 
@@ -206,10 +208,10 @@ async function initAlunos() {
     }
 
     async function salvarEdicao() {
-        const id = document.getElementById("editId")?.value;
-        const nome = document.getElementById("editNome")?.value.trim();
-        const turma = document.getElementById("editTurma")?.value.trim();
-        const curso = document.getElementById("editCurso")?.value.trim();
+        const id = document.getElementById("editId").value;
+        const nome = document.getElementById("editNome").value.trim();
+        const turma = document.getElementById("editTurma").value.trim();
+        const curso = document.getElementById("editCurso").value.trim();
 
         if (!id || !nome || !turma || !curso) {
             alert("⚠️ Preencha todos os campos antes de salvar.");
