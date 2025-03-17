@@ -113,7 +113,6 @@ async function buscarRelatorios() {
         dados.forEach(ocorrencia => {
             tabela.innerHTML += `
                 <tr>
-                    <td>${ocorrencia.id}</td>
                     <td>${ocorrencia.aluno}</td>
                     <td>${ocorrencia.infracao}</td>
                     <td>${ocorrencia.local}</td>
