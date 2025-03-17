@@ -4,7 +4,7 @@ console.log("🔹 Script dashboard.js carregado corretamente!");
 let scriptAtual = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
 
     if (!usuario) {
         console.error("❌ Nenhum usuário logado! Redirecionando para o login...");
@@ -64,6 +64,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ✅ Função para carregar páginas dinamicamente
 async function carregarPagina(pagina) {
+    if (!window.sessionIniciada) {
+        const script = document.createElement("script");
+        script.src = "../js/session.js"; // Corrigir o path se for preciso
+        document.head.appendChild(script);
+
+        window.sessionIniciada = true;
+    }
+    
     const conteudoDinamico = document.getElementById("conteudoDinamico");
     const tituloDashboard = document.getElementById("tituloDashboard");
     const alertaInfo = document.querySelector(".alert-info");
@@ -95,10 +103,9 @@ async function carregarESexecutarModulo(pagina) {
 
         switch (pagina) {
             case "cadastrar_servidores.html":
-                // Aqui, carregamos o script de servidores
                 modulo = await import(`../js/cadastrar_servidores.js?cache=${Date.now()}`);
                 if (modulo && typeof modulo.init === "function") {
-                    modulo.init(); // Chama a função init() após o carregamento do módulo
+                    modulo.init();
                 }
                 break;
             case "cadastrar_alunos.html":
@@ -130,7 +137,6 @@ async function carregarESexecutarModulo(pagina) {
     }
 }
 
-
 // ✅ Modal de alteração de senha no primeiro login
 function abrirModalAlterarSenha() {
     const modalHtml = `
@@ -157,7 +163,7 @@ function abrirModalAlterarSenha() {
 // ✅ Função de alterar senha
 async function alterarSenha() {
     const novaSenha = document.getElementById("novaSenha").value;
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
 
     const resposta = await fetch(`http://localhost:3000/servidores/${usuario.id}/alterarSenha`, {
         method: "PUT",
@@ -168,7 +174,7 @@ async function alterarSenha() {
     if (resposta.ok) {
         alert("Senha alterada com sucesso!");
         usuario.alterou_senha = 1;
-        localStorage.setItem("usuario", JSON.stringify(usuario));
+        sessionStorage.setItem("usuario", JSON.stringify(usuario));
         window.location.reload();
     } else {
         alert("Erro ao alterar senha!");
@@ -177,6 +183,6 @@ async function alterarSenha() {
 
 // ✅ Função de logout
 function logout() {
-    localStorage.removeItem("usuario");
+    sessionStorage.removeItem("usuario");
     window.location.href = "index.html";
 }

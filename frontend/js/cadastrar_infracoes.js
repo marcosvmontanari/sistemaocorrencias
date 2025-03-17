@@ -1,5 +1,17 @@
 console.log("🔹 cadastrar_infracoes.js (Módulo) carregado corretamente!");
 
+// ✅ Verifica se o usuário está autenticado no sessionStorage
+const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+if (!usuario) {
+    console.error("❌ Usuário não autenticado! Redirecionando para a tela de login...");
+    window.location.href = "../index.html";
+} else {
+    const userWelcome = document.getElementById("userWelcome");
+    if (userWelcome) {
+        userWelcome.textContent = `Bem-vindo, ${usuario.nome}`;
+    }
+}
+
 async function init() {
     carregarInfracoes();
 
@@ -159,10 +171,8 @@ async function salvarEdicao(modal) {
 async function handleCSVUpload(event) {
     event.preventDefault();
 
-    // Verifique se o elemento com o ID existe no DOM
     const fileInput = document.getElementById("fileInputInfracao");
 
-    // Verifique se o campo de arquivo está corretamente acessado
     if (!fileInput) {
         console.error("❌ Elemento 'fileInputInfracao' não encontrado!");
         return;
@@ -174,14 +184,14 @@ async function handleCSVUpload(event) {
         const formData = new FormData();
         formData.append("csvFile", file);
 
-        fetch("http://localhost:3000/infracoes/upload-csv", {  // URL correta para o servidor
+        fetch("http://localhost:3000/infracoes/upload-csv", {
             method: "POST",
             body: formData,
         })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-                carregarInfracoes();  // Recarrega a lista de infrações
+                carregarInfracoes();
             })
             .catch(error => {
                 alert("Erro ao enviar o arquivo.");

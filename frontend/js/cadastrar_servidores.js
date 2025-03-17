@@ -2,9 +2,9 @@ console.log("🔹 cadastrar_servidores.js (Módulo) carregado corretamente!");
 
 // ✅ Função principal de inicialização do módulo
 async function initServidores() {
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const usuario = JSON.parse(sessionStorage.getItem("usuario")); // Alterado para sessionStorage
     if (!usuario) {
-        console.error("❌ ERRO: Usuário não encontrado no localStorage! Redirecionando para login...");
+        console.error("❌ ERRO: Usuário não encontrado no sessionStorage! Redirecionando para login...");
         window.location.href = "../index.html";
         return;
     }
@@ -110,20 +110,16 @@ async function initServidores() {
 
         paginationControls.innerHTML = "";
 
-        // Se houver páginas anteriores
         if (currentPage > 1) {
             paginationControls.innerHTML += `<button class="btn btn-secondary" id="prevPageBtn">Anterior</button>`;
         }
 
-        // Exibe a página atual
         paginationControls.innerHTML += `<span> Página ${currentPage} de ${totalPages} </span>`;
 
-        // Se houver páginas seguintes
         if (currentPage < totalPages) {
             paginationControls.innerHTML += `<button class="btn btn-secondary" id="nextPageBtn">Próxima</button>`;
         }
 
-        // Eventos para navegação de página
         document.getElementById("prevPageBtn")?.addEventListener("click", () => {
             if (currentPage > 1) {
                 currentPage--;
@@ -139,7 +135,6 @@ async function initServidores() {
         });
     }
 
-    // Função para cadastrar um servidor
     async function cadastrarServidor() {
         const nome = document.getElementById("nome")?.value.trim();
         const email = document.getElementById("email")?.value.trim();
@@ -174,7 +169,6 @@ async function initServidores() {
         }
     }
 
-    // Função para excluir um servidor
     async function excluirServidor(id) {
         if (!confirm("Tem certeza que deseja excluir este servidor?")) return;
 
@@ -194,17 +188,14 @@ async function initServidores() {
         }
     }
 
-    // Função para editar um servidor
     function abrirModalEdicao(id) {
         if (!id) return;
 
         const modal = new bootstrap.Modal(document.getElementById("modalEditarServidor"));
         modal.show();
 
-        // Preenche os campos do modal com os dados do servidor
         document.getElementById("editId").value = id;
 
-        // Buscar dados do servidor e preencher o modal
         fetch(`http://localhost:3000/servidores/${id}`)
             .then(response => {
                 if (!response.ok) {
@@ -224,7 +215,6 @@ async function initServidores() {
             });
     }
 
-    // Função para salvar a edição do servidor
     async function salvarEdicao() {
         const id = document.getElementById("editId")?.value;
         const nome = document.getElementById("editNome")?.value.trim();
@@ -256,14 +246,12 @@ async function initServidores() {
         }
     }
 
-    // Função para resetar a senha do servidor
     async function resetarSenha(id) {
         if (confirm("Tem certeza que deseja resetar a senha desse servidor?")) {
             try {
                 const resposta = await fetch(`http://localhost:3000/servidores/${id}/resetarSenha`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ senha: siape, alterou_senha: 0 })
+                    headers: { "Content-Type": "application/json" }
                 });
 
                 if (resposta.ok) {
@@ -278,7 +266,6 @@ async function initServidores() {
         }
     }
 
-    // Função para lidar com o upload de CSV
     async function handleCSVUpload(event) {
         event.preventDefault();
         const fileInput = document.getElementById("fileInputServidor");
@@ -295,7 +282,7 @@ async function initServidores() {
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
-                    carregarServidores(currentPage);  // Recarrega a lista de servidores
+                    carregarServidores(currentPage);
                 })
                 .catch(error => {
                     alert("Erro ao enviar o arquivo.");
@@ -307,7 +294,6 @@ async function initServidores() {
     }
 }
 
-// ✅ Inicialização automática após o DOM ser montado (depois do HTML ser injetado)
 requestAnimationFrame(() => {
     initServidores();
 });

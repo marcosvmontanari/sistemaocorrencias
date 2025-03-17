@@ -1,14 +1,18 @@
 console.log("🔹 Script cadastrar_ocorrencia.js carregado corretamente!");
 
-// 🔹 Verifica se o usuário está autenticado
-const usuario = JSON.parse(localStorage.getItem("usuario"));
+// 🔹 Verifica se o usuário está autenticado no sessionStorage
+const usuario = JSON.parse(sessionStorage.getItem("usuario"));
 if (!usuario) {
     console.error("❌ Acesso negado! Redirecionando para o login...");
     window.location.href = "../index.html";
+    return;
 }
 
 // 🔹 Atualiza o nome do usuário na navbar
-document.getElementById("userWelcome").textContent = `Bem-vindo, ${usuario.nome}`;
+const userWelcome = document.getElementById("userWelcome");
+if (userWelcome) {
+    userWelcome.textContent = `Bem-vindo, ${usuario.nome}`;
+}
 
 // 🔹 Carrega alunos no select
 async function carregarAlunos() {
@@ -16,7 +20,7 @@ async function carregarAlunos() {
         console.log("🔹 Buscando alunos no servidor...");
 
         const resposta = await fetch("http://localhost:3000/alunos/todos");
-        
+
         if (!resposta.ok) throw new Error("❌ Falha ao buscar alunos!");
 
         const data = await resposta.json();  // <- Recebe o objeto completo
@@ -63,9 +67,6 @@ async function carregarAlunos() {
     }
 }
 
-
-
-
 // 🔹 Carrega tipos de infração no select
 async function carregarInfracoes() {
     try {
@@ -73,6 +74,10 @@ async function carregarInfracoes() {
         const infracoes = await resposta.json();
 
         const selectInfracao = document.getElementById("tipo_infracao");
+
+        // Limpa o select antes de preencher
+        selectInfracao.innerHTML = `<option value="">Selecione a infração...</option>`;
+
         infracoes.forEach(infracao => {
             let option = document.createElement("option");
             option.value = infracao.id;
@@ -80,14 +85,23 @@ async function carregarInfracoes() {
             selectInfracao.appendChild(option);
         });
 
-        // Inicializa o Tom Select após carregar as infrações
+        // Remove a instância anterior do TomSelect (caso tenha)
+        if (selectInfracao.tomselect) {
+            selectInfracao.tomselect.destroy();
+        }
+
+        // Inicializa o TomSelect após carregar as infrações
         new TomSelect("#tipo_infracao", {
             create: false,
             sortField: {
                 field: "text",
                 direction: "asc"
-            }
+            },
+            placeholder: "Selecione a infração..."
         });
+
+        console.log("✅ TomSelect inicializado para o campo Infração!");
+
     } catch (error) {
         console.error("Erro ao carregar infrações:", error);
     }
@@ -132,8 +146,8 @@ document.getElementById("formOcorrencia").addEventListener("submit", async funct
 
 function logout() {
     console.log("🔹 Realizando logout...");
-    localStorage.removeItem("usuario"); // Remove os dados do usuário
-    window.location.href = "../index.html"; // Redireciona para a tela de login
+    sessionStorage.removeItem("usuario"); // Agora usando sessionStorage
+    window.location.href = "../index.html";
 }
 
 // 🔹 Carrega os dados ao iniciar

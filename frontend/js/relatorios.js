@@ -1,14 +1,18 @@
 console.log("🔹 Script relatorios.js carregado corretamente!");
 
-// 🔸 Verifica se o usuário está autenticado
-const usuario = JSON.parse(localStorage.getItem("usuario"));
+// 🔸 Verifica se o usuário está autenticado no sessionStorage
+const usuario = JSON.parse(sessionStorage.getItem("usuario"));
 if (!usuario || usuario.tipo !== "ADMIN") {
     console.error("❌ Acesso negado! Apenas administradores podem acessar esta página.");
     window.location.href = "../dashboard.html";
+    return;
 }
 
 // 🔸 Atualiza o nome do usuário na navbar
-document.getElementById("userWelcome").textContent = `Bem-vindo, ${usuario.nome}`;
+const userWelcome = document.getElementById("userWelcome");
+if (userWelcome) {
+    userWelcome.textContent = `Bem-vindo, ${usuario.nome}`;
+}
 
 // 🔸 Função para carregar a lista de alunos e servidores no select
 async function carregarFiltros() {
@@ -165,7 +169,7 @@ document.getElementById("btnExportarPDF").addEventListener("click", function () 
 // 🔸 Função de Logout
 function logout() {
     console.log("🔹 Logout...");
-    localStorage.removeItem("usuario");
+    sessionStorage.removeItem("usuario");
     window.location.href = "../index.html";
 }
 

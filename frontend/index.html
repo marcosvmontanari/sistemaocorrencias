@@ -19,7 +19,7 @@
 <body class="login-page">
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const usuario = localStorage.getItem("usuario");
+            const usuario = JSON.parse(sessionStorage.getItem("usuario"));
             if (usuario) {
                 // Se tiver usuário logado, direciona imediatamente ao dashboard
                 window.location.href = "dashboard.html";
