@@ -1,28 +1,52 @@
-console.log("🔹 Script relatorios.js carregado corretamente!");
+console.log("🔹 Script relatorios.js carregado como módulo!");
 
-// 🔸 Verifica se o usuário está autenticado no sessionStorage
-const usuario = JSON.parse(sessionStorage.getItem("usuario"));
-if (!usuario || usuario.tipo !== "ADMIN") {
-    console.error("❌ Acesso negado! Apenas administradores podem acessar esta página.");
-    window.location.href = "../dashboard.html";
-    return;
-}
+// 🔸 Função principal chamada ao importar este módulo
+export function init() {
+    console.log("🔸 Inicializando módulo relatorios.js");
 
-// 🔸 Atualiza o nome do usuário na navbar
-const userWelcome = document.getElementById("userWelcome");
-if (userWelcome) {
-    userWelcome.textContent = `Bem-vindo, ${usuario.nome}`;
+    // ✅ Verifica se o usuário está autenticado no sessionStorage
+    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+    if (!usuario || usuario.tipo !== "ADMIN") {
+        console.error("❌ Acesso negado! Apenas administradores podem acessar esta página.");
+        window.location.href = "../dashboard.html";
+        return;
+    }
+
+    // ✅ Atualiza o nome do usuário na navbar
+    const userWelcome = document.getElementById("userWelcome");
+    if (userWelcome) {
+        userWelcome.textContent = `Bem-vindo, ${usuario.nome}`;
+    }
+
+    // ✅ Carrega filtros ao abrir o módulo
+    carregarFiltros();
+
+    // ✅ Eventos de clique para buscar e gerar relatórios
+    const btnFiltrar = document.getElementById("btnFiltrar");
+    const btnExportarPDF = document.getElementById("btnExportarPDF");
+
+    if (btnFiltrar) {
+        btnFiltrar.addEventListener("click", function (event) {
+            event.preventDefault();
+            buscarRelatorios();
+        });
+    }
+
+    if (btnExportarPDF) {
+        btnExportarPDF.addEventListener("click", function () {
+            gerarRelatorioPDF();
+        });
+    }
 }
 
 // 🔸 Função para carregar a lista de alunos e servidores no select
 async function carregarFiltros() {
     try {
         // Carregar alunos
-        const alunosRes = await fetch("http://localhost:3000/alunos?limit=10000"); // Busca todos sem limite
+        const alunosRes = await fetch("http://localhost:3000/alunos?limit=10000");
         const alunosData = await alunosRes.json();
         const selectAluno = document.getElementById("aluno");
 
-        // Limpa o select antes de popular
         selectAluno.innerHTML = `<option value="">Todos</option>`;
         alunosData.alunos.forEach(aluno => {
             let option = document.createElement("option");
@@ -36,7 +60,6 @@ async function carregarFiltros() {
         const servidoresData = await servidoresRes.json();
         const selectServidor = document.getElementById("servidor");
 
-        // Limpa o select antes de popular
         selectServidor.innerHTML = `<option value="">Todos</option>`;
         servidoresData.servidores.forEach(servidor => {
             let option = document.createElement("option");
@@ -47,7 +70,7 @@ async function carregarFiltros() {
 
         console.log("✅ Filtros carregados com sucesso!");
 
-        // 🔹 Inicializando Select2 nos campos de Aluno e Servidor
+        // Inicializando Select2 nos campos de Aluno e Servidor
         $('#aluno').select2({
             placeholder: "Selecione o aluno",
             allowClear: true,
@@ -154,24 +177,3 @@ function formatarDataHora(dataHora) {
 
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 }
-
-// 🔸 Evento para filtrar ao clicar no botão "Filtrar"
-document.getElementById("btnFiltrar").addEventListener("click", function (event) {
-    event.preventDefault();
-    buscarRelatorios();
-});
-
-// 🔸 Evento para gerar o PDF ao clicar no botão "Exportar para PDF"
-document.getElementById("btnExportarPDF").addEventListener("click", function () {
-    gerarRelatorioPDF();
-});
-
-// 🔸 Função de Logout
-function logout() {
-    console.log("🔹 Logout...");
-    sessionStorage.removeItem("usuario");
-    window.location.href = "../index.html";
-}
-
-// 🔸 Inicialização dos filtros ao carregar a página
-carregarFiltros();
