@@ -13,47 +13,61 @@ async function initServidores() {
     const btnCadastrarServidor = document.getElementById("btnCadastrarServidor");
     const btnSalvarEdicao = document.getElementById("btnSalvarEdicaoServidor");
     const formUploadCSVServidor = document.getElementById("formUploadCSVServidor");
+    const paginationControls = document.getElementById("pagination");
+    const inputBusca = document.getElementById("inputBuscaServidores");
 
-    if (!tabelaServidores || !btnCadastrarServidor || !btnSalvarEdicao || !formUploadCSVServidor) {
+    if (!tabelaServidores || !btnCadastrarServidor || !btnSalvarEdicao || !formUploadCSVServidor || !paginationControls || !inputBusca) {
         console.error("❌ Elementos da página de servidores não encontrados!");
         return;
     }
 
-    // Exibe o nome do usuário na navbar
     const userWelcome = document.getElementById("userWelcome");
     if (userWelcome) {
         userWelcome.textContent = `Bem-vindo, ${usuario.nome}`;
     }
 
-    // Eventos de clique
     btnCadastrarServidor.addEventListener("click", cadastrarServidor);
     btnSalvarEdicao.addEventListener("click", salvarEdicao);
-
-    // Evento de upload de CSV
     formUploadCSVServidor.addEventListener("submit", handleCSVUpload);
 
-    // Inicializa a tabela
-    carregarServidores();
+    let currentPage = 1;
+    let totalPages = 1;
+    let termoBusca = "";
 
-    // 🔸 Funções internas
+    // 🔹 Evento de busca no input
+    inputBusca.addEventListener("input", () => {
+        termoBusca = inputBusca.value.trim();
+        currentPage = 1;
+        carregarServidores(currentPage);
+    });
 
-    let currentPage = 1;  // Página inicial
-    let totalPages = 1;   // Total de páginas, será atualizado ao carregar servidores
-
-    // Função para carregar a lista de servidores com paginação
+    // ✅ Função para carregar a lista de servidores com paginação e busca
     async function carregarServidores(page = 1, limit = 10) {
         try {
             console.log("📦 Carregando servidores...");
-            const resposta = await fetch(`http://localhost:3000/servidores?page=${page}&limit=${limit}`);
+
+            let url = `http://localhost:3000/servidores?page=${page}&limit=${limit}`;
+            if (termoBusca !== "") {
+                url += `&busca=${encodeURIComponent(termoBusca)}`;
+            }
+
+            const resposta = await fetch(url);
 
             if (!resposta.ok) throw new Error("Erro ao buscar servidores!");
 
             const data = await resposta.json();
 
-            // Limpa a tabela de servidores antes de preencher com os dados
             tabelaServidores.innerHTML = "";
 
-            // Preenche a tabela com os dados dos servidores
+            if (!data.servidores || data.servidores.length === 0) {
+                tabelaServidores.innerHTML = `
+                    <tr><td colspan="5" class="text-center">Nenhum servidor encontrado.</td></tr>
+                `;
+                totalPages = 1;
+                updatePaginationControls();
+                return;
+            }
+
             data.servidores.forEach(servidor => {
                 tabelaServidores.innerHTML += `
                     <tr>
@@ -70,44 +84,20 @@ async function initServidores() {
                 `;
             });
 
-            // Atualiza totalPages após carregar a lista
             totalPages = Math.ceil(data.total / limit);
 
-            // Atualiza os controles de navegação
             updatePaginationControls();
-
-            // Atribuir eventos de edição e exclusão aos botões
-            document.querySelectorAll("#btnEditar").forEach(button => {
-                button.addEventListener("click", () => {
-                    const id = button.dataset.id;
-                    abrirModalEdicao(id);
-                });
-            });
-
-            document.querySelectorAll("#btnExcluir").forEach(button => {
-                button.addEventListener("click", () => {
-                    const id = button.dataset.id;
-                    excluirServidor(id);
-                });
-            });
-
-            document.querySelectorAll("#btnResetarSenha").forEach(button => {
-                button.addEventListener("click", () => {
-                    const id = button.dataset.id;
-                    resetarSenha(id);
-                });
-            });
+            addEventListeners();
 
             console.log("✅ Lista de servidores carregada com sucesso!");
+
         } catch (error) {
             console.error("❌ Erro ao carregar servidores:", error);
         }
     }
 
-    // Função para atualizar os controles de navegação de página
+    // ✅ Atualiza os controles de paginação
     function updatePaginationControls() {
-        const paginationControls = document.getElementById("pagination");
-
         paginationControls.innerHTML = "";
 
         if (currentPage > 1) {
@@ -132,6 +122,30 @@ async function initServidores() {
                 currentPage++;
                 carregarServidores(currentPage);
             }
+        });
+    }
+
+    // ✅ Adiciona os eventos aos ícones
+    function addEventListeners() {
+        document.querySelectorAll("#btnEditar").forEach(button => {
+            button.addEventListener("click", () => {
+                const id = button.dataset.id;
+                abrirModalEdicao(id);
+            });
+        });
+
+        document.querySelectorAll("#btnExcluir").forEach(button => {
+            button.addEventListener("click", () => {
+                const id = button.dataset.id;
+                excluirServidor(id);
+            });
+        });
+
+        document.querySelectorAll("#btnResetarSenha").forEach(button => {
+            button.addEventListener("click", () => {
+                const id = button.dataset.id;
+                resetarSenha(id);
+            });
         });
     }
 
@@ -292,6 +306,8 @@ async function initServidores() {
             alert("Por favor, selecione um arquivo CSV.");
         }
     }
+
+    carregarServidores();
 }
 
 // 🔸 Exporta a função initServidores para ser chamada de dashboard.js

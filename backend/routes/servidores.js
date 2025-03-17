@@ -57,6 +57,7 @@ async function insertDataBatch(data) {
         }
     }
 }
+
 /**
  * 🔸 Rota para criar um novo servidor
  * Exige: nome, email, siape, tipo (ADMIN/SERVIDOR)
@@ -161,30 +162,78 @@ router.post("/login", async (req, res) => {
     }
 });
 
-// Rota para listar os servidores com paginação
+/**
+ * ✅ Rota para listar os servidores com paginação e busca inteligente
+ */
+// Rota para listar os servidores com paginação e busca
+// ✅ Rota para listar os servidores com paginação e busca
 router.get("/", async (req, res) => {
-    const page = parseInt(req.query.page) || 1; // Página atual
-    const limit = parseInt(req.query.limit) || 10; // Número de servidores por página
-    const offset = (page - 1) * limit;
-
     try {
-        // Ajuste da consulta para incluir limite e offset
-        const [rows] = await db.execute(
-            "SELECT id, nome, email, siape, tipo FROM servidores LIMIT " + db.escape(limit) + " OFFSET " + db.escape(offset)
-        );
+        let page = parseInt(req.query.page, 10) || 1;
+        let limit = parseInt(req.query.limit, 10) || 10;
+        const busca = req.query.busca || "";
 
-        // Para retornar o total de servidores, precisamos de outra consulta
-        const [total] = await db.execute("SELECT COUNT(*) as total FROM servidores");
+        console.log("📌 Parâmetros recebidos:", { page, limit, busca });
+
+        if (isNaN(page) || isNaN(limit)) {
+            return res.status(400).json({ erro: "Parâmetros inválidos!" });
+        }
+
+        const offset = (page - 1) * limit;
+
+        let query;
+        let totalQuery;
+        let params = [];
+        let totalParams = [];
+
+        // 🔹 Caso com busca
+        if (busca && busca.trim() !== "") {
+            query = `
+                SELECT id, nome, email, siape, tipo
+                FROM servidores
+                WHERE nome LIKE ? OR email LIKE ? OR siape LIKE ?
+                ORDER BY nome ASC
+                LIMIT ${limit} OFFSET ${offset}
+            `;
+            params = [`%${busca}%`, `%${busca}%`, `%${busca}%`];
+
+            totalQuery = `
+                SELECT COUNT(*) as total
+                FROM servidores
+                WHERE nome LIKE ? OR email LIKE ? OR siape LIKE ?
+            `;
+            totalParams = [`%${busca}%`, `%${busca}%`, `%${busca}%`];
+
+            // 🔹 Caso sem busca
+        } else {
+            query = `
+                SELECT id, nome, email, siape, tipo
+                FROM servidores
+                ORDER BY nome ASC
+                LIMIT ${limit} OFFSET ${offset}
+            `;
+
+            totalQuery = `
+                SELECT COUNT(*) as total
+                FROM servidores
+            `;
+        }
+
+        // 🔹 Execução das consultas
+        const [rows] = await db.execute(query, params);
+        const [total] = await db.execute(totalQuery, totalParams);
 
         res.json({
-            total: total[0].total, // Total de servidores
-            servidores: rows, // Servidores da página atual
+            total: total[0].total,
+            servidores: rows
         });
+
     } catch (error) {
         console.error("❌ Erro ao listar servidores:", error);
-        res.status(500).json({ erro: "Erro interno no servidor." });
+        res.status(500).json({ erro: "Erro interno ao listar servidores." });
     }
 });
+
 
 
 /**
@@ -255,6 +304,5 @@ router.get("/:id", async (req, res) => {
         res.status(500).json({ erro: "Erro ao buscar servidor." });
     }
 });
-
 
 module.exports = router;
