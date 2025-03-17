@@ -294,6 +294,5 @@ async function initServidores() {
     }
 }
 
-requestAnimationFrame(() => {
-    initServidores();
-});
+// 🔸 Exporta a função initServidores para ser chamada de dashboard.js
+export { initServidores as init };

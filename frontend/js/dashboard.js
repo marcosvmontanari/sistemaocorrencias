@@ -24,9 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
         menuItens = `
             <a href="#" class="list-group-item" data-page="cadastrar_servidores.html">📋 Gerenciar Servidores</a>
             <a href="#" class="list-group-item" data-page="cadastrar_alunos.html">👥 Gerenciar Alunos</a>
-            <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
-            <a href="#" class="list-group-item" data-page="cadastrar_infracoes.html">⚠️ Cadastrar Infrações</a>
+            <a href="#" class="list-group-item" data-page="cadastrar_infracoes.html">⚠️ Gerenciar Infrações</a>
             <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
+            <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
         `;
     } else {
         menuItens = `

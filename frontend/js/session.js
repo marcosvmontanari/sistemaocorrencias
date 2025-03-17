@@ -30,31 +30,38 @@ verificarSessao();
 🔹 A partir daqui começa o controle de sessão por inatividade
 ===================================================================== */
 
-// Tempo máximo de inatividade em MILISSEGUNDOS (exemplo: 10 minutos)
-const TEMPO_MAXIMO_INATIVIDADE = 10 * 60 * 1000; // 10 minutos
-let timerInatividade = null;
+// ✅ Impede redeclaração caso o session.js seja carregado mais de uma vez
+if (typeof TEMPO_MAXIMO_INATIVIDADE === "undefined") {
 
-// 🔸 Função para deslogar automaticamente por inatividade
-function logoutPorInatividade() {
-    alert("⏰ Sessão expirada por inatividade! Faça login novamente.");
-    logout();
+    // Tempo máximo de inatividade em MILISSEGUNDOS (exemplo: 10 minutos)
+    const TEMPO_MAXIMO_INATIVIDADE = 10 * 60 * 1000; // 10 minutos
+    let timerInatividade = null;
+
+    // 🔸 Função para deslogar automaticamente por inatividade
+    function logoutPorInatividade() {
+        alert("⏰ Sessão expirada por inatividade! Faça login novamente.");
+        logout();
+    }
+
+    // 🔸 Função que reinicia o timer sempre que o usuário interage
+    function resetarTimerInatividade() {
+        if (timerInatividade) clearTimeout(timerInatividade);
+
+        // Cria um novo timer para deslogar após o tempo máximo de inatividade
+        timerInatividade = setTimeout(() => {
+            logoutPorInatividade();
+        }, TEMPO_MAXIMO_INATIVIDADE);
+    }
+
+    // 🔸 Eventos que indicam atividade do usuário (podem ser ampliados se quiser)
+    window.addEventListener("mousemove", resetarTimerInatividade);
+    window.addEventListener("keydown", resetarTimerInatividade);
+    window.addEventListener("click", resetarTimerInatividade);
+    window.addEventListener("scroll", resetarTimerInatividade);
+
+    // 🔸 Inicia o timer quando o script for carregado
+    resetarTimerInatividade();
+
+} else {
+    console.warn("⚠️ Script session.js já foi carregado anteriormente. Ignorando duplicação.");
 }
-
-// 🔸 Função que reinicia o timer sempre que o usuário interage
-function resetarTimerInatividade() {
-    if (timerInatividade) clearTimeout(timerInatividade);
-
-    // Cria um novo timer para deslogar após o tempo máximo de inatividade
-    timerInatividade = setTimeout(() => {
-        logoutPorInatividade();
-    }, TEMPO_MAXIMO_INATIVIDADE);
-}
-
-// 🔸 Eventos que indicam atividade do usuário (podem ser ampliados se quiser)
-window.addEventListener("mousemove", resetarTimerInatividade);
-window.addEventListener("keydown", resetarTimerInatividade);
-window.addEventListener("click", resetarTimerInatividade);
-window.addEventListener("scroll", resetarTimerInatividade);
-
-// 🔸 Inicia o timer quando o script for carregado
-resetarTimerInatividade();
