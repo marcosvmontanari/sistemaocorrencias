@@ -14,7 +14,10 @@ async function initAlunos() {
     const formUploadCSVAluno = document.getElementById("formUploadCSVAluno");
     const paginationControls = document.getElementById("pagination");
 
-    if (!tabelaAlunos || !btnCadastrarAluno || !btnSalvarEdicaoAluno || !formUploadCSVAluno || !paginationControls) {
+    // 🔸 Novo campo de busca no DOM
+    const inputBusca = document.getElementById("inputBuscaAlunos");
+
+    if (!tabelaAlunos || !btnCadastrarAluno || !btnSalvarEdicaoAluno || !formUploadCSVAluno || !paginationControls || !inputBusca) {
         console.error("❌ Elementos da página de alunos não encontrados!");
         return;
     }
@@ -27,6 +30,13 @@ async function initAlunos() {
     // Variáveis para controle de dados de alunos
     let alunosData = [];
 
+    // 🔸 Estado do filtro de busca
+    let termoBusca = "";
+
+    // Variáveis de controle de paginação
+    let currentPage = 1;
+    let totalPages = 1;
+
     // Event listeners para os botões de ação
     btnCadastrarAluno.addEventListener("click", () => {
         console.log("✅ Botão de cadastrar aluno clicado!");
@@ -38,78 +48,83 @@ async function initAlunos() {
         salvarEdicao();
     });
 
-    // Evento de upload de CSV
     formUploadCSVAluno.addEventListener("submit", handleCSVUpload);
 
-    // Variáveis de controle de paginação
-    let currentPage = 1;  // Página inicial
-    let totalPages = 1;   // Total de páginas, será atualizado ao carregar alunos
+    // 🔸 Escutando o input de busca
+    inputBusca.addEventListener("input", () => {
+        termoBusca = inputBusca.value.trim();
+        currentPage = 1; // Sempre volta para a primeira página ao fazer uma nova busca
+        carregarAlunos(currentPage);
+    });
 
     async function carregarAlunos(page = 1, limit = 10) {
         try {
             console.log("📌 Carregando lista de alunos...");
 
-            // Passa os parâmetros de paginação para o backend
-            const resposta = await fetch(`http://localhost:3000/alunos?page=${page}&limit=${limit}`);
+            // 🔸 Monta a URL com busca e paginação
+            let url = `http://localhost:3000/alunos?page=${page}&limit=${limit}`;
+            if (termoBusca !== "") {
+                url += `&busca=${encodeURIComponent(termoBusca)}`;
+            }
+
+            const resposta = await fetch(url);
 
             if (!resposta.ok) throw new Error("Erro ao buscar alunos!");
 
             const data = await resposta.json();
 
-            // Armazenando os dados dos alunos
             alunosData = data.alunos;
 
-            // Limpa a tabela de alunos antes de preencher com os dados
             tabelaAlunos.innerHTML = "";
 
-            // Preenche a tabela com os dados dos alunos
+            if (alunosData.length === 0) {
+                tabelaAlunos.innerHTML = `
+                    <tr><td colspan="4" class="text-center">Nenhum aluno encontrado.</td></tr>
+                `;
+                totalPages = 1;
+                updatePaginationControls();
+                return;
+            }
+
             alunosData.forEach(aluno => {
                 tabelaAlunos.innerHTML += `
-                <tr>
-                    <td>${aluno.nome}</td>
-                    <td>${aluno.turma}</td>
-                    <td>${aluno.curso}</td>
-                    <td class="action-column">
-                        <i class="fas fa-edit text-warning" data-id="${aluno.id}" style="cursor: pointer;"></i>
-                        <i class="fas fa-trash-alt text-danger" data-id="${aluno.id}" style="cursor: pointer;"></i>
-                    </td>
-                </tr>
-            `;
+                    <tr>
+                        <td>${aluno.nome}</td>
+                        <td>${aluno.turma}</td>
+                        <td>${aluno.curso}</td>
+                        <td class="action-column">
+                            <i class="fas fa-edit text-warning" data-id="${aluno.id}" style="cursor: pointer;"></i>
+                            <i class="fas fa-trash-alt text-danger" data-id="${aluno.id}" style="cursor: pointer;"></i>
+                        </td>
+                    </tr>
+                `;
             });
 
-            // Atualiza totalPages após carregar a lista
             totalPages = Math.ceil(data.total / limit);
 
-            // Atualiza os controles de navegação
             updatePaginationControls();
-
-            // Adiciona os eventos aos ícones de Editar e Excluir
             addEventListeners();
 
             console.log("✅ Lista de alunos carregada com sucesso!");
+
         } catch (error) {
             console.error("❌ Erro ao carregar alunos:", error);
         }
     }
 
-    // Função para atualizar os controles de navegação de página
     function updatePaginationControls() {
         paginationControls.innerHTML = "";
 
-        // Se houver páginas anteriores
         if (currentPage > 1) {
             paginationControls.innerHTML += `<button class="btn btn-secondary" id="prevPageBtn">Anterior</button>`;
         }
 
-        // Exibe a página atual
         paginationControls.innerHTML += `<span> Página ${currentPage} de ${totalPages} </span>`;
 
-        // Se houver páginas seguintes
         if (currentPage < totalPages) {
             paginationControls.innerHTML += `<button class="btn btn-secondary" id="nextPageBtn">Próxima</button>`;
         }
 
-        // Eventos para navegação de página
         document.getElementById("prevPageBtn")?.addEventListener("click", () => {
             if (currentPage > 1) {
                 currentPage--;
@@ -125,9 +140,7 @@ async function initAlunos() {
         });
     }
 
-    // Função para adicionar os eventos de Editar e Excluir
     function addEventListeners() {
-        // Adiciona eventos para editar aluno
         document.querySelectorAll('.fa-edit').forEach(button => {
             button.addEventListener('click', () => {
                 const aluno = alunosData.find(a => a.id === parseInt(button.dataset.id));
@@ -135,7 +148,6 @@ async function initAlunos() {
             });
         });
 
-        // Adiciona eventos para excluir aluno
         document.querySelectorAll('.fa-trash-alt').forEach(button => {
             button.addEventListener('click', () => {
                 excluirAluno(button.dataset.id);
@@ -165,7 +177,7 @@ async function initAlunos() {
             if (resposta.ok) {
                 alert("✅ Aluno cadastrado com sucesso!");
                 document.getElementById("formAluno").reset();
-                carregarAlunos(currentPage);  // Recarrega a lista de alunos na página atual
+                carregarAlunos(currentPage);
             } else {
                 const erro = await resposta.json();
                 alert("❌ Erro ao cadastrar aluno: " + (erro.erro || "Erro desconhecido"));
@@ -186,7 +198,7 @@ async function initAlunos() {
 
             if (resposta.ok) {
                 alert("✅ Aluno excluído com sucesso!");
-                carregarAlunos(currentPage);  // Recarrega a lista de alunos na página atual
+                carregarAlunos(currentPage);
             } else {
                 alert("❌ Erro ao excluir aluno!");
             }
@@ -227,7 +239,7 @@ async function initAlunos() {
 
             if (resposta.ok) {
                 alert("✅ Aluno atualizado com sucesso!");
-                carregarAlunos(currentPage);  // Recarrega a lista de alunos na página atual
+                carregarAlunos(currentPage);
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarAluno")).hide();
             } else {
                 alert("❌ Erro ao atualizar aluno!");
@@ -237,7 +249,6 @@ async function initAlunos() {
         }
     }
 
-    // Função para lidar com o upload de CSV
     async function handleCSVUpload(event) {
         event.preventDefault();
         const fileInput = document.getElementById("fileInputAluno");
@@ -254,7 +265,7 @@ async function initAlunos() {
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
-                    carregarAlunos(currentPage);  // Recarrega a lista de alunos na página atual
+                    carregarAlunos(currentPage);
                 })
                 .catch(error => {
                     alert("Erro ao enviar o arquivo.");
@@ -265,9 +276,7 @@ async function initAlunos() {
         }
     }
 
-    // Carrega os alunos no início
     carregarAlunos();
 }
 
-// Inicializa automaticamente assim que o script for carregado
 initAlunos();

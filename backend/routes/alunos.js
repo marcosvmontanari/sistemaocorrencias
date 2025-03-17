@@ -1,12 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const { criarAluno, listarAlunos, buscarAlunoPorId, atualizarAluno, excluirAluno } = require("../models/AlunoModel");
+const {
+    criarAluno,
+    listarAlunos,
+    buscarAlunoPorId,
+    atualizarAluno,
+    excluirAluno
+} = require("../models/AlunoModel");
 const db = require("../config/db");
 const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
 
-// Configuração de multer para upload de arquivos CSV
 const upload = multer({ dest: "uploads/" });
 
 // ✅ Rota para cadastrar um aluno
@@ -23,44 +28,63 @@ router.post("/cadastrar", async (req, res) => {
     }
 });
 
-// Rota para listar os alunos com paginação
+// ✅ Rota para listar alunos com paginação e busca inteligente
 router.get("/", async (req, res) => {
     try {
-        let page = parseInt(req.query.page, 10) || 1; // Página atual
-        let limit = parseInt(req.query.limit, 10) || 10; // Número de alunos por página
+        let page = parseInt(req.query.page, 10) || 1;
+        let limit = parseInt(req.query.limit, 10) || 10;
+        const busca = req.query.busca || ""; // Busca opcional
 
-        // Verifica se os parâmetros são válidos
-        console.log("📌 Parâmetros de paginação:", { page, limit });
+        console.log("📌 Parâmetros recebidos:", { page, limit, busca });
 
-        // Verificação para garantir que os valores de page e limit são válidos
         if (isNaN(page) || isNaN(limit)) {
             return res.status(400).json({ erro: "Parâmetros inválidos!" });
         }
 
         const offset = (page - 1) * limit;
 
-        // Debugar valores de offset
-        console.log("📌 Calculando offset:", offset);
+        // 🔸 Base da query
+        let whereClause = "";
+        let params = [];
 
-        // Ajuste da consulta para incluir LIMIT e OFFSET diretamente na string SQL
-        const query = `SELECT id, nome, turma, curso FROM alunos LIMIT ${limit} OFFSET ${offset}`;
-        const [rows] = await db.execute(query);
+        if (busca.trim() !== "") {
+            whereClause = `WHERE nome LIKE ? OR turma LIKE ? OR curso LIKE ?`;
+            const buscaParam = `%${busca}%`;
+            params.push(buscaParam, buscaParam, buscaParam);
+        }
 
-        // Debugar valores das linhas
-        console.log("📌 Alunos encontrados:", rows);
+        // 🔸 Consulta principal com filtro e paginação
+        const query = `
+            SELECT id, nome, turma, curso
+            FROM alunos
+            ${whereClause}
+            ORDER BY nome ASC
+            LIMIT ? OFFSET ?
+        `;
 
-        const [total] = await db.execute("SELECT COUNT(*) as total FROM alunos");
+        params.push(limit, offset);
+
+        const [rows] = await db.execute(query, params);
+
+        // 🔸 Consulta para obter o total
+        const countQuery = `
+            SELECT COUNT(*) as total
+            FROM alunos
+            ${whereClause}
+        `;
+
+        const [totalResult] = await db.execute(countQuery, params.slice(0, -2)); // Remove limit e offset
 
         res.json({
-            total: total[0].total,
-            alunos: rows,
+            total: totalResult[0].total,
+            alunos: rows
         });
+
     } catch (error) {
         console.error("❌ Erro ao listar alunos:", error);
         res.status(500).json({ erro: "Erro interno ao listar alunos." });
     }
 });
-
 
 // ✅ Rota para atualizar um aluno
 router.put("/:id", async (req, res) => {
@@ -99,10 +123,7 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
-/**
- * 🔸 Rota para upload de CSV para alunos
- * Recebe o arquivo CSV, processa os dados e os insere no banco
- */
+// ✅ Rota para upload de CSV para alunos
 router.post("/upload-csv/alunos", upload.single("csvFile"), (req, res) => {
     const results = [];
 
@@ -118,50 +139,40 @@ router.post("/upload-csv/alunos", upload.single("csvFile"), (req, res) => {
         });
 });
 
-/**
- * 🔸 Função para inserir os dados no banco de dados em lote
- * Processa as linhas do CSV e insere no banco
- */
-// Função para inserir os dados no banco de dados em lote
-// Função para inserir os dados no banco de dados em lote
-// Função para inserir os dados no banco de dados em lote
+// ✅ Função para inserir alunos em lote (sem alterações)
 async function insertDataBatch(data) {
-    let alunosCadastrados = 0;  // Para contar quantos alunos foram realmente cadastrados
+    let alunosCadastrados = 0;
 
     for (const row of data) {
         try {
-            // Verifica se o aluno já existe com base no nome, turma e curso
             const [existingAluno] = await db.execute(
                 "SELECT id FROM alunos WHERE nome = ? AND turma = ? AND curso = ?",
                 [row.nome, row.turma, row.curso]
             );
 
-            // Se já existe um aluno com os mesmos dados, pula a inserção
             if (existingAluno.length > 0) {
                 console.log(`Aluno já existe: ${row.nome} - ${row.turma} - ${row.curso}`);
-                continue; // Pula este aluno e vai para o próximo
+                continue;
             }
 
-            // Insere o novo aluno
             await db.execute(
                 "INSERT INTO alunos (nome, turma, curso) VALUES (?, ?, ?)",
                 [row.nome, row.turma, row.curso]
             );
 
-            alunosCadastrados++;  // Conta o aluno inserido
+            alunosCadastrados++;
             console.log(`Aluno ${row.nome} cadastrado com sucesso!`);
 
         } catch (error) {
             console.error("Erro ao inserir aluno:", error);
-            continue; // Continua para o próximo aluno mesmo que um erro tenha ocorrido
+            continue;
         }
     }
 
-    // Retorna a quantidade de alunos cadastrados
     return alunosCadastrados;
 }
 
-// ✅ Rota para listar todos os alunos sem paginação (para selects)
+// ✅ Rota para listar todos os alunos (sem paginação)
 router.get("/todos", async (req, res) => {
     try {
         const query = `SELECT id, nome FROM alunos ORDER BY nome ASC`;
