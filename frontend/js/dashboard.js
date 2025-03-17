@@ -66,12 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
 async function carregarPagina(pagina) {
     if (!window.sessionIniciada) {
         const script = document.createElement("script");
-        script.src = "../js/session.js"; // Corrigir o path se for preciso
+        script.src = "../js/session.js"; // Corrigir o path se necessário
         document.head.appendChild(script);
 
         window.sessionIniciada = true;
     }
-    
+
     const conteudoDinamico = document.getElementById("conteudoDinamico");
     const tituloDashboard = document.getElementById("tituloDashboard");
     const alertaInfo = document.querySelector(".alert-info");
@@ -108,28 +108,41 @@ async function carregarESexecutarModulo(pagina) {
                     modulo.init();
                 }
                 break;
+
             case "cadastrar_alunos.html":
                 modulo = await import(`../js/cadastrar_alunos.js?cache=${Date.now()}`);
+                if (modulo && typeof modulo.initAlunos === "function") {
+                    console.log(`✅ Executando initAlunos() de '${pagina}'`);
+                    modulo.initAlunos();  // <-- Chamada correta para a função exportada!
+                } else {
+                    console.error(`❌ Módulo de '${pagina}' não possui uma função initAlunos().`);
+                }
                 break;
+
             case "cadastrar_infracoes.html":
                 modulo = await import(`../js/cadastrar_infracoes.js?cache=${Date.now()}`);
+                if (modulo && typeof modulo.init === "function") {
+                    modulo.init();
+                }
                 break;
+
             case "relatorios.html":
                 modulo = await import(`../js/relatorios.js?cache=${Date.now()}`);
+                if (modulo && typeof modulo.init === "function") {
+                    modulo.init();
+                }
                 break;
+
             case "cadastrar_ocorrencia.html":
                 modulo = await import(`../js/cadastrar_ocorrencia.js?cache=${Date.now()}`);
+                if (modulo && typeof modulo.init === "function") {
+                    modulo.init();
+                }
                 break;
+
             default:
                 console.warn(`⚠️ Página '${pagina}' não possui módulo definido.`);
                 return;
-        }
-
-        if (modulo && typeof modulo.init === "function") {
-            console.log(`✅ Executando init() de '${pagina}'`);
-            modulo.init();
-        } else {
-            console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
         }
 
     } catch (error) {

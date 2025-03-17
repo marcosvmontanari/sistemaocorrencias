@@ -67,14 +67,23 @@
     </div>
 </div>
 
+
+
 <h3 class="mt-4">Lista de Alunos</h3>
+
+<!-- 🔍 Campo de Busca (Novo) -->
+<div class="mt-4 mb-3">
+    <input type="text" id="inputBuscaAlunos" class="form-control"
+        placeholder="Buscar alunos por nome, turma ou curso...">
+</div>
+
 <table class="table table-striped mt-3">
     <thead>
         <tr>
             <th>Nome</th>
             <th>Turma</th>
             <th>Curso</th>
-            <th class="action-column">Ações</th> <!-- Ação com a largura fixa -->
+            <th class="action-column">Ações</th>
         </tr>
     </thead>
     <tbody id="tabelaAlunos">

@@ -29,11 +29,12 @@ router.post("/cadastrar", async (req, res) => {
 });
 
 // ✅ Rota para listar alunos com paginação e busca inteligente
+// Rota para listar os alunos com paginação e busca
 router.get("/", async (req, res) => {
     try {
         let page = parseInt(req.query.page, 10) || 1;
         let limit = parseInt(req.query.limit, 10) || 10;
-        const busca = req.query.busca || ""; // Busca opcional
+        const busca = req.query.busca || "";
 
         console.log("📌 Parâmetros recebidos:", { page, limit, busca });
 
@@ -43,40 +44,61 @@ router.get("/", async (req, res) => {
 
         const offset = (page - 1) * limit;
 
-        // 🔸 Base da query
-        let whereClause = "";
+        let query;
         let params = [];
 
-        if (busca.trim() !== "") {
-            whereClause = `WHERE nome LIKE ? OR turma LIKE ? OR curso LIKE ?`;
-            const buscaParam = `%${busca}%`;
-            params.push(buscaParam, buscaParam, buscaParam);
+        if (busca && busca.trim() !== "") {
+            query = `
+                SELECT id, nome, turma, curso
+                FROM alunos
+                WHERE nome LIKE ? OR turma LIKE ? OR curso LIKE ?
+                ORDER BY nome ASC
+                LIMIT ${limit} OFFSET ${offset}
+            `;
+            params = [
+                `%${busca}%`,
+                `%${busca}%`,
+                `%${busca}%`
+            ];
+        } else {
+            query = `
+                SELECT id, nome, turma, curso
+                FROM alunos
+                ORDER BY nome ASC
+                LIMIT ${limit} OFFSET ${offset}
+            `;
+            params = [];
         }
-
-        // 🔸 Consulta principal com filtro e paginação
-        const query = `
-            SELECT id, nome, turma, curso
-            FROM alunos
-            ${whereClause}
-            ORDER BY nome ASC
-            LIMIT ? OFFSET ?
-        `;
-
-        params.push(limit, offset);
 
         const [rows] = await db.execute(query, params);
 
-        // 🔸 Consulta para obter o total
-        const countQuery = `
-            SELECT COUNT(*) as total
-            FROM alunos
-            ${whereClause}
-        `;
+        // Consulta de contagem total
+        let totalQuery;
+        let totalParams = [];
 
-        const [totalResult] = await db.execute(countQuery, params.slice(0, -2)); // Remove limit e offset
+        if (busca && busca.trim() !== "") {
+            totalQuery = `
+                SELECT COUNT(*) as total
+                FROM alunos
+                WHERE nome LIKE ? OR turma LIKE ? OR curso LIKE ?
+            `;
+            totalParams = [
+                `%${busca}%`,
+                `%${busca}%`,
+                `%${busca}%`
+            ];
+        } else {
+            totalQuery = `
+                SELECT COUNT(*) as total
+                FROM alunos
+            `;
+            totalParams = [];
+        }
+
+        const [total] = await db.execute(totalQuery, totalParams);
 
         res.json({
-            total: totalResult[0].total,
+            total: total[0].total,
             alunos: rows
         });
 
@@ -85,6 +107,9 @@ router.get("/", async (req, res) => {
         res.status(500).json({ erro: "Erro interno ao listar alunos." });
     }
 });
+
+
+
 
 // ✅ Rota para atualizar um aluno
 router.put("/:id", async (req, res) => {

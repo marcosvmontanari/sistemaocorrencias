@@ -1,9 +1,9 @@
 console.log("🔹 cadastrar_alunos.js (Módulo) carregado corretamente!");
 
 async function initAlunos() {
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const usuario = JSON.parse(sessionStorage.getItem("usuario")); // ✅ sessionStorage mantido!
     if (!usuario) {
-        console.error("❌ ERRO: Usuário não encontrado no localStorage! Redirecionando para login...");
+        console.error("❌ ERRO: Usuário não encontrado no sessionStorage! Redirecionando para login...");
         window.location.href = "../index.html";
         return;
     }
@@ -14,7 +14,7 @@ async function initAlunos() {
     const formUploadCSVAluno = document.getElementById("formUploadCSVAluno");
     const paginationControls = document.getElementById("pagination");
 
-    // 🔸 Novo campo de busca no DOM
+    // 🔸 Campo de busca no DOM
     const inputBusca = document.getElementById("inputBuscaAlunos");
 
     if (!tabelaAlunos || !btnCadastrarAluno || !btnSalvarEdicaoAluno || !formUploadCSVAluno || !paginationControls || !inputBusca) {
@@ -27,17 +27,12 @@ async function initAlunos() {
         userWelcome.textContent = `Bem-vindo, ${usuario.nome}`;
     }
 
-    // Variáveis para controle de dados de alunos
     let alunosData = [];
-
-    // 🔸 Estado do filtro de busca
     let termoBusca = "";
 
-    // Variáveis de controle de paginação
     let currentPage = 1;
     let totalPages = 1;
 
-    // Event listeners para os botões de ação
     btnCadastrarAluno.addEventListener("click", () => {
         console.log("✅ Botão de cadastrar aluno clicado!");
         cadastrarAluno();
@@ -50,10 +45,10 @@ async function initAlunos() {
 
     formUploadCSVAluno.addEventListener("submit", handleCSVUpload);
 
-    // 🔸 Escutando o input de busca
+    // 🔸 Escuta do campo de busca
     inputBusca.addEventListener("input", () => {
         termoBusca = inputBusca.value.trim();
-        currentPage = 1; // Sempre volta para a primeira página ao fazer uma nova busca
+        currentPage = 1;
         carregarAlunos(currentPage);
     });
 
@@ -61,7 +56,6 @@ async function initAlunos() {
         try {
             console.log("📌 Carregando lista de alunos...");
 
-            // 🔸 Monta a URL com busca e paginação
             let url = `http://localhost:3000/alunos?page=${page}&limit=${limit}`;
             if (termoBusca !== "") {
                 url += `&busca=${encodeURIComponent(termoBusca)}`;
@@ -74,7 +68,6 @@ async function initAlunos() {
             const data = await resposta.json();
 
             alunosData = data.alunos;
-
             tabelaAlunos.innerHTML = "";
 
             if (alunosData.length === 0) {
@@ -279,4 +272,5 @@ async function initAlunos() {
     carregarAlunos();
 }
 
-initAlunos();
+// 🔸 Export da função para ser utilizada pelo dashboard.js
+export { initAlunos };
