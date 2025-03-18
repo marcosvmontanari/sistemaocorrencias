@@ -158,7 +158,7 @@ async function initServidores() {
         console.log("🔸 Dados preenchidos:", { nome, email, siape, tipo });
 
         if (!nome || !email || !siape || !tipo) {
-            alert("⚠️ Preencha todos os campos antes de cadastrar.");
+            showAlert("warning", "⚠️ Preencha todos os campos antes de cadastrar.");
             return;
         }
 
@@ -170,21 +170,30 @@ async function initServidores() {
             });
 
             if (resposta.ok) {
-                alert("✅ Servidor cadastrado com sucesso!");
+                showAlert("success", "✅ Servidor cadastrado com sucesso!");
                 document.getElementById("formServidor").reset();
                 carregarServidores(currentPage);
             } else {
                 const erro = await resposta.json();
-                alert("❌ Erro ao cadastrar servidor: " + (erro.erro || "Erro desconhecido"));
+                showAlert("error", `❌ Erro ao cadastrar servidor: ${erro.erro || "Erro desconhecido"}`);
             }
         } catch (error) {
             console.error("❌ Erro ao conectar com o servidor:", error);
-            alert("❌ Erro ao conectar com o servidor!");
+            showAlert("error", "❌ Erro ao conectar com o servidor!");
         }
     }
 
     async function excluirServidor(id) {
-        if (!confirm("Tem certeza que deseja excluir este servidor?")) return;
+        const confirmacao = await Swal.fire({
+            icon: 'warning',
+            title: 'Tem certeza?',
+            text: 'Deseja realmente excluir este servidor?',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!confirmacao.isConfirmed) return;
 
         try {
             const resposta = await fetch(`http://localhost:3000/servidores/${id}`, {
@@ -192,10 +201,10 @@ async function initServidores() {
             });
 
             if (resposta.ok) {
-                alert("✅ Servidor excluído com sucesso!");
+                showAlert("success", "✅ Servidor excluído com sucesso!");
                 carregarServidores(currentPage);
             } else {
-                alert("❌ Erro ao excluir servidor!");
+                showAlert("error", "❌ Erro ao excluir servidor!");
             }
         } catch (error) {
             console.error("❌ Erro ao excluir servidor:", error);
@@ -224,7 +233,7 @@ async function initServidores() {
                 document.getElementById("editTipo").value = data.tipo;
             })
             .catch(error => {
-                alert("❌ Erro ao carregar dados do servidor para edição.");
+                showAlert("error", "❌ Erro ao carregar dados do servidor para edição.");
                 console.error(error);
             });
     }
@@ -237,7 +246,7 @@ async function initServidores() {
         const tipo = document.getElementById("editTipo")?.value;
 
         if (!id || !nome || !email || !siape || !tipo) {
-            alert("⚠️ Preencha todos os campos antes de salvar.");
+            showAlert("warning", "⚠️ Preencha todos os campos antes de salvar.");
             return;
         }
 
@@ -249,11 +258,11 @@ async function initServidores() {
             });
 
             if (resposta.ok) {
-                alert("✅ Servidor atualizado com sucesso!");
+                showAlert("success", "✅ Servidor atualizado com sucesso!");
                 carregarServidores(currentPage);
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarServidor")).hide();
             } else {
-                alert("❌ Erro ao atualizar servidor!");
+                showAlert("error", "❌ Erro ao atualizar servidor!");
             }
         } catch (error) {
             console.error("❌ Erro ao atualizar servidor:", error);
@@ -261,22 +270,31 @@ async function initServidores() {
     }
 
     async function resetarSenha(id) {
-        if (confirm("Tem certeza que deseja resetar a senha desse servidor?")) {
-            try {
-                const resposta = await fetch(`http://localhost:3000/servidores/${id}/resetarSenha`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" }
-                });
+        const confirmacao = await Swal.fire({
+            icon: 'question',
+            title: 'Resetar senha?',
+            text: 'Deseja resetar a senha deste servidor?',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, resetar!',
+            cancelButtonText: 'Cancelar'
+        });
 
-                if (resposta.ok) {
-                    alert("✅ Senha resetada com sucesso! O servidor será forçado a mudar a senha no próximo login.");
-                    carregarServidores(currentPage);
-                } else {
-                    alert("❌ Erro ao resetar a senha!");
-                }
-            } catch (error) {
-                console.error("❌ Erro ao resetar senha:", error);
+        if (!confirmacao.isConfirmed) return;
+
+        try {
+            const resposta = await fetch(`http://localhost:3000/servidores/${id}/resetarSenha`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (resposta.ok) {
+                showAlert("success", "✅ Senha resetada com sucesso!");
+                carregarServidores(currentPage);
+            } else {
+                showAlert("error", "❌ Erro ao resetar a senha!");
             }
+        } catch (error) {
+            console.error("❌ Erro ao resetar senha:", error);
         }
     }
 
@@ -295,15 +313,15 @@ async function initServidores() {
             })
                 .then(response => response.json())
                 .then(data => {
-                    alert(data.message);
+                    showAlert("success", data.message);
                     carregarServidores(currentPage);
                 })
                 .catch(error => {
-                    alert("Erro ao enviar o arquivo.");
+                    showAlert("error", "Erro ao enviar o arquivo.");
                     console.error("Erro:", error);
                 });
         } else {
-            alert("Por favor, selecione um arquivo CSV.");
+            showAlert("warning", "Por favor, selecione um arquivo CSV.");
         }
     }
 

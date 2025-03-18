@@ -70,7 +70,6 @@ async function carregarFiltros() {
 
         console.log("✅ Filtros carregados com sucesso!");
 
-        // Inicializando Select2 nos campos de Aluno e Servidor
         $('#aluno').select2({
             placeholder: "Selecione o aluno",
             allowClear: true,
@@ -85,6 +84,11 @@ async function carregarFiltros() {
 
     } catch (error) {
         console.error("❌ Erro ao carregar filtros:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao carregar filtros!',
+            text: 'Não foi possível carregar os filtros de alunos e servidores.'
+        });
     }
 }
 
@@ -107,6 +111,11 @@ async function buscarRelatorios() {
 
         if (!dados || dados.length === 0) {
             tabela.innerHTML = `<tr><td colspan="7" class="text-center">Nenhum relatório encontrado.</td></tr>`;
+            Swal.fire({
+                icon: 'info',
+                title: 'Nenhum relatório encontrado!',
+                text: 'Tente ajustar os filtros de busca.'
+            });
             return;
         }
 
@@ -127,6 +136,11 @@ async function buscarRelatorios() {
 
     } catch (error) {
         console.error("❌ Erro ao buscar relatórios:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao buscar relatórios!',
+            text: 'Verifique sua conexão e tente novamente.'
+        });
     }
 }
 
@@ -157,11 +171,20 @@ async function gerarRelatorioPDF() {
         a.click();
         document.body.removeChild(a);
 
-        alert("✅ Relatório em PDF gerado com sucesso!");
+        Swal.fire({
+            icon: 'success',
+            title: 'Relatório PDF gerado com sucesso!',
+            showConfirmButton: false,
+            timer: 2000
+        });
 
     } catch (error) {
         console.error("❌ Erro ao gerar relatório PDF:", error);
-        alert("Erro ao conectar com o servidor!");
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao gerar relatório!',
+            text: 'Verifique a conexão ou tente novamente.'
+        });
     }
 }
 

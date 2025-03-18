@@ -19,7 +19,7 @@ if (loginForm) {
         const senha = document.getElementById("senha").value.trim();
 
         if (!email || !senha) {
-            showToast("Preencha todos os campos!");
+            showAlert("warning", "Atenção!", "Preencha todos os campos!");
             return;
         }
 
@@ -36,7 +36,6 @@ if (loginForm) {
             console.log("📌 Dados Recebidos:", data);
 
             if (response.ok) {
-                // 🔸 Armazena os dados no sessionStorage (sessão temporária)
                 sessionStorage.setItem("usuario", JSON.stringify(data.usuario));
 
                 if (data.usuario.alterou_senha == 0) {
@@ -45,12 +44,12 @@ if (loginForm) {
                     window.location.href = "dashboard.html";
                 }
             } else {
-                showToast(data.erro || "Usuário ou senha inválidos!");
+                showAlert("error", "Erro", data.erro || "Usuário ou senha inválidos!");
             }
 
         } catch (error) {
             console.error("📌 Erro ao tentar logar:", error);
-            showToast("Erro ao conectar com o servidor!");
+            showAlert("error", "Erro ao conectar com o servidor!");
         }
     });
 } else {
@@ -68,7 +67,7 @@ async function alterarSenha() {
     const novaSenha = document.getElementById("novaSenha").value.trim();
 
     if (!novaSenha || novaSenha.length < 6) {
-        alert("A senha deve ter no mínimo 6 caracteres.");
+        showToast("A senha deve ter no mínimo 6 caracteres.");
         return;
     }
 
@@ -82,23 +81,47 @@ async function alterarSenha() {
         });
 
         if (resposta.ok) {
-            alert("✅ Senha alterada com sucesso!");
+            Swal.fire({
+                icon: 'success',
+                title: 'Senha alterada com sucesso!',
+                showConfirmButton: false,
+                timer: 2000
+            });
 
             usuario.alterou_senha = 1;
             sessionStorage.setItem("usuario", JSON.stringify(usuario));
 
-            window.location.href = "dashboard.html";
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 2000);
+
         } else {
-            alert("❌ Erro ao alterar senha!");
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao alterar senha!',
+                text: 'Tente novamente mais tarde.'
+            });
         }
 
     } catch (error) {
         console.error("❌ Erro ao alterar senha:", error);
-        alert("Erro ao conectar com o servidor.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao conectar com o servidor!',
+            text: 'Verifique sua conexão e tente novamente.'
+        });
     }
 }
 
-// 🔸 Função auxiliar para exibir notificações (Toast)
+// 🔸 Função auxiliar para exibir notificações (Toast) com SweetAlert2
 function showToast(mensagem) {
-    alert(mensagem); // Aqui você pode integrar um toast customizado futuramente
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: mensagem,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    });
 }

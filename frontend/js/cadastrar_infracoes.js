@@ -27,13 +27,12 @@ async function init() {
 
 async function carregarInfracoes() {
     try {
-        const resposta = await fetch("http://localhost:3000/infracoes"); // Certifique-se de que essa URL está correta
+        const resposta = await fetch("http://localhost:3000/infracoes");
         const infracoes = await resposta.json();
 
         const tabela = document.getElementById("tabelaInfracoes");
-        tabela.innerHTML = ""; // Limpa a tabela antes de preencher com novos dados
+        tabela.innerHTML = "";
 
-        // Verifique se a resposta tem dados antes de preenchê-los
         if (infracoes.length === 0) {
             tabela.innerHTML = `<tr><td colspan="4" class="text-center">Nenhuma infração cadastrada.</td></tr>`;
         } else {
@@ -44,7 +43,6 @@ async function carregarInfracoes() {
                         <td>${infracao.tipo}</td>
                         <td>
                             <div class="acoes-icons">
-                                <!-- Ícones de ação com Font Awesome -->
                                 <i class="fas fa-edit text-warning" data-id="${infracao.id}" style="cursor: pointer;"></i>
                                 <i class="fas fa-trash-alt text-danger" data-id="${infracao.id}" style="cursor: pointer;"></i>
                             </div>    
@@ -53,7 +51,6 @@ async function carregarInfracoes() {
                 `;
             });
 
-            // Adicionando eventos de clique diretamente nos ícones de editar e excluir
             tabela.querySelectorAll(".fa-edit").forEach(icon => {
                 icon.addEventListener('click', () => {
                     const id = icon.getAttribute("data-id");
@@ -68,7 +65,6 @@ async function carregarInfracoes() {
                     excluirInfracao(id);
                 });
             });
-
         }
 
     } catch (error) {
@@ -81,7 +77,7 @@ async function cadastrarInfracao() {
     const tipo = document.getElementById("tipo").value;
 
     if (!descricao || !tipo) {
-        alert("⚠️ Preencha todos os campos.");
+        showAlert("warning", "⚠️ Preencha todos os campos.");
         return;
     }
 
@@ -93,11 +89,11 @@ async function cadastrarInfracao() {
         });
 
         if (resposta.ok) {
-            alert("✅ Infração cadastrada!");
+            showAlert("success", "✅ Infração cadastrada!");
             document.getElementById("formInfracao").reset();
             carregarInfracoes();
         } else {
-            alert("❌ Erro ao cadastrar infração.");
+            showAlert("error", "❌ Erro ao cadastrar infração.");
         }
     } catch (error) {
         console.error("❌ Erro ao cadastrar infração:", error);
@@ -105,7 +101,16 @@ async function cadastrarInfracao() {
 }
 
 async function excluirInfracao(id) {
-    if (!confirm("Deseja excluir esta infração?")) return;
+    const confirmacao = await Swal.fire({
+        icon: 'warning',
+        title: 'Tem certeza?',
+        text: 'Deseja excluir esta infração?',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (!confirmacao.isConfirmed) return;
 
     try {
         const resposta = await fetch(`http://localhost:3000/infracoes/${id}`, {
@@ -113,10 +118,10 @@ async function excluirInfracao(id) {
         });
 
         if (resposta.ok) {
-            alert("✅ Infração excluída!");
+            showAlert("success", "✅ Infração excluída!");
             carregarInfracoes();
         } else {
-            alert("❌ Erro ao excluir infração.");
+            showAlert("error", "❌ Erro ao excluir infração.");
         }
     } catch (error) {
         console.error("❌ Erro ao excluir infração:", error);
@@ -134,7 +139,6 @@ function abrirModalEdicao(infracao) {
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
 
-    // ADICIONANDO O EVENTO DE CLICK NO BOTÃO "SALVAR" APÓS O MODAL SER ABERTO
     const btnSalvar = modalElement.querySelector("#btnSalvarEdicaoInfracao");
     btnSalvar.onclick = () => salvarEdicao(modal);
 }
@@ -145,7 +149,7 @@ async function salvarEdicao(modal) {
     const tipo = document.getElementById("editTipo").value;
 
     if (!descricao || !tipo) {
-        alert("⚠️ Preencha todos os campos.");
+        showAlert("warning", "⚠️ Preencha todos os campos.");
         return;
     }
 
@@ -157,11 +161,11 @@ async function salvarEdicao(modal) {
         });
 
         if (resposta.ok) {
-            alert("✅ Infração atualizada!");
+            showAlert("success", "✅ Infração atualizada!");
             carregarInfracoes();
             modal.hide();
         } else {
-            alert("❌ Erro ao atualizar infração.");
+            showAlert("error", "❌ Erro ao atualizar infração.");
         }
     } catch (error) {
         console.error("❌ Erro ao atualizar infração:", error);
@@ -190,15 +194,15 @@ async function handleCSVUpload(event) {
         })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                showAlert("success", data.message);
                 carregarInfracoes();
             })
             .catch(error => {
-                alert("Erro ao enviar o arquivo.");
+                showAlert("error", "Erro ao enviar o arquivo.");
                 console.error("Erro:", error);
             });
     } else {
-        alert("Por favor, selecione um arquivo CSV.");
+        showAlert("warning", "Por favor, selecione um arquivo CSV.");
     }
 }
 

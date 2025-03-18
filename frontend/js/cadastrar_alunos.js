@@ -156,7 +156,7 @@ async function initAlunos() {
         console.log("📦 Enviando dados:", { nome, turma, curso });
 
         if (!nome || !turma || !curso) {
-            alert("⚠️ Preencha todos os campos antes de cadastrar.");
+            showAlert('warning', '⚠️ Preencha todos os campos antes de cadastrar.');
             return;
         }
 
@@ -168,21 +168,30 @@ async function initAlunos() {
             });
 
             if (resposta.ok) {
-                alert("✅ Aluno cadastrado com sucesso!");
+                showAlert('success', '✅ Aluno cadastrado com sucesso!');
                 document.getElementById("formAluno").reset();
                 carregarAlunos(currentPage);
             } else {
                 const erro = await resposta.json();
-                alert("❌ Erro ao cadastrar aluno: " + (erro.erro || "Erro desconhecido"));
+                showAlert('error', `❌ Erro ao cadastrar aluno: ${erro.erro || "Erro desconhecido"}`);
             }
         } catch (error) {
             console.error("❌ Erro ao conectar com o servidor:", error);
-            alert("❌ Erro ao conectar com o servidor!");
+            showAlert('error', '❌ Erro ao conectar com o servidor!');
         }
     }
 
     async function excluirAluno(id) {
-        if (!confirm("Tem certeza que deseja excluir este aluno?")) return;
+        const confirmacao = await Swal.fire({
+            icon: 'warning',
+            title: 'Tem certeza?',
+            text: 'Deseja realmente excluir este aluno?',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!confirmacao.isConfirmed) return;
 
         try {
             const resposta = await fetch(`http://localhost:3000/alunos/${id}`, {
@@ -190,10 +199,10 @@ async function initAlunos() {
             });
 
             if (resposta.ok) {
-                alert("✅ Aluno excluído com sucesso!");
+                showAlert('success', '✅ Aluno excluído com sucesso!');
                 carregarAlunos(currentPage);
             } else {
-                alert("❌ Erro ao excluir aluno!");
+                showAlert('error', '❌ Erro ao excluir aluno!');
             }
         } catch (error) {
             console.error("❌ Erro ao excluir aluno:", error);
@@ -219,7 +228,7 @@ async function initAlunos() {
         const curso = document.getElementById("editCurso").value.trim();
 
         if (!id || !nome || !turma || !curso) {
-            alert("⚠️ Preencha todos os campos antes de salvar.");
+            showAlert('warning', '⚠️ Preencha todos os campos antes de salvar.');
             return;
         }
 
@@ -231,11 +240,11 @@ async function initAlunos() {
             });
 
             if (resposta.ok) {
-                alert("✅ Aluno atualizado com sucesso!");
+                showAlert('success', '✅ Aluno atualizado com sucesso!');
                 carregarAlunos(currentPage);
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarAluno")).hide();
             } else {
-                alert("❌ Erro ao atualizar aluno!");
+                showAlert('error', '❌ Erro ao atualizar aluno!');
             }
         } catch (error) {
             console.error("❌ Erro ao atualizar aluno:", error);
@@ -257,15 +266,15 @@ async function initAlunos() {
             })
                 .then(response => response.json())
                 .then(data => {
-                    alert(data.message);
+                    showAlert('success', data.message);
                     carregarAlunos(currentPage);
                 })
                 .catch(error => {
-                    alert("Erro ao enviar o arquivo.");
+                    showAlert('error', 'Erro ao enviar o arquivo.');
                     console.error("Erro:", error);
                 });
         } else {
-            alert("Por favor, selecione um arquivo CSV.");
+            showAlert('warning', 'Por favor, selecione um arquivo CSV.');
         }
     }
 

@@ -61,7 +61,6 @@ async function carregarAlunos() {
             selectAluno.appendChild(option);
         });
 
-        // TomSelect para Aluno (se quiser manter)
         if (selectAluno.tomselect) {
             selectAluno.tomselect.destroy();
         }
@@ -103,7 +102,6 @@ async function carregarInfracoes() {
             selectInfracao.appendChild(option);
         });
 
-        // TomSelect para Infração (se quiser manter)
         if (selectInfracao.tomselect) {
             selectInfracao.tomselect.destroy();
         }
@@ -142,14 +140,27 @@ async function cadastrarOcorrencia(usuario) {
         });
 
         if (resposta.ok) {
-            alert("✅ Ocorrência cadastrada com sucesso!");
-            window.location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Ocorrência cadastrada com sucesso!',
+                showConfirmButton: false,
+                timer: 2000
+            });
+            setTimeout(() => window.location.reload(), 2000);
         } else {
-            alert("❌ Erro ao cadastrar ocorrência.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao cadastrar ocorrência!',
+                text: 'Tente novamente.'
+            });
         }
     } catch (error) {
         console.error("❌ Erro ao cadastrar ocorrência:", error);
-        alert("Erro ao conectar com o servidor!");
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao conectar com o servidor!',
+            text: 'Verifique sua conexão ou tente novamente.'
+        });
     }
 }
 

@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function carregarPagina(pagina) {
     if (!window.sessionIniciada) {
         const script = document.createElement("script");
-        script.src = "../js/session.js"; // Corrigir o path se necessário
+        script.src = "../js/session.js";
         document.head.appendChild(script);
 
         window.sessionIniciada = true;
@@ -113,7 +113,7 @@ async function carregarESexecutarModulo(pagina) {
                 modulo = await import(`../js/cadastrar_alunos.js?cache=${Date.now()}`);
                 if (modulo && typeof modulo.initAlunos === "function") {
                     console.log(`✅ Executando initAlunos() de '${pagina}'`);
-                    modulo.initAlunos();  // <-- Chamada correta para a função exportada!
+                    modulo.initAlunos();
                 } else {
                     console.error(`❌ Módulo de '${pagina}' não possui uma função initAlunos().`);
                 }
@@ -178,6 +178,11 @@ async function alterarSenha() {
     const novaSenha = document.getElementById("novaSenha").value;
     const usuario = JSON.parse(sessionStorage.getItem("usuario"));
 
+    if (!novaSenha || novaSenha.length < 6) {
+        showAlert("warning", "Senha inválida", "A senha deve ter no mínimo 6 caracteres.", 3000);
+        return;
+    }
+
     const resposta = await fetch(`http://localhost:3000/servidores/${usuario.id}/alterarSenha`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -185,13 +190,27 @@ async function alterarSenha() {
     });
 
     if (resposta.ok) {
-        alert("Senha alterada com sucesso!");
+        showAlert("success", "Senha alterada com sucesso!");
         usuario.alterou_senha = 1;
         sessionStorage.setItem("usuario", JSON.stringify(usuario));
-        window.location.reload();
+        setTimeout(() => window.location.reload(), 2000);
     } else {
-        alert("Erro ao alterar senha!");
+        showAlert("error", "Erro ao alterar senha!", "Tente novamente mais tarde.", 4000);
     }
+}
+
+// ✅ Função global de alert padrão usando SweetAlert2
+function showAlert(icon = 'info', title = '', text = '', timer = 3000) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text,
+        showConfirmButton: false,
+        timer: timer,
+        timerProgressBar: true,
+        toast: icon === 'success' || icon === 'info' || icon === 'warning' ? true : false,
+        position: icon === 'success' || icon === 'info' || icon === 'warning' ? 'top-end' : 'center'
+    });
 }
 
 // ✅ Função de logout
