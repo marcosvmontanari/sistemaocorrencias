@@ -43,7 +43,7 @@ export function init() {
 async function carregarFiltros() {
     try {
         // Carregar alunos
-        const alunosRes = await fetch("http://localhost:3000/alunos?limit=10000");
+        const alunosRes = await fetch("http://localhost:3000/alunos?page=1&limit=10000");
         const alunosData = await alunosRes.json();
         const selectAluno = document.getElementById("aluno");
 
@@ -56,7 +56,7 @@ async function carregarFiltros() {
         });
 
         // Carregar servidores
-        const servidoresRes = await fetch("http://localhost:3000/servidores");
+        const servidoresRes = await fetch("http://localhost:3000/servidores?page=1&limit=10000");
         const servidoresData = await servidoresRes.json();
         const selectServidor = document.getElementById("servidor");
 
@@ -91,6 +91,7 @@ async function carregarFiltros() {
         });
     }
 }
+
 
 // 🔸 Função para buscar e exibir os relatórios na tabela
 async function buscarRelatorios() {
