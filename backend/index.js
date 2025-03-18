@@ -1,8 +1,15 @@
 // Importação das dependências
 const express = require("express");
+import cors from 'cors';
 const cors = require("cors");
+import dotenv from 'dotenv';
+
 require("dotenv").config();
 const db = require("./config/db");
+
+
+dotenv.config();
+
 
 // Inicializa o servidor
 const app = express();
@@ -10,7 +17,9 @@ const app = express();
 // Middleware para permitir requisições JSON e CORS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+    origin: 'http://200.17.65.177', // OU: 'http://200.17.65.177'
+}));
 
 // Rota inicial de teste
 app.get("/", (req, res) => {
