@@ -26,7 +26,7 @@ if (loginForm) {
         console.log("📌 Tentando login com:", { email, senha });
 
         try {
-            const response = await fetch("http://localhost:3000/auth/login", {
+            const response = await fetch("http://200.17.65.177:3000/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, senha })
@@ -74,7 +74,7 @@ async function alterarSenha() {
     const usuario = JSON.parse(sessionStorage.getItem("usuario"));
 
     try {
-        const resposta = await fetch(`http://localhost:3000/servidores/${usuario.id}/alterarSenha`, {
+        const resposta = await fetch(`http://200.17.65.177:3000/servidores/${usuario.id}/alterarSenha`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ senha: novaSenha })

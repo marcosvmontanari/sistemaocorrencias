@@ -37,7 +37,7 @@ async function carregarAlunos() {
     try {
         console.log("🔹 Buscando alunos no servidor...");
 
-        const resposta = await fetch("http://localhost:3000/alunos/todos");
+        const resposta = await fetch("http://200.17.65.177:3000/alunos/todos");
 
         if (!resposta.ok) throw new Error("❌ Falha ao buscar alunos!");
 
@@ -81,7 +81,7 @@ async function carregarInfracoes() {
     try {
         console.log("🔹 Buscando infrações...");
 
-        const resposta = await fetch("http://localhost:3000/infracoes");
+        const resposta = await fetch("http://200.17.65.177:3000/infracoes");
         if (!resposta.ok) throw new Error("❌ Falha ao buscar infrações!");
 
         const infracoes = await resposta.json();
@@ -134,7 +134,7 @@ async function cadastrarOcorrencia(usuario) {
     }
 
     try {
-        const resposta = await fetch("http://localhost:3000/ocorrencias/cadastrar", {
+        const resposta = await fetch("http://200.17.65.177:3000/ocorrencias/cadastrar", {
             method: "POST",
             body: formData
         });

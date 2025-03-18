@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     async function carregarOcorrencias() {
         try {
-            const response = await fetch("http://localhost:3000/ocorrencias/listar");
+            const response = await fetch("http://200.17.65.177:3000/ocorrencias/listar");
             const ocorrencias = await response.json();
             exibirOcorrencias(ocorrencias);
         } catch (error) {
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Filtragem de ocorrências
     btnFiltrar.addEventListener("click", async function () {
         try {
-            const response = await fetch("http://localhost:3000/ocorrencias/listar");
+            const response = await fetch("http://200.17.65.177:3000/ocorrencias/listar");
             let ocorrencias = await response.json();
 
             const alunoFiltro = filtroAluno.value.toLowerCase();
