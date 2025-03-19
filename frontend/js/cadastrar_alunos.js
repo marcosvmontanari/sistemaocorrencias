@@ -56,7 +56,7 @@ async function initAlunos() {
         try {
             console.log("📌 Carregando lista de alunos...");
 
-            let url = `http://200.17.65.177:3000/alunos?page=${page}&limit=${limit}`;
+            let url = `${BASE_URL}/alunos?page=${page}&limit=${limit}`;
             if (termoBusca !== "") {
                 url += `&busca=${encodeURIComponent(termoBusca)}`;
             }
@@ -161,7 +161,7 @@ async function initAlunos() {
         }
 
         try {
-            const resposta = await fetch("http://200.17.65.177:3000/alunos/cadastrar", {
+            const resposta = await fetch(`${BASE_URL}/alunos/cadastrar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nome, turma, curso })
@@ -194,7 +194,7 @@ async function initAlunos() {
         if (!confirmacao.isConfirmed) return;
 
         try {
-            const resposta = await fetch(`http://200.17.65.177:3000/alunos/${id}`, {
+            const resposta = await fetch(`${BASE_URL}/alunos/${id}`, {
                 method: "DELETE"
             });
 
@@ -233,7 +233,7 @@ async function initAlunos() {
         }
 
         try {
-            const resposta = await fetch(`http://200.17.65.177:3000/alunos/${id}`, {
+            const resposta = await fetch(`${BASE_URL}/alunos/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nome, turma, curso })
@@ -260,7 +260,7 @@ async function initAlunos() {
             const formData = new FormData();
             formData.append("csvFile", file);
 
-            fetch("http://200.17.65.177:3000/upload-csv/alunos", {
+            fetch(`${BASE_URL}/upload-csv/alunos`, {
                 method: "POST",
                 body: formData,
             })

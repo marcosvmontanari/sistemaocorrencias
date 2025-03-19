@@ -32,19 +32,18 @@ export function init() {
     }
 }
 
-// 🔹 Função para carregar alunos no select
+// 🔹 Função para carregar alunos no select (AGORA COM TURMA E CURSO DIRETO NO SELECT)
 async function carregarAlunos() {
     try {
         console.log("🔹 Buscando alunos no servidor...");
 
-        const resposta = await fetch("http://200.17.65.177:3000/alunos/todos");
-
+        const resposta = await fetch(`${BASE_URL}/alunos/todos`);
         if (!resposta.ok) throw new Error("❌ Falha ao buscar alunos!");
 
         const data = await resposta.json();
         const alunos = data.alunos;
 
-        console.log(`✅ ${alunos.length} alunos carregados!`);
+        console.log("🔸 Dados de alunos recebidos:", alunos);
 
         const selectAluno = document.getElementById("aluno");
         if (!selectAluno) {
@@ -55,9 +54,16 @@ async function carregarAlunos() {
         selectAluno.innerHTML = `<option value="">Selecione o aluno...</option>`;
 
         alunos.forEach(aluno => {
+            console.log(`Nome: ${aluno.nome}, Turma: ${aluno.turma}, Curso: ${aluno.curso}`);
+
             let option = document.createElement("option");
             option.value = aluno.id;
-            option.textContent = aluno.nome;
+
+            // 🔹 Exibe a turma e curso diretamente no select
+            const turma = aluno.turma || "Sem turma";
+            const curso = aluno.curso || "Sem curso";
+
+            option.textContent = `${aluno.nome} - ${turma} / ${curso}`;
             selectAluno.appendChild(option);
         });
 
@@ -65,7 +71,7 @@ async function carregarAlunos() {
             selectAluno.tomselect.destroy();
         }
 
-        new TomSelect("#aluno", {
+        const tomSelectAluno = new TomSelect("#aluno", {
             create: false,
             sortField: { field: "text", direction: "asc" },
             placeholder: "Selecione o aluno..."
@@ -81,7 +87,7 @@ async function carregarInfracoes() {
     try {
         console.log("🔹 Buscando infrações...");
 
-        const resposta = await fetch("http://200.17.65.177:3000/infracoes");
+        const resposta = await fetch(`${BASE_URL}/infracoes`);
         if (!resposta.ok) throw new Error("❌ Falha ao buscar infrações!");
 
         const infracoes = await resposta.json();
@@ -134,10 +140,11 @@ async function cadastrarOcorrencia(usuario) {
     }
 
     try {
-        const resposta = await fetch("http://200.17.65.177:3000/ocorrencias/cadastrar", {
+        const resposta = await fetch(`${BASE_URL}/ocorrencias/cadastrar`, {
             method: "POST",
             body: formData
         });
+
 
         if (resposta.ok) {
             Swal.fire({

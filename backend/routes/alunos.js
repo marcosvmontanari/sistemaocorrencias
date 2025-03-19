@@ -200,7 +200,7 @@ async function insertDataBatch(data) {
 // ✅ Rota para listar todos os alunos (sem paginação)
 router.get("/todos", async (req, res) => {
     try {
-        const query = `SELECT id, nome FROM alunos ORDER BY nome ASC`;
+        const query = `SELECT id, nome, turma, curso FROM alunos ORDER BY nome ASC`;
         const [rows] = await db.execute(query);
 
         res.json({
@@ -210,6 +210,25 @@ router.get("/todos", async (req, res) => {
     } catch (error) {
         console.error("❌ Erro ao listar todos os alunos:", error);
         res.status(500).json({ erro: "Erro interno ao listar todos os alunos." });
+    }
+});
+
+
+// ✅ Rota para buscar um aluno por ID (turma e curso inclusos)
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const aluno = await buscarAlunoPorId(id);
+
+        if (!aluno) {
+            return res.status(404).json({ erro: "Aluno não encontrado" });
+        }
+
+        res.status(200).json(aluno);
+
+    } catch (error) {
+        console.error("❌ Erro ao buscar aluno:", error);
+        res.status(500).json({ erro: "Erro interno ao buscar aluno" });
     }
 });
 

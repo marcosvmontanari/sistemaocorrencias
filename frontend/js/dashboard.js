@@ -183,7 +183,7 @@ async function alterarSenha() {
         return;
     }
 
-    const resposta = await fetch(`http://200.17.65.177:3000/servidores/${usuario.id}/alterarSenha`, {
+    const resposta = await fetch(`${BASE_URL}/servidores/${usuario.id}/alterarSenha`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ senha: novaSenha })

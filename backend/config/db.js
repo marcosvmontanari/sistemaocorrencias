@@ -4,7 +4,7 @@ const mysql = require('mysql2/promise'); // ✅ obrigatório para usar async/awa
 const db = mysql.createPool({
     host: "localhost",          // ou o IP/endereço do seu banco
     user: "root",               // seu usuário do banco
-    password: "ifnmg",               // sua senha (deixe vazio se não tiver senha)
+    password: "147852369",               // sua senha (deixe vazio se não tiver senha)
     database: "sistema_ocorrencias"  // nome do banco
 });
 

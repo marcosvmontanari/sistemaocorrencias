@@ -1,11 +1,19 @@
 <h2>Cadastrar Ocorrência</h2>
 
 <form id="formOcorrencia">
+
     <!-- Aluno -->
     <div class="mb-3">
         <label for="aluno" class="form-label">Aluno:</label>
         <select id="aluno" name="aluno" class="form-select" required></select>
     </div>
+
+    <!-- Informações adicionais do Aluno -->
+    <div class="mb-3" id="infoAlunoBox" style="display: none;">
+        <p><strong>Turma:</strong> <span id="infoTurma"></span></p>
+        <p><strong>Curso:</strong> <span id="infoCurso"></span></p>
+    </div>
+    
 
     <!-- Tipo de Infração -->
     <div class="mb-3">

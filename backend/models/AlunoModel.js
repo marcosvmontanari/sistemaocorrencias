@@ -48,9 +48,10 @@ async function listarAlunosPaginado(page = 1, limit = 10, busca = "") {
 
 // ✅ Buscar um aluno por ID
 async function buscarAlunoPorId(id) {
-    const sql = "SELECT * FROM alunos WHERE id = ?";
-    const [aluno] = await db.execute(sql, [id]);
-    return aluno.length ? aluno[0] : null;
+    const query = "SELECT * FROM alunos WHERE id = ?";
+    const [rows] = await db.execute(query, [id]);
+
+    return rows.length > 0 ? rows[0] : null;
 }
 
 // ✅ Atualizar um aluno pelo ID

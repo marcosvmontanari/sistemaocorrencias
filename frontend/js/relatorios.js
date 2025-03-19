@@ -43,7 +43,7 @@ export function init() {
 async function carregarFiltros() {
     try {
         // Carregar alunos
-        const alunosRes = await fetch("http://200.17.65.177:3000/alunos?page=1&limit=10000");
+        const alunosRes = await fetch(`${BASE_URL}/alunos?limit=10000`);
         const alunosData = await alunosRes.json();
         const selectAluno = document.getElementById("aluno");
 
@@ -56,7 +56,7 @@ async function carregarFiltros() {
         });
 
         // Carregar servidores
-        const servidoresRes = await fetch("http://200.17.65.177:3000/servidores?page=1&limit=10000");
+        const servidoresRes = await fetch(`${BASE_URL}/servidores?page=1&limit=10000`);
         const servidoresData = await servidoresRes.json();
         const selectServidor = document.getElementById("servidor");
 
@@ -101,7 +101,8 @@ async function buscarRelatorios() {
     const aluno = document.getElementById("aluno").value;
     const servidor = document.getElementById("servidor").value;
 
-    const url = `http://200.17.65.177:3000/relatorios/dados?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}`;
+    const url = `${BASE_URL}/relatorios/dados?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}`;
+
 
     try {
         const resposta = await fetch(url);
@@ -153,7 +154,7 @@ async function gerarRelatorioPDF() {
     const aluno = document.getElementById("aluno").value;
     const servidor = document.getElementById("servidor").value;
 
-    const url = `http://200.17.65.177:3000/relatorios/gerar?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}`;
+    const url = `${BASE_URL}/relatorios/gerar?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}`;
 
     try {
         const resposta = await fetch(url, { method: "GET" });

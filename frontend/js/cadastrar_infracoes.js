@@ -27,7 +27,7 @@ async function init() {
 
 async function carregarInfracoes() {
     try {
-        const resposta = await fetch("http://200.17.65.177:3000/infracoes");
+        const resposta = await fetch(`${BASE_URL}/infracoes`);
         const infracoes = await resposta.json();
 
         const tabela = document.getElementById("tabelaInfracoes");
@@ -82,7 +82,7 @@ async function cadastrarInfracao() {
     }
 
     try {
-        const resposta = await fetch("http://200.17.65.177:3000/infracoes/cadastrar", {
+        const resposta = await fetch(`${BASE_URL}/infracoes/cadastrar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ descricao, tipo })
@@ -113,7 +113,7 @@ async function excluirInfracao(id) {
     if (!confirmacao.isConfirmed) return;
 
     try {
-        const resposta = await fetch(`http://200.17.65.177:3000/infracoes/${id}`, {
+        const resposta = await fetch(`${BASE_URL} /infracoes/${id}`, {
             method: "DELETE"
         });
 
@@ -154,7 +154,7 @@ async function salvarEdicao(modal) {
     }
 
     try {
-        const resposta = await fetch(`http://200.17.65.177:3000/infracoes/${id}`, {
+        const resposta = await fetch(`${BASE_URL} /infracoes/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ descricao, tipo })
@@ -188,7 +188,7 @@ async function handleCSVUpload(event) {
         const formData = new FormData();
         formData.append("csvFile", file);
 
-        fetch("http://200.17.65.177:3000/infracoes/upload-csv", {
+        fetch(`${BASE_URL}/infracoes/upload-csv`, {
             method: "POST",
             body: formData,
         })

@@ -46,7 +46,7 @@ async function initServidores() {
         try {
             console.log("📦 Carregando servidores...");
 
-            let url = `http://200.17.65.177:3000/servidores?page=${page}&limit=${limit}`;
+            let url = `${BASE_URL}/servidores?page=${page}&limit=${limit}`;
             if (termoBusca !== "") {
                 url += `&busca=${encodeURIComponent(termoBusca)}`;
             }
@@ -163,7 +163,7 @@ async function initServidores() {
         }
 
         try {
-            const resposta = await fetch("http://200.17.65.177:3000/servidores/cadastrar", {
+            const resposta = await fetch(`${BASE_URL}/servidores/cadastrar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nome, email, siape, tipo })
@@ -196,7 +196,7 @@ async function initServidores() {
         if (!confirmacao.isConfirmed) return;
 
         try {
-            const resposta = await fetch(`http://200.17.65.177:3000/servidores/${id}`, {
+            const resposta = await fetch(`${BASE_URL}/servidores/${id}`, {
                 method: "DELETE"
             });
 
@@ -219,7 +219,7 @@ async function initServidores() {
 
         document.getElementById("editId").value = id;
 
-        fetch(`http://200.17.65.177:3000/servidores/${id}`)
+        fetch(`${BASE_URL}/servidores/${id}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erro ao carregar dados do servidor');
@@ -251,7 +251,7 @@ async function initServidores() {
         }
 
         try {
-            const resposta = await fetch(`http://200.17.65.177:3000/servidores/${id}`, {
+            const resposta = await fetch(`${BASE_URL}/servidores/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ nome, email, siape, tipo })
@@ -282,7 +282,7 @@ async function initServidores() {
         if (!confirmacao.isConfirmed) return;
 
         try {
-            const resposta = await fetch(`http://200.17.65.177:3000/servidores/${id}/resetarSenha`, {
+            const resposta = await fetch(`${BASE_URL}/servidores/${id}/resetarSenha`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" }
             });
@@ -307,7 +307,7 @@ async function initServidores() {
             const formData = new FormData();
             formData.append("csvFile", file);
 
-            fetch("http://200.17.65.177:3000/servidores/upload-csv", {
+            fetch(`${BASE_URL}/servidores/upload-csv`, {
                 method: "POST",
                 body: formData,
             })
