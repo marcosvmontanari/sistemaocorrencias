@@ -14,6 +14,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+/* ===============================================================
+   🔹 ROTAS EXISTENTES (MANTIDAS)
+=============================================================== */
 
 // 🔹 Rota para cadastrar uma nova ocorrência
 router.post("/cadastrar", upload.single("imagem"), async (req, res) => {
@@ -33,12 +36,89 @@ router.post("/cadastrar", upload.single("imagem"), async (req, res) => {
 router.get("/", async (req, res) => {
     try {
         const ocorrencias = await OcorrenciaModel.listarOcorrencias();
-        res.json(ocorrencias);
+        res.json({ ocorrencias });
     } catch (error) {
         console.error("Erro ao listar ocorrências:", error);
         res.status(500).json({ mensagem: "Erro ao listar ocorrências." });
     }
 });
 
+/* ===============================================================
+   ✅ ROTAS ADICIONADAS ABAIXO
+=============================================================== */
+
+// 🔸 Rota para buscar uma ocorrência específica por ID
+router.get("/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const ocorrencia = await OcorrenciaModel.buscarOcorrenciaPorId(id);
+
+        if (!ocorrencia) {
+            return res.status(404).json({ mensagem: "Ocorrência não encontrada." });
+        }
+
+        res.json(ocorrencia);
+    } catch (error) {
+        console.error("Erro ao buscar ocorrência:", error);
+        res.status(500).json({ mensagem: "Erro ao buscar ocorrência." });
+    }
+});
+
+// 🔸 Rota para editar uma ocorrência específica (descricao e local)
+router.put("/:id", async (req, res) => {
+    const { id } = req.params;
+    const { descricao, local } = req.body;
+
+    try {
+        const ocorrenciaExistente = await OcorrenciaModel.buscarOcorrenciaPorId(id);
+
+        if (!ocorrenciaExistente) {
+            return res.status(404).json({ mensagem: "Ocorrência não encontrada." });
+        }
+
+        await OcorrenciaModel.atualizarOcorrencia(id, descricao, local);
+        res.json({ mensagem: "Ocorrência atualizada com sucesso!" });
+    } catch (error) {
+        console.error("Erro ao atualizar ocorrência:", error);
+        res.status(500).json({ mensagem: "Erro ao atualizar ocorrência." });
+    }
+});
+
+// 🔸 Rota para excluir uma ocorrência específica
+router.delete("/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const ocorrenciaExistente = await OcorrenciaModel.buscarOcorrenciaPorId(id);
+
+        if (!ocorrenciaExistente) {
+            return res.status(404).json({ mensagem: "Ocorrência não encontrada." });
+        }
+
+        await OcorrenciaModel.excluirOcorrencia(id);
+        res.json({ mensagem: "Ocorrência excluída com sucesso!" });
+    } catch (error) {
+        console.error("Erro ao excluir ocorrência:", error);
+        res.status(500).json({ mensagem: "Erro ao excluir ocorrência." });
+    }
+});
+
+// 🔸 (Opcional) Rota para listar ocorrências filtradas por parâmetros (aluno, tipo de infração)
+router.get("/filtro", async (req, res) => {
+    const { aluno, tipo_infracao } = req.query;
+
+    try {
+        const ocorrencias = await OcorrenciaModel.filtrarOcorrencias({ aluno, tipo_infracao });
+        res.json({ ocorrencias });
+    } catch (error) {
+        console.error("Erro ao filtrar ocorrências:", error);
+        res.status(500).json({ mensagem: "Erro ao filtrar ocorrências." });
+    }
+});
+
+/* ===============================================================
+   ✅ FIM DAS ROTAS
+=============================================================== */
 
 module.exports = router;

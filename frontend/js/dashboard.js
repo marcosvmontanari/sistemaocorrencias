@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="#" class="list-group-item" data-page="cadastrar_alunos.html">👥 Gerenciar Alunos</a>
             <a href="#" class="list-group-item" data-page="cadastrar_infracoes.html">⚠️ Gerenciar Infrações</a>
             <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
+            <a href="#" class="list-group-item" data-page="listar_ocorrencias.html">📂 Listar Ocorrências</a>
             <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
         `;
     } else {
@@ -136,6 +137,13 @@ async function carregarESexecutarModulo(pagina) {
 
             case "cadastrar_ocorrencia.html":
                 modulo = await import(`../js/cadastrar_ocorrencia.js?cache=${Date.now()}`);
+                if (modulo && typeof modulo.init === "function") {
+                    modulo.init();
+                }
+                break;
+            
+            case "listar_ocorrencias.html":
+                modulo = await import(`../js/listar_ocorrencias.js?cache=${Date.now()}`);
                 if (modulo && typeof modulo.init === "function") {
                     modulo.init();
                 }

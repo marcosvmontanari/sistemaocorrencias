@@ -1,0 +1,53 @@
+<div class="container mt-4">
+    <h2>Listar Ocorrências</h2>
+
+    <!-- Tabela de Ocorrências -->
+    <div class="table-responsive">
+        <table class="table table-striped" id="tabelaOcorrencias">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Aluno</th>
+                    <th>Infração</th>
+                    <th>Descrição</th>
+                    <th>Local</th>
+                    <th>Servidor</th>
+                    <th>Data/Hora</th>
+                    <th>Imagem</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Conteúdo inserido pelo JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal de Edição de Ocorrência -->
+    <div class="modal fade" id="modalEditarOcorrencia" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Editar Ocorrência</h5>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editarOcorrenciaId">
+
+                    <div class="mb-3">
+                        <label for="editarDescricao" class="form-label">Descrição</label>
+                        <textarea id="editarDescricao" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editarLocal" class="form-label">Local</label>
+                        <input type="text" id="editarLocal" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" onclick="salvarEdicaoOcorrencia()">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
