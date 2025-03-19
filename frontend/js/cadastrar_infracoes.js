@@ -113,7 +113,7 @@ async function excluirInfracao(id) {
     if (!confirmacao.isConfirmed) return;
 
     try {
-        const resposta = await fetch(`${BASE_URL} /infracoes/${id}`, {
+        const resposta = await fetch(`${BASE_URL}/infracoes/${id}`, {
             method: "DELETE"
         });
 
@@ -154,7 +154,7 @@ async function salvarEdicao(modal) {
     }
 
     try {
-        const resposta = await fetch(`${BASE_URL} /infracoes/${id}`, {
+        const resposta = await fetch(`${BASE_URL}/infracoes/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ descricao, tipo })

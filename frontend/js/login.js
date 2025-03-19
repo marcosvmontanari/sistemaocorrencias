@@ -8,7 +8,7 @@ if (usuarioSessao) {
     window.location.href = "dashboard.html";
 }
 
-// 🔸 Seleciona o formulário
+// 🔸 Seleciona o formulário de login
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
@@ -26,7 +26,7 @@ if (loginForm) {
         console.log("📌 Tentando login com:", { email, senha });
 
         try {
-            const response = await fetch(`${BASE_URL}/auth/login`, {
+            const response = await fetch(`${BASE_URL}/servidores/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, senha })
@@ -43,6 +43,7 @@ if (loginForm) {
                 } else {
                     window.location.href = "dashboard.html";
                 }
+
             } else {
                 showAlert("error", "Erro", data.erro || "Usuário ou senha inválidos!");
             }
@@ -56,18 +57,34 @@ if (loginForm) {
     console.error("❌ Formulário de login não encontrado!");
 }
 
-// 🔸 Função para abrir o modal de alterar senha
+// 🔸 Função para abrir o modal de alterar senha no primeiro login
 function abrirModalAlterarSenha() {
+    console.log("🔐 Exibindo modal de alteração de senha obrigatória...");
     const modal = new bootstrap.Modal(document.getElementById("modalAlterarSenha"));
     modal.show();
 }
 
-// 🔸 Função para alterar a senha
+// 🔸 Função para alterar a senha (validação e requisição)
 async function alterarSenha() {
     const novaSenha = document.getElementById("novaSenha").value.trim();
+    const confirmarSenha = document.getElementById("confirmarSenha").value.trim();
+    const erroSenha = document.getElementById("erroSenha");
 
-    if (!novaSenha || novaSenha.length < 6) {
-        showToast("A senha deve ter no mínimo 6 caracteres.");
+    // Limpa o campo de erro antes de validar
+    erroSenha.innerText = "";
+
+    if (!novaSenha || !confirmarSenha) {
+        erroSenha.innerText = "Preencha ambos os campos de senha.";
+        return;
+    }
+
+    if (novaSenha.length < 6) {
+        erroSenha.innerText = "A senha deve ter no mínimo 6 caracteres.";
+        return;
+    }
+
+    if (novaSenha !== confirmarSenha) {
+        erroSenha.innerText = "As senhas não coincidem.";
         return;
     }
 

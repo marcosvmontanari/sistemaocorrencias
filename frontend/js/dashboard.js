@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // ✅ Se a senha ainda não foi alterada, abre o modal
     if (usuario.alterou_senha === 0) {
         abrirModalAlterarSenha();
     }
@@ -150,56 +151,78 @@ async function carregarESexecutarModulo(pagina) {
     }
 }
 
-// ✅ Modal de alteração de senha no primeiro login
+// ✅ Função para abrir o modal já existente no HTML
 function abrirModalAlterarSenha() {
-    const modalHtml = `
-    <div class="modal fade" id="modalAlterarSenha" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5>Alterar Senha</h5>
-                </div>
-                <div class="modal-body">
-                    <input type="password" id="novaSenha" placeholder="Nova Senha" class="form-control">
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="alterarSenha()">Salvar</button>
-                </div>
-            </div>
-        </div>
-    </div>`;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    const modal = new bootstrap.Modal(document.getElementById("modalAlterarSenha"));
-    modal.show();
-}
+    const modalElement = document.getElementById("modalAlterarSenha");
 
-// ✅ Função de alterar senha
-async function alterarSenha() {
-    const novaSenha = document.getElementById("novaSenha").value;
-    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
-
-    if (!novaSenha || novaSenha.length < 6) {
-        showAlert("warning", "Senha inválida", "A senha deve ter no mínimo 6 caracteres.", 3000);
+    if (!modalElement) {
+        console.error("❌ Modal de alteração de senha não encontrado!");
         return;
     }
 
-    const resposta = await fetch(`${BASE_URL}/servidores/${usuario.id}/alterarSenha`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ senha: novaSenha })
-    });
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+}
 
-    if (resposta.ok) {
-        showAlert("success", "Senha alterada com sucesso!");
-        usuario.alterou_senha = 1;
-        sessionStorage.setItem("usuario", JSON.stringify(usuario));
-        setTimeout(() => window.location.reload(), 2000);
-    } else {
-        showAlert("error", "Erro ao alterar senha!", "Tente novamente mais tarde.", 4000);
+// ✅ Função de alterar senha com validação e SweetAlert2
+async function alterarSenha() {
+    const novaSenha = document.getElementById("novaSenha").value.trim();
+    const confirmarSenha = document.getElementById("confirmarSenha")?.value?.trim();
+    const erroSenha = document.getElementById("erroSenha");
+
+    if (erroSenha) erroSenha.innerText = "";
+
+    if (!novaSenha || novaSenha.length < 6) {
+        if (erroSenha) {
+            erroSenha.innerText = "A senha deve ter no mínimo 6 caracteres.";
+        } else {
+            showAlert("warning", "Senha inválida", "A senha deve ter no mínimo 6 caracteres.", 3000);
+        }
+        return;
+    }
+
+    if (confirmarSenha !== undefined && novaSenha !== confirmarSenha) {
+        if (erroSenha) {
+            erroSenha.innerText = "As senhas não coincidem.";
+        } else {
+            showAlert("warning", "Erro", "As senhas não coincidem.", 3000);
+        }
+        return;
+    }
+
+    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+
+    try {
+        const resposta = await fetch(`${BASE_URL}/servidores/${usuario.id}/alterarSenha`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ senha: novaSenha })
+        });
+
+        if (resposta.ok) {
+            showAlert("success", "Senha alterada com sucesso!");
+
+            usuario.alterou_senha = 1;
+            sessionStorage.setItem("usuario", JSON.stringify(usuario));
+
+            setTimeout(() => window.location.reload(), 2000);
+        } else {
+            showAlert("error", "Erro ao alterar senha!", "Tente novamente mais tarde.", 4000);
+        }
+
+    } catch (error) {
+        console.error("❌ Erro ao alterar senha:", error);
+        showAlert("error", "Erro ao conectar com o servidor!", "Verifique a conexão e tente novamente.", 4000);
     }
 }
 
-// ✅ Função global de alert padrão usando SweetAlert2
+// ✅ Função de logout
+function logout() {
+    sessionStorage.removeItem("usuario");
+    window.location.href = "index.html";
+}
+
+// ✅ Função global de alerta padrão com SweetAlert2
 function showAlert(icon = 'info', title = '', text = '', timer = 3000) {
     Swal.fire({
         icon: icon,
@@ -211,10 +234,4 @@ function showAlert(icon = 'info', title = '', text = '', timer = 3000) {
         toast: icon === 'success' || icon === 'info' || icon === 'warning' ? true : false,
         position: icon === 'success' || icon === 'info' || icon === 'warning' ? 'top-end' : 'center'
     });
-}
-
-// ✅ Função de logout
-function logout() {
-    sessionStorage.removeItem("usuario");
-    window.location.href = "index.html";
 }
