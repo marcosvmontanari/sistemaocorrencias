@@ -83,6 +83,7 @@ async function carregarPagina(pagina) {
     if (alertaInfo) alertaInfo.style.display = "none";
 
     try {
+        console.log(`🔄 Carregando página: ${pagina}`);
         const resposta = await fetch(`pages/${pagina}`);
         if (!resposta.ok) throw new Error(`Erro ao carregar a página: ${pagina}`);
 
@@ -103,17 +104,17 @@ async function carregarESexecutarModulo(pagina) {
     try {
         let modulo = null;
 
+        console.log(`🔄 Importando módulo JS para: ${pagina}`);
+
         switch (pagina) {
             case "cadastrar_servidores.html":
                 modulo = await import(`../js/cadastrar_servidores.js?cache=${Date.now()}`);
-                if (modulo && typeof modulo.init === "function") {
-                    modulo.init();
-                }
+                if (modulo?.init) modulo.init();
                 break;
 
             case "cadastrar_alunos.html":
                 modulo = await import(`../js/cadastrar_alunos.js?cache=${Date.now()}`);
-                if (modulo && typeof modulo.initAlunos === "function") {
+                if (modulo?.initAlunos) {
                     console.log(`✅ Executando initAlunos() de '${pagina}'`);
                     modulo.initAlunos();
                 } else {
@@ -123,29 +124,26 @@ async function carregarESexecutarModulo(pagina) {
 
             case "cadastrar_infracoes.html":
                 modulo = await import(`../js/cadastrar_infracoes.js?cache=${Date.now()}`);
-                if (modulo && typeof modulo.init === "function") {
-                    modulo.init();
-                }
+                if (modulo?.init) modulo.init();
                 break;
 
             case "relatorios.html":
                 modulo = await import(`../js/relatorios.js?cache=${Date.now()}`);
-                if (modulo && typeof modulo.init === "function") {
-                    modulo.init();
-                }
+                if (modulo?.init) modulo.init();
                 break;
 
             case "cadastrar_ocorrencia.html":
                 modulo = await import(`../js/cadastrar_ocorrencia.js?cache=${Date.now()}`);
-                if (modulo && typeof modulo.init === "function") {
-                    modulo.init();
-                }
+                if (modulo?.init) modulo.init();
                 break;
-            
+
             case "listar_ocorrencias.html":
                 modulo = await import(`../js/listar_ocorrencias.js?cache=${Date.now()}`);
-                if (modulo && typeof modulo.init === "function") {
+                if (modulo?.init) {
+                    console.log(`✅ Executando init() de '${pagina}'`);
                     modulo.init();
+                } else {
+                    console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
                 }
                 break;
 
@@ -153,6 +151,8 @@ async function carregarESexecutarModulo(pagina) {
                 console.warn(`⚠️ Página '${pagina}' não possui módulo definido.`);
                 return;
         }
+
+        console.log(`✅ Módulo JS para '${pagina}' carregado e executado.`);
 
     } catch (error) {
         console.error(`❌ Erro ao importar o módulo JS para '${pagina}'`, error);

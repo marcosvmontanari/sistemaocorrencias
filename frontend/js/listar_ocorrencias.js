@@ -58,7 +58,6 @@ export async function init() {
             ocorrenciasData.forEach(ocorrencia => {
                 tabelaOcorrencias.innerHTML += `
                     <tr>
-                        <td>${ocorrencia.id}</td>
                         <td>${ocorrencia.aluno_nome}</td>
                         <td>${ocorrencia.infracao_tipo}</td>
                         <td>${ocorrencia.descricao}</td>

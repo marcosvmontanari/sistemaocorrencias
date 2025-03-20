@@ -167,6 +167,86 @@ async function filtrarOcorrencias({ aluno, tipo_infracao }) {
 }
 
 /* ======================================================================================
+   ✅ LISTAR OCORRÊNCIAS PAGINADAS E COM BUSCA (NOVO)
+====================================================================================== */
+
+/**
+ * 🔸 Lista ocorrências com paginação e busca por aluno, infração ou local
+ * @param {object} filtros - { page, limit, busca }
+ */
+async function listarOcorrenciasPaginado({ page = 1, limit = 10, busca = "" }) {
+    try {
+        const pageInt = parseInt(page);
+        const limitInt = parseInt(limit);
+        const offsetInt = (pageInt - 1) * limitInt;
+
+        const filtroBusca = `%${busca}%`;
+
+        console.log("🔍 Model - Paginado - page:", pageInt, "limit:", limitInt, "busca:", busca);
+
+        const query = `
+            SELECT 
+                o.id,
+                o.local,
+                o.descricao,
+                o.data_hora,
+                o.imagem,
+                a.nome AS aluno_nome,
+                i.tipo AS infracao_tipo,
+                i.descricao AS infracao_descricao,
+                s.nome AS servidor_nome
+            FROM ocorrencias o
+            JOIN alunos a ON o.aluno_id = a.id
+            JOIN infracoes i ON o.infracao_id = i.id
+            JOIN servidores s ON o.servidor_id = s.id
+            WHERE 
+                a.nome LIKE ? OR 
+                i.tipo LIKE ? OR
+                o.local LIKE ?
+            ORDER BY o.data_hora DESC
+            LIMIT ${limitInt} OFFSET ${offsetInt}  -- ✅ inseridos diretamente aqui!
+        `;
+
+        const params = [filtroBusca, filtroBusca, filtroBusca];
+
+        console.log("📥 Params SELECT:", params);
+
+        const [ocorrencias] = await db.execute(query, params);
+
+        const queryCount = `
+            SELECT COUNT(*) AS total
+            FROM ocorrencias o
+            JOIN alunos a ON o.aluno_id = a.id
+            JOIN infracoes i ON o.infracao_id = i.id
+            WHERE 
+                a.nome LIKE ? OR 
+                i.tipo LIKE ? OR
+                o.local LIKE ?
+        `;
+
+        const paramsCount = [filtroBusca, filtroBusca, filtroBusca];
+
+        console.log("📥 Params COUNT:", paramsCount);
+
+        const [resultCount] = await db.execute(queryCount, paramsCount);
+
+        const total = resultCount[0]?.total || 0;
+
+        return {
+            ocorrencias,
+            total
+        };
+
+    } catch (error) {
+        console.error("❌ Erro no listarOcorrenciasPaginado:", error);
+        throw error;
+    }
+}
+
+
+
+
+/* ======================================================================================
    ✅ EXPORTA TODAS AS FUNÇÕES
 ====================================================================================== */
 
@@ -176,5 +256,6 @@ module.exports = {
     buscarOcorrenciaPorId,
     atualizarOcorrencia,
     excluirOcorrencia,
-    filtrarOcorrencias
+    filtrarOcorrencias,
+    listarOcorrenciasPaginado // ✅ Nova função adicionada aqui!
 };

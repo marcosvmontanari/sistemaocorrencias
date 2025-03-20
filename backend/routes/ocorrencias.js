@@ -32,16 +32,31 @@ router.post("/cadastrar", upload.single("imagem"), async (req, res) => {
     }
 });
 
-// 🔹 Rota para listar todas as ocorrências
+// 🔹 Rota para listar ocorrências com paginação e busca
 router.get("/", async (req, res) => {
     try {
-        const ocorrencias = await OcorrenciaModel.listarOcorrencias();
-        res.json({ ocorrencias });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const busca = req.query.busca || "";
+
+        console.log("🔍 Recebido na query:", { page, limit, busca });
+
+        const { ocorrencias, total } = await OcorrenciaModel.listarOcorrenciasPaginado({
+            page,
+            limit,
+            busca
+        });
+
+        console.log("✅ Ocorrências retornadas:", ocorrencias.length);
+        console.log("📊 Total de registros encontrados:", total);
+
+        res.json({ ocorrencias, total });
     } catch (error) {
-        console.error("Erro ao listar ocorrências:", error);
-        res.status(500).json({ mensagem: "Erro ao listar ocorrências." });
+        console.error("❌ Erro ao listar ocorrências:", error);
+        res.status(500).json({ mensagem: "Erro ao listar ocorrências.", erro: error.message });
     }
 });
+
 
 /* ===============================================================
    ✅ ROTAS ADICIONADAS ABAIXO
