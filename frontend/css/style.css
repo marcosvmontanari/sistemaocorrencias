@@ -69,6 +69,7 @@
 #menuLateral {
     width: 250px;
     height: calc(100vh - 56px);
+    /* altura total menos a navbar */
     position: fixed;
     top: 56px;
     left: 0;
@@ -77,7 +78,10 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    /* scroll se passar do tamanho */
     transition: width 0.3s ease-in-out;
+    max-height: calc(100vh - 56px);
+    /* garantir altura máxima */
 }
 
 /* 🔹 Ajuste do cabeçalho do menu */
@@ -122,6 +126,8 @@
 /* 🔹 Menu minimizado (exibe apenas os ícones) */
 #menuLateral.minimized {
     width: 60px;
+    overflow-y: hidden;
+    /* sem scroll quando minimizado */
 }
 
 /* 🔹 Quando o menu está minimizado, os textos somem */
@@ -138,6 +144,8 @@
 /* 🔹 Expande o menu automaticamente ao passar o mouse */
 #menuLateral.minimized:hover {
     width: 250px;
+    overflow-y: auto;
+    /* scroll quando expande no hover */
 }
 
 /* 🔹 Quando o menu expande ao passar o mouse, os textos reaparecem */
@@ -185,66 +193,41 @@
 th.action-column,
 td.action-column {
     width: 200px;
-    /* Ajuste a largura da coluna para se adequar ao conteúdo */
     text-align: center;
     padding: 0;
-    /* Remover o padding da coluna */
     vertical-align: middle;
-    /* Garante que o conteúdo seja alinhado verticalmente no meio */
     height: 50px;
-    /* Altura fixa para as células da coluna */
 }
 
-/* Ajuste na altura das células da coluna de ações */
 td {
     padding: 0;
     vertical-align: middle;
     height: 50px;
 }
 
-/* Ajuste do estilo dos botões */
 td button {
     width: 90px;
-    /* Largura fixa para cada botão */
     display: inline-block;
-    /* Faz os botões ficarem lado a lado */
     margin-right: 10px;
-    /* Deixa um pequeno espaço entre os botões */
     box-sizing: border-box;
-    /* Certifica-se de que o tamanho não seja alterado pelo padding ou bordas */
 }
 
-/* Remover qualquer margem ou padding extra nas células */
-td {
-    padding: 0;
-    vertical-align: middle;
-}
-
-/* Estilo dos botões */
 td button {
     width: 45%;
-    /* Largura fixa para cada botão */
     margin: 0 5px;
-    /* Espaçamento entre os botões */
     text-align: center;
-    /* Alinha o texto no centro do botão */
     display: inline-block;
-    /* Garante que fiquem lado a lado */
     box-sizing: border-box;
-    /* Garante que o tamanho não será alterado pelo padding ou bordas */
     vertical-align: middle;
-    /* Alinha os botões verticalmente no centro */
 }
 
 /* Ajuste de cor para o hover (opcional) */
 .btn-warning:hover {
     background-color: #ffc107;
-    /* Cor de hover para Editar */
 }
 
 .btn-danger:hover {
     background-color: #dc3545;
-    /* Cor de hover para Excluir */
 }
 
 /* Garantir que os ícones fiquem lado a lado */
@@ -252,26 +235,20 @@ td i {
     font-size: 18px;
     margin-right: 10px;
     cursor: pointer;
-    /* Aplica o cursor de mão nos ícones */
 }
 
 td i:hover {
     opacity: 0.7;
-    /* Efeito de hover nos ícones */
 }
 
-/* Estilo para a coluna de ações, garantindo que os ícones fiquem lado a lado */
 .tabela-infracoes .acoes-icons {
     display: inline-flex;
     gap: 10px;
-    /* Distância entre os ícones */
     justify-content: flex-start;
 }
 
-/* Definir os ícones para não alterarem de tamanho conforme a tela */
 .tabela-infracoes i {
     font-size: 18px;
-    /* Definir o tamanho fixo dos ícones */
     padding: 5px;
 }
 
