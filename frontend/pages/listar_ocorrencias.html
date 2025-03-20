@@ -1,52 +1,56 @@
-<div class="container mt-4">
-    <h2>Listar Ocorrências</h2>
+<h2>Lista de Ocorrências</h2>
 
-    <!-- Tabela de Ocorrências -->
-    <div class="table-responsive">
-        <table class="table table-striped" id="tabelaOcorrencias">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Aluno</th>
-                    <th>Infração</th>
-                    <th>Descrição</th>
-                    <th>Local</th>
-                    <th>Servidor</th>
-                    <th>Data/Hora</th>
-                    <th>Imagem</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Conteúdo inserido pelo JS -->
-            </tbody>
-        </table>
-    </div>
+<!-- 🔍 Campo de Busca -->
+<div class="mt-4 mb-3">
+    <label for="inputBuscaOcorrencias" class="form-label">🔍 Buscar Ocorrências</label>
+    <input type="text" id="inputBuscaOcorrencias" class="form-control"
+        placeholder="Buscar por aluno, infração ou local...">
+</div>
 
-    <!-- Modal de Edição de Ocorrência -->
-    <div class="modal fade" id="modalEditarOcorrencia" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5>Editar Ocorrência</h5>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editarOcorrenciaId">
+<!-- 📋 Tabela de Ocorrências -->
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Aluno</th>
+            <th>Infração</th>
+            <th>Descrição</th>
+            <th>Local</th>
+            <th>Servidor</th>
+            <th>Data/Hora</th>
+            <th>Imagem</th>
+            <th class="action-column">Ações</th>
+        </tr>
+    </thead>
+    <tbody id="tabelaOcorrencias">
+        <!-- As ocorrências serão carregadas aqui -->
+    </tbody>
+</table>
 
-                    <div class="mb-3">
-                        <label for="editarDescricao" class="form-label">Descrição</label>
-                        <textarea id="editarDescricao" class="form-control" rows="3"></textarea>
-                    </div>
+<!-- Paginação -->
+<div id="pagination" class="mt-4">
+    <!-- Aqui vai aparecer a navegação de páginas -->
+</div>
 
-                    <div class="mb-3">
-                        <label for="editarLocal" class="form-label">Local</label>
-                        <input type="text" id="editarLocal" class="form-control">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button class="btn btn-primary" onclick="salvarEdicaoOcorrencia()">Salvar Alterações</button>
-                </div>
+<!-- ✏️ Modal de Edição de Ocorrência -->
+<div class="modal fade" id="modalEditarOcorrencia" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Ocorrência</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editarOcorrenciaId">
+
+                <label for="editarDescricao">Descrição:</label>
+                <textarea id="editarDescricao" class="form-control mb-2" rows="3"></textarea>
+
+                <label for="editarLocal">Local:</label>
+                <input type="text" id="editarLocal" class="form-control mb-2">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="salvarEdicaoOcorrencia()">Salvar Alterações</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>

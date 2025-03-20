@@ -39,8 +39,20 @@ if (typeof TEMPO_MAXIMO_INATIVIDADE === "undefined") {
 
     // 🔸 Função para deslogar automaticamente por inatividade
     function logoutPorInatividade() {
-        alert("⏰ Sessão expirada por inatividade! Faça login novamente.");
-        logout();
+
+        // ✅ ALERTA ORIGINAL COMENTADO:
+        // alert("⏰ Sessão expirada por inatividade! Faça login novamente.");
+        // logout();
+
+        // ✅ NOVO ALERTA COM SWEETALERT2
+        Swal.fire({
+            icon: 'warning',
+            title: 'Sessão expirada!',
+            text: 'Faça login novamente.',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            logout();
+        });
     }
 
     // 🔸 Função que reinicia o timer sempre que o usuário interage
