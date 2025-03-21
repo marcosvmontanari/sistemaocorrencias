@@ -12,7 +12,9 @@ const upload = multer({ dest: "uploads/" });
 const ServidorModel = require("../models/ServidorModel");
 const { criarServidor, buscarServidorPorEmail } = require("../models/ServidorModel");
 
-// ✅ Upload de CSV de servidores
+/* =======================================================================
+   ✅ Upload de CSV de servidores
+======================================================================= */
 router.post("/upload-csv", upload.single("csvFile"), (req, res) => {
     const results = [];
     fs.createReadStream(req.file.path)
@@ -29,26 +31,28 @@ router.post("/upload-csv", upload.single("csvFile"), (req, res) => {
 async function insertDataBatch(data) {
     for (const row of data) {
         try {
-            const senhaPura = row.senha || row.siape;
+            const senhaPura = row.senha || row.siape; // se não tiver senha no CSV, usa o SIAPE como senha padrão
             const senhaCriptografada = await bcrypt.hash(senhaPura, 10);
 
             const [servidorExistente] = await db.execute("SELECT * FROM servidores WHERE siape = ?", [row.siape]);
 
             if (servidorExistente.length === 0) {
                 await db.query(
-                    "INSERT INTO servidores (nome, email, siape, tipo, senha) VALUES (?, ?, ?, ?, ?)",
-                    [row.nome, row.email, row.siape, row.tipo, senhaCriptografada]
+                    "INSERT INTO servidores (nome, email, siape, tipo, senha, alterou_senha) VALUES (?, ?, ?, ?, ?, ?)",
+                    [row.nome, row.email, row.siape, row.tipo || "SERVIDOR", senhaCriptografada, 0]
                 );
             } else {
                 console.log(`Servidor com SIAPE ${row.siape} já cadastrado.`);
             }
         } catch (error) {
-            console.error("Erro ao inserir servidor:", error);
+            console.error("❌ Erro ao inserir servidor:", error);
         }
     }
 }
 
-// ✅ Cadastro de novo servidor
+/* =======================================================================
+   ✅ Cadastro de novo servidor individual
+======================================================================= */
 router.post("/cadastrar", async (req, res) => {
     const { nome, email, siape, tipo } = req.body;
 
@@ -71,7 +75,9 @@ router.post("/cadastrar", async (req, res) => {
     }
 });
 
-// ✅ Excluir servidor
+/* =======================================================================
+   ✅ Excluir servidor
+======================================================================= */
 router.delete("/:id", async (req, res) => {
     const { id } = req.params;
 
@@ -89,7 +95,9 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
-// ✅ Editar servidor
+/* =======================================================================
+   ✅ Editar servidor (dados básicos, sem mexer na senha)
+======================================================================= */
 router.put("/:id", async (req, res) => {
     const { id } = req.params;
     const { nome, email, siape, tipo } = req.body;
@@ -112,7 +120,9 @@ router.put("/:id", async (req, res) => {
     }
 });
 
-// ✅ Login do servidor
+/* =======================================================================
+   ✅ Login do servidor
+======================================================================= */
 router.post("/login", async (req, res) => {
     try {
         const { email, senha } = req.body;
@@ -125,14 +135,9 @@ router.post("/login", async (req, res) => {
 
         const usuario = usuarios[0];
 
-        // 🔎 Debug opcional
-        console.log(`➡️ Tentando login: email=${email}, senha=${senha}`);
-        console.log(`➡️ Senha criptografada do banco: ${usuario.senha}`);
-
         const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
         if (!senhaValida) {
-            console.log("❌ Senha incorreta.");
             return res.status(401).json({ erro: "Senha incorreta." });
         }
 
@@ -151,7 +156,9 @@ router.post("/login", async (req, res) => {
     }
 });
 
-// ✅ Listar servidores com paginação e busca
+/* =======================================================================
+   ✅ Listar servidores com paginação e busca
+======================================================================= */
 router.get("/", async (req, res) => {
     try {
         let page = parseInt(req.query.page, 10) || 1;
@@ -199,7 +206,9 @@ router.get("/", async (req, res) => {
     }
 });
 
-// ✅ Resetar senha para SIAPE (criptografado)
+/* =======================================================================
+   ✅ Resetar senha para o SIAPE (criptografada)
+======================================================================= */
 router.put("/:id/resetarSenha", async (req, res) => {
     const { id } = req.params;
 
@@ -224,8 +233,9 @@ router.put("/:id/resetarSenha", async (req, res) => {
     }
 });
 
-
-// ✅ Alterar senha manualmente
+/* =======================================================================
+   ✅ Alterar senha manualmente (usuário altera por vontade própria)
+======================================================================= */
 router.put("/:id/alterarSenha", async (req, res) => {
     const { id } = req.params;
     const { senha } = req.body;
@@ -249,7 +259,9 @@ router.put("/:id/alterarSenha", async (req, res) => {
     }
 });
 
-// ✅ Buscar servidor por ID
+/* =======================================================================
+   ✅ Buscar servidor por ID
+======================================================================= */
 router.get("/:id", async (req, res) => {
     const { id } = req.params;
 

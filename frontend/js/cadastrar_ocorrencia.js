@@ -1,6 +1,6 @@
 console.log("🔹 Script cadastrar_ocorrencia.js carregado como módulo!");
 
-// 🔹 Função principal que será chamada pelo dashboard.js
+// 🔸 Função principal chamada ao importar este módulo
 export function init() {
     console.log("🔸 Inicializando módulo cadastrar_ocorrencias.js");
 
@@ -22,17 +22,17 @@ export function init() {
     carregarAlunos();
     carregarInfracoes();
 
-    // ✅ Evento de envio do formulário
+    // ✅ Evento de envio do formulário de ocorrência
     const formOcorrencia = document.getElementById("formOcorrencia");
     if (formOcorrencia) {
-        formOcorrencia.addEventListener("submit", async function (event) {
+        formOcorrencia.addEventListener("submit", function (event) {
             event.preventDefault();
-            await cadastrarOcorrencia(usuario);
+            cadastrarOcorrencia(usuario);
         });
     }
 }
 
-// 🔹 Função para carregar alunos no select (AGORA COM TURMA E CURSO DIRETO NO SELECT)
+// 🔸 Função para carregar alunos no select (exibindo turma e curso)
 async function carregarAlunos() {
     try {
         console.log("🔹 Buscando alunos no servidor...");
@@ -51,38 +51,47 @@ async function carregarAlunos() {
             return;
         }
 
+        // Limpa o select e adiciona o item padrão
         selectAluno.innerHTML = `<option value="">Selecione o aluno...</option>`;
 
+        // Popula o select com os alunos
         alunos.forEach(aluno => {
-            console.log(`Nome: ${aluno.nome}, Turma: ${aluno.turma}, Curso: ${aluno.curso}`);
-
-            let option = document.createElement("option");
-            option.value = aluno.id;
-
-            // 🔹 Exibe a turma e curso diretamente no select
             const turma = aluno.turma || "Sem turma";
             const curso = aluno.curso || "Sem curso";
 
+            const option = document.createElement("option");
+            option.value = aluno.id;
             option.textContent = `${aluno.nome} - ${turma} / ${curso}`;
+
             selectAluno.appendChild(option);
         });
 
-        if (selectAluno.tomselect) {
-            selectAluno.tomselect.destroy();
-        }
-
-        const tomSelectAluno = new TomSelect("#aluno", {
-            create: false,
-            sortField: { field: "text", direction: "asc" },
-            placeholder: "Selecione o aluno..."
+        // ✅ Inicializa o Select2 para o campo Aluno
+        $('#aluno').select2({
+            theme: 'bootstrap4',   // ✅ Troque para o tema Bootstrap
+            placeholder: "Selecione o aluno...",
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function () {
+                    return "Nenhum aluno encontrado";
+                }
+            }
         });
+
+        console.log("✅ Select2 de alunos aplicado com sucesso!");
 
     } catch (error) {
         console.error("❌ Erro ao carregar alunos:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao carregar alunos!',
+            text: 'Verifique sua conexão ou tente novamente.'
+        });
     }
 }
 
-// 🔹 Função para carregar tipos de infração no select
+// 🔸 Função para carregar tipos de infração no select
 async function carregarInfracoes() {
     try {
         console.log("🔹 Buscando infrações...");
@@ -93,58 +102,72 @@ async function carregarInfracoes() {
         const infracoes = await resposta.json();
 
         const selectInfracao = document.getElementById("tipo_infracao");
-
         if (!selectInfracao) {
             console.error("❌ Elemento <select id='tipo_infracao'> não encontrado!");
             return;
         }
 
+        // Limpa o select e adiciona o item padrão
         selectInfracao.innerHTML = `<option value="">Selecione a infração...</option>`;
 
+        // Popula o select com as infrações
         infracoes.forEach(infracao => {
-            let option = document.createElement("option");
+            const option = document.createElement("option");
             option.value = infracao.id;
             option.textContent = `${infracao.tipo} - ${infracao.descricao}`;
+
             selectInfracao.appendChild(option);
         });
 
-        if (selectInfracao.tomselect) {
-            selectInfracao.tomselect.destroy();
-        }
-
-        new TomSelect("#tipo_infracao", {
-            create: false,
-            sortField: { field: "text", direction: "asc" },
-            placeholder: "Selecione a infração..."
+        // ✅ Inicializa o Select2 para o campo Infração
+        $('#tipo_infracao').select2({
+            theme: 'bootstrap4',   // ✅ Tema Bootstrap para os selects
+            placeholder: "Selecione a infração...",
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function () {
+                    return "Nenhuma infração encontrada";
+                }
+            }
         });
+
+        console.log("✅ Select2 de infrações aplicado com sucesso!");
 
     } catch (error) {
         console.error("❌ Erro ao carregar infrações:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao carregar infrações!',
+            text: 'Verifique sua conexão ou tente novamente.'
+        });
     }
 }
 
-// 🔹 Função para enviar o formulário de cadastro de ocorrência
+// 🔸 Função para enviar o formulário de cadastro de ocorrência
 async function cadastrarOcorrencia(usuario) {
-    const formData = new FormData();
-
-    formData.append("aluno", document.getElementById("aluno").value);
-    formData.append("infracao", document.getElementById("tipo_infracao").value);
-    formData.append("local", document.getElementById("local").value);
-    formData.append("descricao", document.getElementById("descricao").value);
-    formData.append("dataHora", document.getElementById("data_hora").value);
-    formData.append("servidor", usuario.id);
-
-    const imagem = document.getElementById("imagem").files[0];
-    if (imagem) {
-        formData.append("imagem", imagem);
-    }
-
     try {
+        console.log("🔹 Preparando envio de ocorrência...");
+
+        const formData = new FormData();
+
+        // Adiciona os campos no FormData
+        formData.append("aluno", document.getElementById("aluno").value);
+        formData.append("infracao", document.getElementById("tipo_infracao").value);
+        formData.append("local", document.getElementById("local").value);
+        formData.append("descricao", document.getElementById("descricao").value);
+        formData.append("dataHora", document.getElementById("data_hora").value);
+        formData.append("servidor", usuario.id);
+
+        const imagem = document.getElementById("imagem").files[0];
+        if (imagem) {
+            formData.append("imagem", imagem);
+        }
+
         const resposta = await fetch(`${BASE_URL}/ocorrencias/cadastrar`, {
             method: "POST",
             body: formData
         });
-
 
         if (resposta.ok) {
             Swal.fire({
@@ -153,6 +176,8 @@ async function cadastrarOcorrencia(usuario) {
                 showConfirmButton: false,
                 timer: 2000
             });
+
+            // Atualiza a página após cadastrar
             setTimeout(() => window.location.reload(), 2000);
         } else {
             Swal.fire({
@@ -161,6 +186,7 @@ async function cadastrarOcorrencia(usuario) {
                 text: 'Tente novamente.'
             });
         }
+
     } catch (error) {
         console.error("❌ Erro ao cadastrar ocorrência:", error);
         Swal.fire({
@@ -171,7 +197,7 @@ async function cadastrarOcorrencia(usuario) {
     }
 }
 
-// 🔹 Função de logout (se necessário)
+// 🔸 Função de logout (caso necessário)
 function logout() {
     console.log("🔹 Logout...");
     sessionStorage.removeItem("usuario");

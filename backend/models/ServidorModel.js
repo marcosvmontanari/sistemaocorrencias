@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const bcrypt = require("bcrypt");
 
 /**
  * 🔸 Cria um novo servidor
@@ -9,15 +10,17 @@ const db = require("../config/db");
  */
 async function criarServidor(nome, email, siape, tipo = 'SERVIDOR') {
     const senhaInicial = siape; // Senha padrão inicial igual ao SIAPE
-    const alterou_senha = false; // Inicial é FALSE
+    const alterou_senha = 0; // Começa como 0 (falso)
+
+    // 🔐 Criptografa a senha antes de gravar no banco
+    const senhaHash = await bcrypt.hash(senhaInicial, 10);
 
     const query = `
         INSERT INTO servidores (nome, email, siape, senha, tipo, alterou_senha) 
         VALUES (?, ?, ?, ?, ?, ?)
     `;
 
-    // Executa o cadastro com os valores na ordem correta
-    await db.execute(query, [nome, email, siape, senhaInicial, tipo, alterou_senha]);
+    await db.execute(query, [nome, email, siape, senhaHash, tipo, alterou_senha]);
 }
 
 /**
@@ -63,15 +66,33 @@ async function excluirServidor(id) {
 /**
  * 🔸 Faz login de um servidor verificando email e senha
  * @param {string} email - Email do servidor
- * @param {string} senha - Senha do servidor
- * @returns {object} Servidor encontrado ou undefined
+ * @param {string} senha - Senha informada no login
+ * @returns {object|null} Dados do servidor se a senha for válida
  */
 async function login(email, senha) {
+    // Busca o servidor pelo email
     const query = `
-        SELECT * FROM servidores WHERE email = ? AND senha = ?
+        SELECT * FROM servidores WHERE email = ?
     `;
-    const [rows] = await db.execute(query, [email, senha]);
-    return rows[0];
+    const [rows] = await db.execute(query, [email]);
+
+    if (rows.length === 0) {
+        return null; // Usuário não encontrado
+    }
+
+    const servidor = rows[0];
+
+    // 🔐 Compara a senha informada com o hash do banco
+    const senhaValida = await bcrypt.compare(senha, servidor.senha);
+
+    if (!senhaValida) {
+        return null; // Senha inválida
+    }
+
+    // Remove a senha antes de retornar (boa prática)
+    delete servidor.senha;
+
+    return servidor;
 }
 
 /**
@@ -80,12 +101,15 @@ async function login(email, senha) {
  * @param {string} novaSenha - Nova senha a ser salva
  */
 async function alterarSenha(id, novaSenha) {
+    // 🔐 Criptografa a nova senha
+    const senhaHash = await bcrypt.hash(novaSenha, 10);
+
     const query = `
         UPDATE servidores
         SET senha = ?, alterou_senha = 1
         WHERE id = ?
     `;
-    const [result] = await db.execute(query, [novaSenha, id]);
+    const [result] = await db.execute(query, [senhaHash, id]);
     return result;
 }
 

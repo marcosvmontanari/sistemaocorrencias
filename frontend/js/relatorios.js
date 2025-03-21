@@ -37,6 +37,15 @@ export function init() {
             gerarRelatorioPDF();
         });
     }
+
+    // ✅ Ativa o Select2 no campo Tipo de Infração
+    $('#tipo_infracao').select2({
+        placeholder: "Selecione o tipo de infração",
+        allowClear: true,
+        width: '100%',
+        theme: 'bootstrap5',
+        dropdownCssClass: 'select2-dropdown-scroll'
+    });
 }
 
 // 🔸 Função para carregar a lista de alunos e servidores no select
@@ -70,16 +79,21 @@ async function carregarFiltros() {
 
         console.log("✅ Filtros carregados com sucesso!");
 
+        // ✅ Ativa o Select2 nos campos Aluno e Servidor
         $('#aluno').select2({
             placeholder: "Selecione o aluno",
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            theme: 'bootstrap5',
+            dropdownCssClass: 'select2-dropdown-scroll'
         });
 
         $('#servidor').select2({
             placeholder: "Selecione o servidor",
             allowClear: true,
-            width: '100%'
+            width: '100%',
+            theme: 'bootstrap5',
+            dropdownCssClass: 'select2-dropdown-scroll'
         });
 
     } catch (error) {
@@ -92,7 +106,6 @@ async function carregarFiltros() {
     }
 }
 
-
 // 🔸 Função para buscar e exibir os relatórios na tabela
 async function buscarRelatorios() {
     const tipoInfracao = document.getElementById("tipo_infracao").value;
@@ -102,7 +115,6 @@ async function buscarRelatorios() {
     const servidor = document.getElementById("servidor").value;
 
     const url = `${BASE_URL}/relatorios/dados?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}`;
-
 
     try {
         const resposta = await fetch(url);

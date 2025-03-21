@@ -1,3 +1,4 @@
+/* ========================== */
 /* 🔹 Fundo apenas na tela de login */
 .login-page {
     background: url('../assets/img/background.jpg') no-repeat center center fixed;
@@ -5,7 +6,6 @@
     position: relative;
 }
 
-/* 🔹 Sobreposição para melhorar a legibilidade */
 .login-page::before {
     content: "";
     position: absolute;
@@ -17,6 +17,7 @@
     z-index: -1;
 }
 
+/* ========================== */
 /* 🔹 Estilização do formulário de login */
 .login-container {
     background: rgba(255, 255, 255, 0.9);
@@ -28,23 +29,22 @@
     margin-top: 100px;
 }
 
-/* 🔹 Estilização da logo */
 .logo {
     max-width: 200px;
     margin-bottom: 10px;
 }
 
+/* ========================== */
 /* 🔹 Estilização de elementos gerais */
 .card {
     border-radius: 10px;
 }
 
 .list-group {
-    position: absolute;
-    z-index: 1000;
+    position: relative;
     width: 100%;
-    max-height: 200px;
-    overflow-y: auto;
+    max-height: none;
+    overflow-y: visible;
 }
 
 .list-group-item {
@@ -55,6 +55,7 @@
     background-color: #f8f9fa;
 }
 
+/* ========================== */
 /* 🔹 Ajusta a Navbar */
 .navbar {
     position: fixed;
@@ -65,26 +66,19 @@
     background-color: #00A65A !important;
 }
 
+/* ========================== */
 /* 🔹 Ajuste do menu lateral */
 #menuLateral {
-    width: 250px;
-    height: calc(100vh - 56px);
-    /* altura total menos a navbar */
     position: fixed;
     top: 56px;
     left: 0;
+    width: 250px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
     background-color: #00A65A !important;
     padding-top: 10px;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    /* scroll se passar do tamanho */
-    transition: width 0.3s ease-in-out;
-    max-height: calc(100vh - 56px);
-    /* garantir altura máxima */
 }
 
-/* 🔹 Ajuste do cabeçalho do menu */
 #menuLateral h4 {
     font-size: 18px;
     text-align: center;
@@ -93,13 +87,12 @@
     color: white;
 }
 
-/* 🔹 Esconde a barra de rolagem no Chrome e Edge */
 #menuLateral::-webkit-scrollbar {
     display: none;
 }
 
-/* 🔹 Ajuste dos itens do menu lateral */
 #menuDashboard .list-group-item {
+    box-sizing: border-box;
     background: none;
     color: white !important;
     border: none;
@@ -111,49 +104,39 @@
     transition: padding 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
-/* 🔹 Efeito hover nos itens do menu */
 #menuDashboard .list-group-item:hover {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 5px;
 }
 
-/* 🔹 Ajuste do layout quando o menu está oculto */
 #menuLateral.hidden-menu,
 #menuLateral.d-none {
     transform: translateX(-100%);
 }
 
-/* 🔹 Menu minimizado (exibe apenas os ícones) */
 #menuLateral.minimized {
     width: 60px;
     overflow-y: hidden;
-    /* sem scroll quando minimizado */
 }
 
-/* 🔹 Quando o menu está minimizado, os textos somem */
 #menuLateral.minimized .list-group-item span {
     display: none;
 }
 
-/* 🔹 Os itens do menu lateral são centralizados quando minimizado */
 #menuLateral.minimized .list-group-item {
     padding: 10px;
     justify-content: center;
 }
 
-/* 🔹 Expande o menu automaticamente ao passar o mouse */
 #menuLateral.minimized:hover {
     width: 250px;
     overflow-y: auto;
-    /* scroll quando expande no hover */
 }
 
-/* 🔹 Quando o menu expande ao passar o mouse, os textos reaparecem */
 #menuLateral.minimized:hover .list-group-item span {
     display: inline;
 }
 
-/* 🔹 Ajuste no conteúdo */
 #conteudoPrincipal {
     margin-left: 250px;
     margin-top: 70px;
@@ -162,13 +145,11 @@
     transition: margin-left 0.3s ease-in-out;
 }
 
-/* 🔹 Ajuste no conteúdo quando o menu está minimizado */
 #menuLateral.minimized+#conteudoPrincipal {
     margin-left: 60px;
     width: calc(100% - 60px);
 }
 
-/* 🔹 Estilização do botão sanduíche */
 #toggleMenu {
     font-size: 24px;
     border: none;
@@ -177,19 +158,18 @@
     cursor: pointer;
 }
 
-/* 🔹 Ajuste do espaçamento dos ícones */
 #menuLateral .list-group-item i {
     font-size: 20px;
     width: 25px;
     text-align: center;
 }
 
-/* 🔹 Remove a barra de rolagem quando não for necessária */
 #menuDashboard::-webkit-scrollbar {
     display: none;
 }
 
-/* Ajuste para a coluna de ações */
+/* ========================== */
+/* 🔹 Ajuste para tabelas */
 th.action-column,
 td.action-column {
     width: 200px;
@@ -206,13 +186,6 @@ td {
 }
 
 td button {
-    width: 90px;
-    display: inline-block;
-    margin-right: 10px;
-    box-sizing: border-box;
-}
-
-td button {
     width: 45%;
     margin: 0 5px;
     text-align: center;
@@ -221,7 +194,6 @@ td button {
     vertical-align: middle;
 }
 
-/* Ajuste de cor para o hover (opcional) */
 .btn-warning:hover {
     background-color: #ffc107;
 }
@@ -230,7 +202,6 @@ td button {
     background-color: #dc3545;
 }
 
-/* Garantir que os ícones fiquem lado a lado */
 td i {
     font-size: 18px;
     margin-right: 10px;
@@ -241,7 +212,8 @@ td i:hover {
     opacity: 0.7;
 }
 
-.tabela-infracoes .acoes-icons {
+.tabela-infracoes .acoes-icons,
+.tabela-alunos .acoes-icons {
     display: inline-flex;
     gap: 10px;
     justify-content: flex-start;
@@ -258,8 +230,70 @@ td i:hover {
     text-align: center;
 }
 
-.tabela-alunos .acoes-icons {
-    display: inline-flex;
-    gap: 10px;
-    justify-content: flex-start;
+/* ========================== */
+/* 🔹 Select2 Customização Bootstrap5 (ALUNO / INFRAÇÃO / RELATÓRIOS) */
+.select2-container--bootstrap5 {
+    width: 100% !important;
+}
+
+.select2-container--bootstrap5 .select2-selection {
+    min-height: calc(2.5rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.375rem;
+    border: 1px solid #ced4da;
+    display: flex;
+    align-items: center;
+}
+
+.select2-container--bootstrap5 .select2-selection__rendered {
+    line-height: 1.5 !important;
+    padding-left: 0 !important;
+    color: #495057;
+}
+
+.select2-container--bootstrap5 .select2-selection__arrow {
+    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0.75rem;
+    width: 20px;
+}
+
+.select2-container--bootstrap5.select2-container--focus .select2-selection {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* 🔹 Dropdown Custom Scroll */
+.select2-dropdown-scroll .select2-results__options {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* 🔹 Correção para área visível e renderização */
+.select2-container--default .select2-selection--single {
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    height: calc(2.5rem + 2px);
+    padding: 0.375rem 0.75rem;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.5;
+    color: #495057;
+    padding-left: 0;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 10px;
 }
