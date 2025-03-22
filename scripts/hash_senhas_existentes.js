@@ -1,5 +1,5 @@
 const db = require("../backend/config/db");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 
 async function hashSenhasExistentes() {
     try {
