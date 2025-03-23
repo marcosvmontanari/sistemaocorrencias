@@ -5,8 +5,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
-const bcrypt = require("bcrypt");
-
+const bcrypt = require('bcryptjs');
 const upload = multer({ dest: "uploads/" });
 
 const ServidorModel = require("../models/ServidorModel");
