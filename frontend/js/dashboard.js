@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
             <a href="#" class="list-group-item" data-page="listar_ocorrencias.html">📂 Listar Ocorrências</a>
             <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
+            <a href="#" class="list-group-item" data-page="quadro_ocorrencias.html">📌 Quadro de Ocorrências</a> <!-- ✅ NOVO ITEM -->
+
         `;
     } else {
         menuItens = `
@@ -139,6 +141,16 @@ async function carregarESexecutarModulo(pagina) {
 
             case "listar_ocorrencias.html":
                 modulo = await import(`../js/listar_ocorrencias.js?cache=${Date.now()}`);
+                if (modulo?.init) {
+                    console.log(`✅ Executando init() de '${pagina}'`);
+                    modulo.init();
+                } else {
+                    console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
+                }
+                break;
+            
+            case "quadro_ocorrencias.html":
+                modulo = await import(`../js/quadro_ocorrencias.js?cache=${Date.now()}`);
                 if (modulo?.init) {
                     console.log(`✅ Executando init() de '${pagina}'`);
                     modulo.init();

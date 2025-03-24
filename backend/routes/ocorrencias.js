@@ -62,23 +62,7 @@ router.get("/", async (req, res) => {
    ✅ ROTAS ADICIONADAS ABAIXO
 =============================================================== */
 
-// 🔸 Rota para buscar uma ocorrência específica por ID
-router.get("/:id", async (req, res) => {
-    const { id } = req.params;
 
-    try {
-        const ocorrencia = await OcorrenciaModel.buscarOcorrenciaPorId(id);
-
-        if (!ocorrencia) {
-            return res.status(404).json({ mensagem: "Ocorrência não encontrada." });
-        }
-
-        res.json(ocorrencia);
-    } catch (error) {
-        console.error("Erro ao buscar ocorrência:", error);
-        res.status(500).json({ mensagem: "Erro ao buscar ocorrência." });
-    }
-});
 
 // 🔸 Rota para editar uma ocorrência específica (descricao e local)
 router.put("/:id", async (req, res) => {
@@ -129,6 +113,35 @@ router.get("/filtro", async (req, res) => {
     } catch (error) {
         console.error("Erro ao filtrar ocorrências:", error);
         res.status(500).json({ mensagem: "Erro ao filtrar ocorrências." });
+    }
+});
+
+// 🔹 Rota para gerar o Quadro de Ocorrências com regras de reincidência
+router.get("/quadro", async (req, res) => {
+    try {
+        const quadro = await OcorrenciaModel.gerarQuadroOcorrencias();
+        res.status(200).json(quadro);
+    } catch (error) {
+        console.error("❌ Erro ao gerar quadro de ocorrências:", error);
+        res.status(500).json({ mensagem: "Erro ao gerar quadro de ocorrências." });
+    }
+});
+
+// 🔸 Rota para buscar uma ocorrência específica por ID
+router.get("/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const ocorrencia = await OcorrenciaModel.buscarOcorrenciaPorId(id);
+
+        if (!ocorrencia) {
+            return res.status(404).json({ mensagem: "Ocorrência não encontrada." });
+        }
+
+        res.json(ocorrencia);
+    } catch (error) {
+        console.error("Erro ao buscar ocorrência:", error);
+        res.status(500).json({ mensagem: "Erro ao buscar ocorrência." });
     }
 });
 

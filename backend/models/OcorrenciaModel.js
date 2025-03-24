@@ -243,6 +243,62 @@ async function listarOcorrenciasPaginado({ page = 1, limit = 10, busca = "" }) {
     }
 }
 
+/* ======================================================================================
+   ✅ QUADRO DE OCORRÊNCIAS (COM REGRAS DE REINCIDÊNCIA)
+====================================================================================== */
+
+/**
+ * 🔹 Gera o quadro geral de ocorrências por aluno, aplicando regras de reincidência:
+ * - 3 LEVES = 1 GRAVE
+ * - 2 GRAVES = 1 GRAVÍSSIMA
+ */
+async function gerarQuadroOcorrencias() {
+    const query = `
+        SELECT 
+            a.id AS aluno_id,
+            a.nome AS aluno_nome,
+            i.tipo AS tipo_infracao
+        FROM ocorrencias o
+        INNER JOIN alunos a ON o.aluno_id = a.id
+        INNER JOIN infracoes i ON o.infracao_id = i.id
+        ORDER BY a.nome ASC
+    `;
+
+    const [result] = await db.execute(query);
+
+    const mapaAlunos = {};
+
+    result.forEach(item => {
+        const nome = item.aluno_nome;
+        const tipo = item.tipo_infracao;
+
+        if (!mapaAlunos[nome]) {
+            mapaAlunos[nome] = { leve: 0, grave: 0, gravissima: 0 };
+        }
+
+        if (tipo === "LEVE") mapaAlunos[nome].leve++;
+        if (tipo === "GRAVE") mapaAlunos[nome].grave++;
+        if (tipo === "GRAVÍSSIMA") mapaAlunos[nome].gravissima++;
+    });
+
+    const resultadoFinal = [];
+
+    for (const nome in mapaAlunos) {
+        let { leve, grave, gravissima } = mapaAlunos[nome];
+
+        const novasGraves = Math.floor(leve / 3);
+        grave += novasGraves;
+        leve = leve % 3;
+
+        const novasGravissimas = Math.floor(grave / 2);
+        gravissima += novasGravissimas;
+        grave = grave % 2;
+
+        resultadoFinal.push({ aluno: nome, leve, grave, gravissima });
+    }
+
+    return resultadoFinal;
+}
 
 
 
@@ -257,5 +313,6 @@ module.exports = {
     atualizarOcorrencia,
     excluirOcorrencia,
     filtrarOcorrencias,
-    listarOcorrenciasPaginado // ✅ Nova função adicionada aqui!
+    listarOcorrenciasPaginado,
+    gerarQuadroOcorrencias// ✅ Nova função adicionada aqui!
 };
