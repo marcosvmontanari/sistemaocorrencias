@@ -21,6 +21,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
+app.use('/uploads', express.static('uploads'));
+
 // ✅ Rotas de API
 const uploadCSVAlunos = require("./routes/uploadCSVAlunos");
 const authRoutes = require("./routes/auth");

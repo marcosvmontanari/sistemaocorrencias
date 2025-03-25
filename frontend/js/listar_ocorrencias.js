@@ -64,9 +64,13 @@ export async function init() {
                         <td>${ocorrencia.local}</td>
                         <td>${ocorrencia.servidor_nome}</td>
                         <td>${formatarDataHora(ocorrencia.data_hora)}</td>
-                        <td>${ocorrencia.imagem
-                        ? `<a href="${BASE_URL}/uploads/${ocorrencia.imagem}" target="_blank">Ver</a>`
-                        : '-'}</td>
+                        <td>
+  ${ocorrencia.imagem
+                        ? `<i class="fas fa-image text-primary" style="cursor: pointer;" 
+           onclick="mostrarImagemModal('${BASE_URL}/uploads/${ocorrencia.imagem}')"
+           title="Ver imagem"></i>`
+                        : '-'}
+</td>
                         <td class="action-column">
                             ${usuario.tipo === "ADMIN" ? `
                                 <i class="fas fa-edit text-warning" style="cursor: pointer;" data-id="${ocorrencia.id}" data-descricao="${ocorrencia.descricao}" data-local="${ocorrencia.local}"></i>
@@ -209,6 +213,17 @@ export async function init() {
     // Inicialização de dados
     carregarOcorrencias(currentPage);
 }
+
+// ✅ Função para exibir imagem em um modal
+window.mostrarImagemModal = function (imagem) {
+    const modal = new bootstrap.Modal(document.getElementById("modalVisualizarImagem"));
+    const imgElement = document.getElementById("imagemModal");
+
+    imgElement.src = imagem;
+    modal.show();
+};
+
+window.mostrarImagemModal = mostrarImagemModal;
 
 // ✅ Função auxiliar para formatar data e hora no padrão brasileiro
 function formatarDataHora(dataHora) {
