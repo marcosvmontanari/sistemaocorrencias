@@ -57,29 +57,39 @@ export async function init() {
 
             ocorrenciasData.forEach(ocorrencia => {
                 tabelaOcorrencias.innerHTML += `
-                    <tr>
-                        <td>${ocorrencia.aluno_nome}</td>
-                        <td>${ocorrencia.infracao_tipo}</td>
-                        <td>${ocorrencia.descricao}</td>
-                        <td>${ocorrencia.local}</td>
-                        <td>${ocorrencia.servidor_nome}</td>
-                        <td>${formatarDataHora(ocorrencia.data_hora)}</td>
-                        <td>
-  ${ocorrencia.imagem
+        <tr>
+            <td>${ocorrencia.aluno_nome}</td>
+            <td>${ocorrencia.infracao_tipo}</td>
+            <td>${ocorrencia.descricao}</td>
+            <td>${ocorrencia.local}</td>
+            <td>${ocorrencia.servidor_nome}</td>
+            <td>${formatarDataHora(ocorrencia.data_hora)}</td>
+            <td>
+                ${ocorrencia.imagem
                         ? `<i class="fas fa-image text-primary" style="cursor: pointer;" 
-           onclick="mostrarImagemModal('${BASE_URL}/uploads/${ocorrencia.imagem}')"
-           title="Ver imagem"></i>`
+                          onclick="mostrarImagemModal('${BASE_URL}/uploads/${ocorrencia.imagem}')"
+                          title="Ver imagem"></i>`
                         : '-'}
-</td>
-                        <td class="action-column">
-                            ${usuario.tipo === "ADMIN" ? `
-                                <i class="fas fa-edit text-warning" style="cursor: pointer;" data-id="${ocorrencia.id}" data-descricao="${ocorrencia.descricao}" data-local="${ocorrencia.local}"></i>
-                                <i class="fas fa-trash-alt text-danger ms-2" style="cursor: pointer;" data-id="${ocorrencia.id}"></i>
-                            ` : '-'}
-                        </td>
-                    </tr>
-                `;
+            </td>
+            <td class="action-column">
+                ${usuario.tipo === "ADMIN" ? `
+                    <i class="fas fa-file-pdf text-danger me-2" style="cursor: pointer;" 
+                       title="Gerar PDF"
+                       onclick="gerarPdfOcorrencia(${ocorrencia.id})"></i>
+
+                    <i class="fas fa-edit text-warning me-2" style="cursor: pointer;" 
+                       data-id="${ocorrencia.id}" 
+                       data-descricao="${ocorrencia.descricao}" 
+                       data-local="${ocorrencia.local}"></i>
+
+                    <i class="fas fa-trash-alt text-danger" style="cursor: pointer;" 
+                       data-id="${ocorrencia.id}"></i>
+                ` : '-'}
+            </td>
+        </tr>
+    `;
             });
+
 
             totalPages = Math.ceil(data.total / limit);
             updatePaginationControls();
@@ -230,3 +240,9 @@ function formatarDataHora(dataHora) {
     const data = new Date(dataHora);
     return data.toLocaleString("pt-BR");
 }
+
+// ✅ Gera e abre o PDF da ocorrência em nova aba
+window.gerarPdfOcorrencia = function (id) {
+    const url = `${BASE_URL}/ocorrencias/${id}/pdf`;
+    window.open(url, "_blank");
+};

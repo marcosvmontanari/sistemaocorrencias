@@ -3,6 +3,8 @@ const router = express.Router();
 const path = require("path");
 const multer = require("multer");
 const OcorrenciaModel = require("../models/OcorrenciaModel");
+const { gerarPdfOcorrencia } = require("../controllers/PdfOcorrenciaController");
+
 
 // Configuração do armazenamento da imagem
 const storage = multer.diskStorage({
@@ -144,6 +146,10 @@ router.get("/:id", async (req, res) => {
         res.status(500).json({ mensagem: "Erro ao buscar ocorrência." });
     }
 });
+
+// 🔸 Rota para gerar PDF usando controller externo
+router.get("/:id/pdf", gerarPdfOcorrencia);
+
 
 /* ===============================================================
    ✅ FIM DAS ROTAS
