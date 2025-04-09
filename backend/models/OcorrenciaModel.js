@@ -73,7 +73,8 @@ async function buscarOcorrenciaPorId(id) {
             o.descricao,
             o.data_hora,
             o.imagem,
-            o.feedback, -- ✅ Adicionado aqui
+            o.feedback,
+            o.status, -- ✅ Adicionado aqui
             a.nome AS aluno_nome,
             i.tipo AS infracao_tipo,
             i.descricao AS infracao_descricao,
@@ -88,6 +89,7 @@ async function buscarOcorrenciaPorId(id) {
     const [result] = await db.execute(query, [id]);
     return result.length > 0 ? result[0] : null;
 }
+
 
 
 /* ======================================================================================
