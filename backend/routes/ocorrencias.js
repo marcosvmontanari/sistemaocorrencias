@@ -129,6 +129,19 @@ router.get("/quadro", async (req, res) => {
     }
 });
 
+// 🔸 Lista ocorrências cadastradas por um servidor específico
+router.get("/servidor/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const ocorrencias = await OcorrenciaModel.listarOcorrenciasPorServidor(id);
+        res.status(200).json({ ocorrencias });
+    } catch (error) {
+        console.error("Erro ao listar ocorrências do servidor:", error);
+        res.status(500).json({ mensagem: "Erro ao buscar ocorrências do servidor." });
+    }
+});
+
 // 🔸 Rota para buscar uma ocorrência específica por ID
 router.get("/:id", async (req, res) => {
     const { id } = req.params;
@@ -149,6 +162,28 @@ router.get("/:id", async (req, res) => {
 
 // 🔸 Rota para gerar PDF usando controller externo
 router.get("/:id/pdf", gerarPdfOcorrencia);
+
+// 🔸 Atualizar o feedback e o status de uma ocorrência
+router.put("/:id/feedback", async (req, res) => {
+    const { id } = req.params;
+    const { feedback, status } = req.body;
+
+    try {
+        const ocorrencia = await OcorrenciaModel.buscarOcorrenciaPorId(id);
+
+        if (!ocorrencia) {
+            return res.status(404).json({ mensagem: "Ocorrência não encontrada." });
+        }
+
+        await OcorrenciaModel.atualizarFeedback(id, feedback, status);
+        res.json({ mensagem: "Feedback e status atualizados com sucesso!" });
+
+    } catch (error) {
+        console.error("Erro ao atualizar feedback:", error);
+        res.status(500).json({ mensagem: "Erro ao atualizar feedback." });
+    }
+});
+
 
 
 /* ===============================================================

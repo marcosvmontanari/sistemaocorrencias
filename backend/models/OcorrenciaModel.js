@@ -15,11 +15,15 @@ const db = require("../config/db");
  * @param {string|null} imagem - Nome do arquivo da imagem anexada (ou null)
  */
 async function criarOcorrencia(aluno, infracao, local, descricao, dataHora, servidor, imagem) {
+    const status = "PENDENTE"; // 🔹 Define status inicial
+
     const query = `
-        INSERT INTO ocorrencias (aluno_id, infracao_id, local, descricao, data_hora, servidor_id, imagem)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO ocorrencias 
+            (aluno_id, infracao_id, local, descricao, data_hora, servidor_id, imagem, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    await db.execute(query, [aluno, infracao, local, descricao, dataHora, servidor, imagem]);
+
+    await db.execute(query, [aluno, infracao, local, descricao, dataHora, servidor, imagem, status]);
 }
 
 /* ======================================================================================
@@ -69,6 +73,7 @@ async function buscarOcorrenciaPorId(id) {
             o.descricao,
             o.data_hora,
             o.imagem,
+            o.feedback, -- ✅ Adicionado aqui
             a.nome AS aluno_nome,
             i.tipo AS infracao_tipo,
             i.descricao AS infracao_descricao,
@@ -83,6 +88,7 @@ async function buscarOcorrenciaPorId(id) {
     const [result] = await db.execute(query, [id]);
     return result.length > 0 ? result[0] : null;
 }
+
 
 /* ======================================================================================
    ✅ ATUALIZAR UMA OCORRÊNCIA EXISTENTE
@@ -300,7 +306,47 @@ async function gerarQuadroOcorrencias() {
     return resultadoFinal;
 }
 
+/**
+ * 🔹 Lista todas as ocorrências cadastradas por um servidor
+ * @param {number} servidorId - ID do servidor logado
+ */
+async function listarOcorrenciasPorServidor(servidorId) {
+    const query = `
+        SELECT 
+            o.id,
+            o.local,
+            o.descricao,
+            o.data_hora,
+            o.status,
+            o.imagem,
+            a.nome AS aluno_nome,
+            i.tipo AS infracao_tipo,
+            i.descricao AS infracao_descricao
+        FROM ocorrencias o
+        JOIN alunos a ON o.aluno_id = a.id
+        JOIN infracoes i ON o.infracao_id = i.id
+        WHERE o.servidor_id = ?
+        ORDER BY o.data_hora DESC
+    `;
 
+    const [result] = await db.execute(query, [servidorId]);
+    return result;
+}
+
+/**
+ * 🔹 Atualiza o feedback e o status de uma ocorrência
+ * @param {number} id - ID da ocorrência
+ * @param {string} feedback - Texto do feedback
+ * @param {string} status - Novo status da ocorrência
+ */
+async function atualizarFeedback(id, feedback, status) {
+    const query = `
+        UPDATE ocorrencias
+        SET feedback = ?, status = ?
+        WHERE id = ?
+    `;
+    await db.execute(query, [feedback, status, id]);
+}
 
 /* ======================================================================================
    ✅ EXPORTA TODAS AS FUNÇÕES
@@ -314,5 +360,7 @@ module.exports = {
     excluirOcorrencia,
     filtrarOcorrencias,
     listarOcorrenciasPaginado,
-    gerarQuadroOcorrencias// ✅ Nova função adicionada aqui!
+    gerarQuadroOcorrencias,
+    listarOcorrenciasPorServidor,
+    atualizarFeedback // ✅ Nova função exportada
 };

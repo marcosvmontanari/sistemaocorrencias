@@ -204,6 +204,77 @@
         }
     </script>
 
+<!-- 🔹 Modal para Visualizar Imagem -->
+<div class="modal fade" id="modalVisualizarImagem" tabindex="-1" aria-labelledby="modalVisualizarImagemLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Visualização da Imagem</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="imagemModal" src="" alt="Imagem da ocorrência" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 Modal de Feedback -->
+<div class="modal fade" id="modalFeedback" tabindex="-1" aria-labelledby="modalFeedbackLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalFeedbackLabel">Feedback da Ocorrência</h5>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="feedbackOcorrenciaId">
+
+                <!-- ✅ Novo campo de status -->
+                <div class="mb-3">
+                    <label for="feedbackStatus" class="form-label">Status da Ocorrência</label>
+                    <select id="feedbackStatus" class="form-select">
+                        <option value="PENDENTE">PENDENTE</option>
+                        <option value="EM ANÁLISE">EM ANÁLISE</option>
+                        <option value="CONCLUÍDO">CONCLUÍDO</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="feedbackTexto" class="form-label">Feedback</label>
+                    <textarea id="feedbackTexto" class="form-control" rows="5"
+                        placeholder="Digite o feedback aqui..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-primary" onclick="salvarFeedback()">Salvar Feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- 🔹 Modal de Visualização de Feedback (Somente leitura) -->
+<div class="modal fade" id="modalVerFeedback" tabindex="-1" aria-labelledby="modalVerFeedbackLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Feedback da Ocorrência</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p id="textoFeedbackVisualizacao" class="text-muted">
+                    Carregando feedback...
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 </body>
 
 </html>

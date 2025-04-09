@@ -22,13 +22,13 @@ export async function init() {
 
     let ocorrenciasData = [];
     let termoBusca = "";
-    let currentPage = 1;
+    window.currentPage = 1;
     let totalPages = 1;
 
     inputBusca.addEventListener("input", () => {
         termoBusca = inputBusca.value.trim();
-        currentPage = 1;
-        carregarOcorrencias(currentPage);
+        window.currentPage = 1;
+        window.carregarOcorrencias(window.currentPage);
     });
 
     async function carregarOcorrencias(page = 1, limit = 10) {
@@ -67,29 +67,35 @@ export async function init() {
             <td>
                 ${ocorrencia.imagem
                         ? `<i class="fas fa-image text-primary" style="cursor: pointer;" 
-                          onclick="mostrarImagemModal('${BASE_URL}/uploads/${ocorrencia.imagem}')"
-                          title="Ver imagem"></i>`
+                        onclick="mostrarImagemModal('${BASE_URL}/uploads/${ocorrencia.imagem}')"
+                        title="Ver imagem"></i>`
                         : '-'}
             </td>
             <td class="action-column">
-                ${usuario.tipo === "ADMIN" ? `
-                    <i class="fas fa-file-pdf text-danger me-2" style="cursor: pointer;" 
-                       title="Gerar PDF"
-                       onclick="gerarPdfOcorrencia(${ocorrencia.id})"></i>
+    ${usuario.tipo === "ADMIN" ? `
+        <i class="fas fa-file-pdf text-danger me-2" 
+           title="Gerar PDF" 
+           onclick="gerarPdfOcorrencia(${ocorrencia.id})"></i>
 
-                    <i class="fas fa-edit text-warning me-2" style="cursor: pointer;" 
-                       data-id="${ocorrencia.id}" 
-                       data-descricao="${ocorrencia.descricao}" 
-                       data-local="${ocorrencia.local}"></i>
+        <i class="fas fa-edit text-warning me-2"
+           title="Editar Ocorrência"
+           data-id="${ocorrencia.id}" 
+           data-descricao="${ocorrencia.descricao}" 
+           data-local="${ocorrencia.local}"></i>
 
-                    <i class="fas fa-trash-alt text-danger" style="cursor: pointer;" 
-                       data-id="${ocorrencia.id}"></i>
-                ` : '-'}
-            </td>
+        <i class="fas fa-comment-dots text-info me-2"
+           title="Adicionar Feedback"
+           data-id="${ocorrencia.id}" 
+           onclick="abrirModalFeedback(${ocorrencia.id})"></i>
+
+        <i class="fas fa-trash-alt text-danger" 
+           title="Excluir Ocorrência"
+           data-id="${ocorrencia.id}"></i>
+    ` : '-'}
+</td>
         </tr>
     `;
             });
-
 
             totalPages = Math.ceil(data.total / limit);
             updatePaginationControls();
@@ -101,30 +107,33 @@ export async function init() {
         }
     }
 
+    // ✅ Expondo a função globalmente para uso externo
+    window.carregarOcorrencias = carregarOcorrencias;
+
     function updatePaginationControls() {
         paginationControls.innerHTML = "";
 
-        if (currentPage > 1) {
+        if (window.currentPage > 1) {
             paginationControls.innerHTML += `<button class="btn btn-secondary" id="prevPageBtn">Anterior</button>`;
         }
 
-        paginationControls.innerHTML += `<span> Página ${currentPage} de ${totalPages} </span>`;
+        paginationControls.innerHTML += `<span> Página ${window.currentPage} de ${totalPages} </span>`;
 
-        if (currentPage < totalPages) {
+        if (window.currentPage < totalPages) {
             paginationControls.innerHTML += `<button class="btn btn-secondary" id="nextPageBtn">Próxima</button>`;
         }
 
         document.getElementById("prevPageBtn")?.addEventListener("click", () => {
-            if (currentPage > 1) {
-                currentPage--;
-                carregarOcorrencias(currentPage);
+            if (window.currentPage > 1) {
+                window.currentPage--;
+                window.carregarOcorrencias(window.currentPage);
             }
         });
 
         document.getElementById("nextPageBtn")?.addEventListener("click", () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                carregarOcorrencias(currentPage);
+            if (window.currentPage < totalPages) {
+                window.currentPage++;
+                window.carregarOcorrencias(window.currentPage);
             }
         });
     }
@@ -176,7 +185,7 @@ export async function init() {
             if (resposta.ok) {
                 Swal.fire("Sucesso", "Ocorrência atualizada com sucesso!", "success");
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarOcorrencia")).hide();
-                carregarOcorrencias(currentPage);
+                window.carregarOcorrencias(window.currentPage);
             } else {
                 Swal.fire("Erro", "Falha ao atualizar ocorrência.", "error");
             }
@@ -206,7 +215,7 @@ export async function init() {
 
             if (resposta.ok) {
                 Swal.fire("Excluído!", "Ocorrência removida.", "success");
-                carregarOcorrencias(currentPage);
+                window.carregarOcorrencias(window.currentPage);
             } else {
                 Swal.fire("Erro", "Falha ao excluir a ocorrência.", "error");
             }
@@ -217,14 +226,11 @@ export async function init() {
         }
     }
 
-    // Evento salvar no modal
-    document.getElementById("btnSalvarEdicaoOcorrencia").addEventListener("click", salvarEdicao);
-
-    // Inicialização de dados
-    carregarOcorrencias(currentPage);
+    document.getElementById("btnSalvarEdicaoOcorrencia")?.addEventListener("click", salvarEdicao);
+    window.carregarOcorrencias(window.currentPage);
 }
 
-// ✅ Função para exibir imagem em um modal
+// ✅ Exibe imagem no modal
 window.mostrarImagemModal = function (imagem) {
     const modal = new bootstrap.Modal(document.getElementById("modalVisualizarImagem"));
     const imgElement = document.getElementById("imagemModal");
@@ -233,16 +239,79 @@ window.mostrarImagemModal = function (imagem) {
     modal.show();
 };
 
-window.mostrarImagemModal = mostrarImagemModal;
-
-// ✅ Função auxiliar para formatar data e hora no padrão brasileiro
+// ✅ Formata data/hora
 function formatarDataHora(dataHora) {
     const data = new Date(dataHora);
     return data.toLocaleString("pt-BR");
 }
 
-// ✅ Gera e abre o PDF da ocorrência em nova aba
+// ✅ Gera PDF
 window.gerarPdfOcorrencia = function (id) {
     const url = `${BASE_URL}/ocorrencias/${id}/pdf`;
     window.open(url, "_blank");
+};
+
+// ✅ Modal de feedback com preenchimento automático
+window.abrirModalFeedback = async function (id) {
+    try {
+        const resposta = await fetch(`${BASE_URL}/ocorrencias/${id}`);
+        if (!resposta.ok) throw new Error("Erro ao buscar ocorrência");
+
+        const ocorrencia = await resposta.json();
+
+        // Preenche os campos do modal com os dados atualizados
+        document.getElementById("feedbackOcorrenciaId").value = ocorrencia.id;
+        document.getElementById("feedbackTexto").value = ocorrencia.feedback || "";
+
+        // Atualiza corretamente o status selecionado no <select>
+        const statusSelect = document.getElementById("feedbackStatus");
+        if (statusSelect) {
+            for (let i = 0; i < statusSelect.options.length; i++) {
+                if (statusSelect.options[i].value === ocorrencia.status) {
+                    statusSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // Abre o modal
+        const modal = new bootstrap.Modal(document.getElementById("modalFeedback"));
+        modal.show();
+
+    } catch (error) {
+        console.error("❌ Erro ao carregar dados do feedback:", error);
+        Swal.fire("Erro", "Não foi possível carregar os dados da ocorrência.", "error");
+    }
+};
+
+
+// ✅ Envia feedback para backend
+window.salvarFeedback = async function () {
+    const id = document.getElementById("feedbackOcorrenciaId").value;
+    const texto = document.getElementById("feedbackTexto").value.trim();
+    const status = document.getElementById("feedbackStatus").value;
+
+    if (!texto) {
+        Swal.fire("Atenção", "O feedback não pode estar vazio.", "warning");
+        return;
+    }
+
+    try {
+        const resposta = await fetch(`${BASE_URL}/ocorrencias/${id}/feedback`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ feedback: texto, status })
+        });
+
+        if (resposta.ok) {
+            Swal.fire("Sucesso", "Feedback atualizado com sucesso!", "success");
+            bootstrap.Modal.getInstance(document.getElementById("modalFeedback")).hide();
+            window.carregarOcorrencias(window.currentPage); // ✅ corrigido aqui
+        } else {
+            throw new Error();
+        }
+    } catch (erro) {
+        console.error("❌ Erro ao salvar feedback:", erro);
+        Swal.fire("Erro", "Não foi possível salvar o feedback.", "error");
+    }
 };
