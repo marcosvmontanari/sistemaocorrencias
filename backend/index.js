@@ -15,6 +15,7 @@ app.use(cors());
 
 // ✅ Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
 
 // ✅ Rota principal devolvendo index.html
 app.get('/', (req, res) => {
