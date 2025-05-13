@@ -4,6 +4,11 @@ console.log("🔹 Script cadastrar_ocorrencia.js carregado como módulo!");
 export function init() {
     console.log("🔸 Inicializando módulo cadastrar_ocorrencias.js");
 
+    // 🔹 Carrega Bootstrap Icons dinamicamente (caso não esteja presente)
+    carregarBootstrapIcons(() => {
+        carregarAlunos();  // carrega alunos e só depois aplica os ícones
+    });
+
     // ✅ Verifica se o usuário está autenticado
     const usuario = JSON.parse(sessionStorage.getItem("usuario"));
     if (!usuario) {
@@ -19,7 +24,6 @@ export function init() {
     }
 
     // ✅ Carrega alunos e infrações ao abrir o módulo
-    carregarAlunos();
     carregarInfracoes();
 
     // ✅ Evento de envio do formulário de ocorrência
@@ -29,6 +33,23 @@ export function init() {
             event.preventDefault();
             cadastrarOcorrencia(usuario);
         });
+    }
+}
+
+// 🔸 Carrega Bootstrap Icons dinamicamente
+function carregarBootstrapIcons(callback) {
+    const existeLink = document.querySelector('link[href*="bootstrap-icons"]');
+    if (!existeLink) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css';
+        link.onload = () => {
+            console.log("✅ Bootstrap Icons carregado.");
+            if (callback) callback();
+        };
+        document.head.appendChild(link);
+    } else {
+        if (callback) callback();
     }
 }
 
@@ -68,16 +89,43 @@ async function carregarAlunos() {
 
         // ✅ Inicializa o Select2 para o campo Aluno
         $('#aluno').select2({
-            theme: 'bootstrap4',   // ✅ Troque para o tema Bootstrap
-            placeholder: "Selecione o aluno...",
+            theme: 'bootstrap4',
+            placeholder: "Selecione os alunos...",
             allowClear: true,
             width: '100%',
+            closeOnSelect: false,
+            tags: false,
             language: {
                 noResults: function () {
                     return "Nenhum aluno encontrado";
                 }
             }
         });
+
+        // 🔹 Aplica ícones Bootstrap nas bolhas do Select2
+        function aplicarIconesSelect2() {
+            document.querySelectorAll('.select2-selection__choice').forEach(choice => {
+                if (!choice.querySelector('.bi')) {
+                    const icon = document.createElement("i");
+                    icon.className = "bi bi-x-lg";
+                    icon.style.marginRight = "6px";
+                    icon.style.cursor = "pointer";
+
+                    icon.onclick = () => {
+                        const removeBtn = choice.querySelector('.select2-selection__choice__remove');
+                        if (removeBtn) removeBtn.click();
+                    };
+
+                    choice.prepend(icon);
+                }
+            });
+        }
+
+        // ✅ Aplica os ícones após carregar
+        setTimeout(aplicarIconesSelect2, 150);
+
+        // ✅ Reaplica ao alterar seleção
+        $('#aluno').on('change', aplicarIconesSelect2);
 
         console.log("✅ Select2 de alunos aplicado com sucesso!");
 
@@ -121,7 +169,7 @@ async function carregarInfracoes() {
 
         // ✅ Inicializa o Select2 para o campo Infração
         $('#tipo_infracao').select2({
-            theme: 'bootstrap4',   // ✅ Tema Bootstrap para os selects
+            theme: 'bootstrap4',
             placeholder: "Selecione a infração...",
             allowClear: true,
             width: '100%',
@@ -151,8 +199,17 @@ async function cadastrarOcorrencia(usuario) {
 
         const formData = new FormData();
 
-        // Adiciona os campos no FormData
-        formData.append("aluno", document.getElementById("aluno").value);
+        const alunosSelecionados = $('#aluno').val();
+        if (!alunosSelecionados || alunosSelecionados.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Selecione pelo menos um aluno!',
+            });
+            return;
+        }
+
+        alunosSelecionados.forEach(id => formData.append("alunos[]", id));
+
         formData.append("infracao", document.getElementById("tipo_infracao").value);
         formData.append("local", document.getElementById("local").value);
         formData.append("descricao", document.getElementById("descricao").value);
@@ -172,12 +229,10 @@ async function cadastrarOcorrencia(usuario) {
         if (resposta.ok) {
             Swal.fire({
                 icon: 'success',
-                title: 'Ocorrência cadastrada com sucesso!',
+                title: 'Ocorrência(s) cadastrada(s) com sucesso!',
                 showConfirmButton: false,
                 timer: 2000
             });
-
-            // Atualiza a página após cadastrar
             setTimeout(() => window.location.reload(), 2000);
         } else {
             Swal.fire({

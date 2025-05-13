@@ -20,14 +20,28 @@ const upload = multer({ storage: storage });
    🔹 ROTAS EXISTENTES (MANTIDAS)
 =============================================================== */
 
-// 🔹 Rota para cadastrar uma nova ocorrência
+// 🔹 Rota para cadastrar uma nova ocorrência (agora para múltiplos alunos)
 router.post("/cadastrar", upload.single("imagem"), async (req, res) => {
     try {
-        const { aluno, infracao, local, descricao, dataHora, servidor } = req.body;
-        const imagem = req.file ? req.file.filename : null; // Se houver imagem, salva o nome do arquivo
+        const { alunos, infracao, local, descricao, dataHora, servidor } = req.body;
+        const imagem = req.file ? req.file.filename : null;
 
-        await OcorrenciaModel.criarOcorrencia(aluno, infracao, local, descricao, dataHora, servidor, imagem);
-        res.status(201).json({ mensagem: "Ocorrência cadastrada com sucesso!" });
+        // Se vier só um aluno (por segurança), transforma em array
+        const listaAlunos = Array.isArray(alunos) ? alunos : [alunos];
+
+        for (const alunoId of listaAlunos) {
+            await OcorrenciaModel.criarOcorrencia(
+                alunoId,
+                infracao,
+                local,
+                descricao,
+                dataHora,
+                servidor,
+                imagem
+            );
+        }
+
+        res.status(201).json({ mensagem: "Ocorrência(s) cadastrada(s) com sucesso!" });
     } catch (error) {
         console.error("Erro ao cadastrar ocorrência:", error);
         res.status(500).json({ mensagem: "Erro ao cadastrar ocorrência." });
