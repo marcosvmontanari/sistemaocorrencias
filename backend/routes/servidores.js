@@ -28,20 +28,26 @@ router.post("/upload-csv", upload.single("csvFile"), (req, res) => {
 
 // ✅ Inserção em lote de servidores com senha criptografada
 async function insertDataBatch(data) {
+    const tiposValidos = ["SERVIDOR", "ADMIN", "GESTOR DE OCORRÊNCIAS"];
+
     for (const row of data) {
         try {
-            const senhaPura = row.senha || row.siape; // se não tiver senha no CSV, usa o SIAPE como senha padrão
+            const senhaPura = row.senha || row.siape;
             const senhaCriptografada = await bcrypt.hash(senhaPura, 10);
+
+            const tipo = row.tipo && tiposValidos.includes(row.tipo.toUpperCase())
+                ? row.tipo.toUpperCase()
+                : "SERVIDOR";
 
             const [servidorExistente] = await db.execute("SELECT * FROM servidores WHERE siape = ?", [row.siape]);
 
             if (servidorExistente.length === 0) {
                 await db.query(
                     "INSERT INTO servidores (nome, email, siape, tipo, senha, alterou_senha) VALUES (?, ?, ?, ?, ?, ?)",
-                    [row.nome, row.email, row.siape, row.tipo || "SERVIDOR", senhaCriptografada, 0]
+                    [row.nome, row.email, row.siape, tipo, senhaCriptografada, 0]
                 );
             } else {
-                console.log(`Servidor com SIAPE ${row.siape} já cadastrado.`);
+                console.log(`⚠️ Servidor com SIAPE ${row.siape} já existe. Ignorado.`);
             }
         } catch (error) {
             console.error("❌ Erro ao inserir servidor:", error);

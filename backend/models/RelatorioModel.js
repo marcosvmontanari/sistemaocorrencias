@@ -1,7 +1,7 @@
 const db = require("../config/db");
 
 // Função para listar ocorrências com filtros aplicados
-async function listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servidor) {
+async function listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servidor, curso, turma) {
     let query = `
         SELECT o.id, a.nome AS aluno, i.tipo AS infracao, o.local, o.descricao, o.data_hora, s.nome AS servidor
         FROM ocorrencias o
@@ -13,7 +13,7 @@ async function listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servi
 
     const params = [];
 
-    // 🔹 Adicionando filtros dinamicamente
+    // 🔹 Filtros dinâmicos
     if (tipoInfracao) {
         query += " AND i.tipo = ?";
         params.push(tipoInfracao);
@@ -21,12 +21,12 @@ async function listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servi
 
     if (dataInicio) {
         query += " AND o.data_hora >= ?";
-        params.push(dataInicio + " 00:00:00");
+        params.push(dataInicio);
     }
 
     if (dataFim) {
         query += " AND o.data_hora <= ?";
-        params.push(dataFim + " 23:59:59");
+        params.push(dataFim);
     }
 
     if (aluno) {
@@ -39,7 +39,16 @@ async function listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servi
         params.push(servidor);
     }
 
-    // 🔹 Executa a consulta filtrada
+    if (curso) {
+        query += " AND a.curso_id = ?";
+        params.push(curso);
+    }
+
+    if (turma) {
+        query += " AND a.turma_id = ?";
+        params.push(turma);
+    }
+
     const [result] = await db.execute(query, params);
     return result;
 }

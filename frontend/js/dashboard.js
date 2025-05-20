@@ -20,22 +20,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuDashboard = document.getElementById("menuDashboard");
 
     let menuItens = "";
-    if (usuario.tipo === "ADMIN") {
-        menuItens = `
-            <a href="#" class="list-group-item" data-page="cadastrar_servidores.html">📋 Gerenciar Servidores</a>
-            <a href="#" class="list-group-item" data-page="cadastrar_alunos.html">👥 Gerenciar Alunos</a>
-            <a href="#" class="list-group-item" data-page="cadastrar_infracoes.html">⚠️ Gerenciar Infrações</a>
-            <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
-            <a href="#" class="list-group-item" data-page="listar_ocorrencias.html">📂 Listar Ocorrências</a>
-            <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
-            <a href="#" class="list-group-item" data-page="quadro_ocorrencias.html">📌 Quadro de Ocorrências</a> <!-- ✅ NOVO ITEM -->
 
-        `;
-    } else {
-        menuItens = `
-            <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
-            <a href="#" class="list-group-item" data-page="minhas_ocorrencias.html">📂 Minhas Ocorrências</a>
-        `;
+    switch (usuario.tipo) {
+        case "ADMIN":
+            menuItens = `
+                <a href="#" class="list-group-item" data-page="cadastrar_servidores.html">📋 Gerenciar Servidores</a>
+                <a href="#" class="list-group-item" data-page="cadastrar_alunos.html">👥 Gerenciar Alunos</a>
+                <a href="#" class="list-group-item" data-page="cadastrar_infracoes.html">⚠️ Gerenciar Infrações</a>
+                <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
+                <a href="#" class="list-group-item" data-page="listar_ocorrencias.html">📂 Listar Ocorrências</a>
+                <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
+                <a href="#" class="list-group-item" data-page="quadro_ocorrencias.html">📌 Quadro de Ocorrências</a>
+            `;
+            break;
+
+        case "GESTOR DE OCORRÊNCIAS":
+            menuItens = `
+                <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
+                <a href="#" class="list-group-item" data-page="listar_ocorrencias.html">📂 Listar Ocorrências</a>
+                <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
+                <a href="#" class="list-group-item" data-page="quadro_ocorrencias.html">📌 Quadro de Ocorrências</a>
+            `;
+            break;
+
+        default:
+            menuItens = `
+                <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
+                <a href="#" class="list-group-item" data-page="minhas_ocorrencias.html">📂 Minhas Ocorrências</a>
+            `;
     }
 
     menuDashboard.innerHTML = menuItens;

@@ -5,7 +5,6 @@ const multer = require("multer");
 const OcorrenciaModel = require("../models/OcorrenciaModel");
 const { gerarPdfOcorrencia } = require("../controllers/PdfOcorrenciaController");
 
-
 // Configuração do armazenamento da imagem
 const storage = multer.diskStorage({
     destination: "uploads/", // Pasta onde os arquivos serão salvos
@@ -26,6 +25,9 @@ router.post("/cadastrar", upload.single("imagem"), async (req, res) => {
         const { alunos, infracao, local, descricao, dataHora, servidor } = req.body;
         const imagem = req.file ? req.file.filename : null;
 
+        // ✅ Ajuste de horário para formato compatível com MySQL
+        const dataHoraConvertida = new Date(dataHora).toISOString().slice(0, 19).replace('T', ' ');
+
         // Se vier só um aluno (por segurança), transforma em array
         const listaAlunos = Array.isArray(alunos) ? alunos : [alunos];
 
@@ -35,7 +37,7 @@ router.post("/cadastrar", upload.single("imagem"), async (req, res) => {
                 infracao,
                 local,
                 descricao,
-                dataHora,
+                dataHoraConvertida,
                 servidor,
                 imagem
             );
@@ -73,12 +75,9 @@ router.get("/", async (req, res) => {
     }
 });
 
-
 /* ===============================================================
    ✅ ROTAS ADICIONADAS ABAIXO
 =============================================================== */
-
-
 
 // 🔸 Rota para editar uma ocorrência específica (descricao e local)
 router.put("/:id", async (req, res) => {
@@ -197,8 +196,6 @@ router.put("/:id/feedback", async (req, res) => {
         res.status(500).json({ mensagem: "Erro ao atualizar feedback." });
     }
 });
-
-
 
 /* ===============================================================
    ✅ FIM DAS ROTAS

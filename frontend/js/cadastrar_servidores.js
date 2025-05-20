@@ -34,14 +34,12 @@ async function initServidores() {
     let totalPages = 1;
     let termoBusca = "";
 
-    // 🔹 Evento de busca no input
     inputBusca.addEventListener("input", () => {
         termoBusca = inputBusca.value.trim();
         currentPage = 1;
         carregarServidores(currentPage);
     });
 
-    // ✅ Função para carregar a lista de servidores com paginação e busca
     async function carregarServidores(page = 1, limit = 10) {
         try {
             console.log("📦 Carregando servidores...");
@@ -52,17 +50,13 @@ async function initServidores() {
             }
 
             const resposta = await fetch(url);
-
             if (!resposta.ok) throw new Error("Erro ao buscar servidores!");
 
             const data = await resposta.json();
-
             tabelaServidores.innerHTML = "";
 
             if (!data.servidores || data.servidores.length === 0) {
-                tabelaServidores.innerHTML = `
-                    <tr><td colspan="5" class="text-center">Nenhum servidor encontrado.</td></tr>
-                `;
+                tabelaServidores.innerHTML = `<tr><td colspan="5" class="text-center">Nenhum servidor encontrado.</td></tr>`;
                 totalPages = 1;
                 updatePaginationControls();
                 return;
@@ -85,10 +79,8 @@ async function initServidores() {
             });
 
             totalPages = Math.ceil(data.total / limit);
-
             updatePaginationControls();
             addEventListeners();
-
             console.log("✅ Lista de servidores carregada com sucesso!");
 
         } catch (error) {
@@ -96,7 +88,6 @@ async function initServidores() {
         }
     }
 
-    // ✅ Atualiza os controles de paginação
     function updatePaginationControls() {
         paginationControls.innerHTML = "";
 
@@ -125,7 +116,6 @@ async function initServidores() {
         });
     }
 
-    // ✅ Adiciona os eventos aos ícones
     function addEventListeners() {
         document.querySelectorAll("#btnEditar").forEach(button => {
             button.addEventListener("click", () => {
@@ -221,9 +211,7 @@ async function initServidores() {
 
         fetch(`${BASE_URL}/servidores/${id}`)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar dados do servidor');
-                }
+                if (!response.ok) throw new Error('Erro ao carregar dados do servidor');
                 return response.json();
             })
             .then(data => {

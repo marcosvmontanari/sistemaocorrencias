@@ -4,14 +4,23 @@ const RelatorioModel = require("../models/RelatorioModel");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
-const moment = require("moment");
+const moment = require("moment-timezone");
 
 // Rota para gerar relatório PDF
 router.get("/gerar", async (req, res) => {
     try {
-        const { tipoInfracao, dataInicio, dataFim, aluno, servidor } = req.query;
+        const { tipoInfracao, dataInicio, dataFim, aluno, servidor, curso, turma } = req.query;
+
+        const dataInicioBr = dataInicio
+            ? moment.tz(dataInicio, "America/Sao_Paulo").format("YYYY-MM-DD HH:mm:ss")
+            : null;
+
+        const dataFimBr = dataFim
+            ? moment.tz(dataFim, "America/Sao_Paulo").format("YYYY-MM-DD HH:mm:ss")
+            : null;
+
         const ocorrencias = await RelatorioModel.listarOcorrencias(
-            tipoInfracao, dataInicio, dataFim, aluno, servidor
+            tipoInfracao, dataInicioBr, dataFimBr, aluno, servidor, curso, turma
         );
 
         const doc = new PDFDocument({
@@ -25,27 +34,25 @@ router.get("/gerar", async (req, res) => {
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
-        // 🔹 Adicionando a logo no canto superior esquerdo
         const logoPath = path.join(__dirname, "..", "assets", "logo.png");
         if (fs.existsSync(logoPath)) {
             doc.image(logoPath, 30, 20, { width: 100 });
         }
 
-        // 🔹 Cabeçalho do relatório
         doc.fontSize(20).text("Relatório de Ocorrências", 150, 30, { align: "center" });
         doc.moveDown(1);
 
-        // 🔹 Informações do filtro
         doc.fontSize(12);
-        doc.text(`Data de Emissão: ${moment().format("DD/MM/YYYY HH:mm")}`);
+        doc.text(`Data de Emissão: ${moment().tz("America/Sao_Paulo").format("DD/MM/YYYY HH:mm")}`);
         if (tipoInfracao) doc.text(`Tipo de Infração: ${tipoInfracao}`);
         if (dataInicio) doc.text(`Data Início: ${dataInicio}`);
         if (dataFim) doc.text(`Data Fim: ${dataFim}`);
         if (aluno) doc.text(`Aluno: ${aluno}`);
         if (servidor) doc.text(`Servidor: ${servidor}`);
+        if (curso) doc.text(`Curso: ${curso}`);
+        if (turma) doc.text(`Turma: ${turma}`);
         doc.moveDown(1);
 
-        // 🔹 Definição das posições das colunas
         const colPositions = {
             id: 30,
             aluno: 70,
@@ -58,7 +65,6 @@ router.get("/gerar", async (req, res) => {
 
         let y = doc.y;
 
-        // 🔹 Cabeçalho da tabela
         doc.fontSize(12).font("Helvetica-Bold");
         doc.rect(25, y - 5, 850, 25).fill("#f0f0f0");
         doc.fillColor("black");
@@ -74,10 +80,8 @@ router.get("/gerar", async (req, res) => {
         doc.moveDown(0.5);
         y = doc.y + 5;
 
-        // 🔹 Linhas da tabela com espaçamento melhorado
         doc.font("Helvetica").fontSize(10);
         ocorrencias.forEach((ocorrencia, index) => {
-            // 🔹 Calcular a altura máxima necessária para esta linha
             const rowHeights = [
                 doc.heightOfString(ocorrencia.id, { width: 30 }),
                 doc.heightOfString(ocorrencia.aluno, { width: 150 }),
@@ -88,27 +92,23 @@ router.get("/gerar", async (req, res) => {
                 doc.heightOfString(ocorrencia.servidor, { width: 120 })
             ];
 
-            // 🔹 Define a altura mínima da linha como 25px
-            const rowHeight = Math.max(...rowHeights) + 10; // Adicionamos um espaçamento extra
+            const rowHeight = Math.max(...rowHeights) + 10;
 
-            // 🔹 Fundo alternado para melhor leitura
             if (index % 2 === 0) {
                 doc.rect(25, y - 5, 850, rowHeight).fill("#e8e8e8");
                 doc.fillColor("black");
             }
 
-            // 🔹 Posiciona os textos corretamente
             doc.text(`${ocorrencia.id}`, colPositions.id, y, { width: 30 });
             doc.text(`${ocorrencia.aluno}`, colPositions.aluno, y, { width: 150 });
             doc.text(`${ocorrencia.infracao}`, colPositions.infracao, y, { width: 100 });
-            doc.text(`${ocorrencia.local}`, colPositions.local, y, { width: 180, lineGap: 2 });
-            doc.text(`${ocorrencia.descricao}`, colPositions.descricao, y, { width: 200, lineGap: 2 });
+            doc.text(`${ocorrencia.local}`, colPositions.local, y, { width: 180 });
+            doc.text(`${ocorrencia.descricao}`, colPositions.descricao, y, { width: 200 });
             doc.text(moment(ocorrencia.data_hora).format("DD/MM/YYYY HH:mm"), colPositions.dataHora, y, { width: 120 });
             doc.text(`${ocorrencia.servidor}`, colPositions.servidor, y, { width: 120 });
 
-            y += rowHeight; // 🔹 Agora cada linha terá mais espaço
+            y += rowHeight;
 
-            // 🔹 Se a página estiver cheia, cria uma nova
             if (y > 500) {
                 doc.addPage();
                 y = 50;
@@ -131,18 +131,28 @@ router.get("/gerar", async (req, res) => {
     }
 });
 
-
+// Rota para relatório em tela (JSON)
 router.get("/dados", async (req, res) => {
     try {
-        const { tipoInfracao, dataInicio, dataFim, aluno, servidor } = req.query;
-        const ocorrencias = await RelatorioModel.listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servidor);
+        const { tipoInfracao, dataInicio, dataFim, aluno, servidor, curso, turma } = req.query;
+
+        const dataInicioBr = dataInicio
+            ? moment.tz(dataInicio, "America/Sao_Paulo").format("YYYY-MM-DD HH:mm:ss")
+            : null;
+
+        const dataFimBr = dataFim
+            ? moment.tz(dataFim, "America/Sao_Paulo").format("YYYY-MM-DD HH:mm:ss")
+            : null;
+
+        const ocorrencias = await RelatorioModel.listarOcorrencias(
+            tipoInfracao, dataInicioBr, dataFimBr, aluno, servidor, curso, turma
+        );
+
         res.json(ocorrencias);
     } catch (error) {
         console.error("Erro ao buscar dados do relatório:", error);
         res.status(500).json({ mensagem: "Erro ao buscar dados do relatório." });
     }
 });
-
-
 
 module.exports = router;

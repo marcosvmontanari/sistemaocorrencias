@@ -251,6 +251,25 @@ async function listarOcorrenciasPaginado({ page = 1, limit = 10, busca = "" }) {
     }
 }
 
+const moment = require("moment-timezone");
+
+function estaDentroDoPrazo(dataOcorrencia, tipo) {
+    const agora = moment().tz("America/Sao_Paulo");
+    const data = moment.tz(dataOcorrencia, "America/Sao_Paulo");
+    const dias = agora.diff(data, 'days');
+
+    switch (tipo) {
+        case "LEVE":
+            return dias <= 90;
+        case "GRAVE":
+            return dias <= 180;
+        case "GRAVÍSSIMA":
+            return dias <= 365;
+        default:
+            return false;
+    }
+}
+
 /* ======================================================================================
    ✅ QUADRO DE OCORRÊNCIAS (COM REGRAS DE REINCIDÊNCIA)
 ====================================================================================== */
@@ -265,7 +284,8 @@ async function gerarQuadroOcorrencias() {
         SELECT 
             a.id AS aluno_id,
             a.nome AS aluno_nome,
-            i.tipo AS tipo_infracao
+            i.tipo AS tipo_infracao,
+            o.data_hora
         FROM ocorrencias o
         INNER JOIN alunos a ON o.aluno_id = a.id
         INNER JOIN infracoes i ON o.infracao_id = i.id
@@ -279,6 +299,10 @@ async function gerarQuadroOcorrencias() {
     result.forEach(item => {
         const nome = item.aluno_nome;
         const tipo = item.tipo_infracao;
+        const data = item.data_hora;
+
+        // ⏳ Ignora ocorrências fora do prazo de validade
+        if (!estaDentroDoPrazo(data, tipo)) return;
 
         if (!mapaAlunos[nome]) {
             mapaAlunos[nome] = { leve: 0, grave: 0, gravissima: 0 };
@@ -294,19 +318,23 @@ async function gerarQuadroOcorrencias() {
     for (const nome in mapaAlunos) {
         let { leve, grave, gravissima } = mapaAlunos[nome];
 
-        const novasGraves = Math.floor(leve / 3);
+        // ✅ Converte LEVES em GRAVE só a partir da 4ª
+        const novasGraves = leve >= 4 ? leve - 3 : 0;
         grave += novasGraves;
-        leve = leve % 3;
+        leve = leve >= 4 ? 3 : leve;
 
-        const novasGravissimas = Math.floor(grave / 2);
+        // ✅ Converte GRAVES em GRAVÍSSIMA só a partir da 3ª
+        const novasGravissimas = grave >= 3 ? grave - 2 : 0;
         gravissima += novasGravissimas;
-        grave = grave % 2;
+        grave = grave >= 3 ? 2 : grave;
 
         resultadoFinal.push({ aluno: nome, leve, grave, gravissima });
     }
 
     return resultadoFinal;
 }
+
+
 
 /**
  * 🔹 Lista todas as ocorrências cadastradas por um servidor

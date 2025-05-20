@@ -4,10 +4,10 @@ console.log("🔹 Script relatorios.js carregado como módulo!");
 export function init() {
     console.log("🔸 Inicializando módulo relatorios.js");
 
-    // ✅ Verifica se o usuário está autenticado no sessionStorage
+    // ✅ Verifica se o usuário está autenticado e tem permissão
     const usuario = JSON.parse(sessionStorage.getItem("usuario"));
-    if (!usuario || usuario.tipo !== "ADMIN") {
-        console.error("❌ Acesso negado! Apenas administradores podem acessar esta página.");
+    if (!usuario || (usuario.tipo !== "ADMIN" && usuario.tipo !== "GESTOR DE OCORRÊNCIAS")) {
+        console.error("❌ Acesso negado! Apenas administradores ou gestores de ocorrências podem acessar esta página.");
         window.location.href = "../dashboard.html";
         return;
     }
@@ -48,10 +48,10 @@ export function init() {
     });
 }
 
-// 🔸 Função para carregar a lista de alunos e servidores no select
+// 🔸 Função para carregar a lista de alunos, servidores, cursos e turmas no select
 async function carregarFiltros() {
     try {
-        // Carregar alunos
+        // Alunos
         const alunosRes = await fetch(`${BASE_URL}/alunos?limit=10000`);
         const alunosData = await alunosRes.json();
         const selectAluno = document.getElementById("aluno");
@@ -64,7 +64,7 @@ async function carregarFiltros() {
             selectAluno.appendChild(option);
         });
 
-        // Carregar servidores
+        // Servidores
         const servidoresRes = await fetch(`${BASE_URL}/servidores?page=1&limit=10000`);
         const servidoresData = await servidoresRes.json();
         const selectServidor = document.getElementById("servidor");
@@ -77,23 +77,43 @@ async function carregarFiltros() {
             selectServidor.appendChild(option);
         });
 
-        console.log("✅ Filtros carregados com sucesso!");
+        // Cursos
+        const cursosRes = await fetch(`${BASE_URL}/cursos`);
+        const cursos = await cursosRes.json();
+        const selectCurso = document.getElementById("curso");
 
-        // ✅ Ativa o Select2 nos campos Aluno e Servidor
-        $('#aluno').select2({
-            placeholder: "Selecione o aluno",
-            allowClear: true,
-            width: '100%',
-            theme: 'bootstrap5',
-            dropdownCssClass: 'select2-dropdown-scroll'
+        selectCurso.innerHTML = `<option value="">Todos</option>`;
+        cursos.forEach(curso => {
+            let option = document.createElement("option");
+            option.value = curso.id;
+            option.textContent = curso.nome;
+            selectCurso.appendChild(option);
         });
 
-        $('#servidor').select2({
-            placeholder: "Selecione o servidor",
-            allowClear: true,
-            width: '100%',
-            theme: 'bootstrap5',
-            dropdownCssClass: 'select2-dropdown-scroll'
+        // Turmas
+        const turmasRes = await fetch(`${BASE_URL}/turmas`);
+        const turmas = await turmasRes.json();
+        const selectTurma = document.getElementById("turma");
+
+        selectTurma.innerHTML = `<option value="">Todas</option>`;
+        turmas.forEach(turma => {
+            let option = document.createElement("option");
+            option.value = turma.id;
+            option.textContent = turma.nome;
+            selectTurma.appendChild(option);
+        });
+
+        console.log("✅ Filtros carregados com sucesso!");
+
+        // Ativa Select2 em todos
+        ['aluno', 'servidor', 'curso', 'turma'].forEach(id => {
+            $(`#${id}`).select2({
+                placeholder: `Selecione ${id}`,
+                allowClear: true,
+                width: '100%',
+                theme: 'bootstrap5',
+                dropdownCssClass: 'select2-dropdown-scroll'
+            });
         });
 
     } catch (error) {
@@ -101,7 +121,7 @@ async function carregarFiltros() {
         Swal.fire({
             icon: 'error',
             title: 'Erro ao carregar filtros!',
-            text: 'Não foi possível carregar os filtros de alunos e servidores.'
+            text: 'Não foi possível carregar os filtros de alunos, turmas, cursos ou servidores.'
         });
     }
 }
@@ -113,8 +133,10 @@ async function buscarRelatorios() {
     const dataFim = document.getElementById("data_fim").value;
     const aluno = document.getElementById("aluno").value;
     const servidor = document.getElementById("servidor").value;
+    const curso = document.getElementById("curso").value;
+    const turma = document.getElementById("turma").value;
 
-    const url = `${BASE_URL}/relatorios/dados?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}`;
+    const url = `${BASE_URL}/relatorios/dados?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}&curso=${curso}&turma=${turma}`;
 
     try {
         const resposta = await fetch(url);
@@ -165,8 +187,10 @@ async function gerarRelatorioPDF() {
     const dataFim = document.getElementById("data_fim").value;
     const aluno = document.getElementById("aluno").value;
     const servidor = document.getElementById("servidor").value;
+    const curso = document.getElementById("curso").value;
+    const turma = document.getElementById("turma").value;
 
-    const url = `${BASE_URL}/relatorios/gerar?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}`;
+    const url = `${BASE_URL}/relatorios/gerar?tipoInfracao=${tipoInfracao}&dataInicio=${dataInicio}&dataFim=${dataFim}&aluno=${aluno}&servidor=${servidor}&curso=${curso}&turma=${turma}`;
 
     try {
         const resposta = await fetch(url, { method: "GET" });
