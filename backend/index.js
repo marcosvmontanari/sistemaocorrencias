@@ -32,6 +32,8 @@ const alunoRoutes = require("./routes/alunos");
 const ocorrenciaRoutes = require("./routes/ocorrencias");
 const relatorioRoutes = require("./routes/relatorios");
 const infracoesRoutes = require("./routes/infracoes");
+const cursosRouter = require("./routes/cursos");
+const turmasRouter = require("./routes/turmas");
 
 // ✅ Registro das rotas
 app.use("/upload-csv/alunos", uploadCSVAlunos);
@@ -41,6 +43,8 @@ app.use("/alunos", alunoRoutes);
 app.use("/ocorrencias", ocorrenciaRoutes);
 app.use("/relatorios", relatorioRoutes);
 app.use("/infracoes", infracoesRoutes);
+app.use("/cursos", cursosRouter);
+app.use("/turmas", turmasRouter);
 
 // ✅ Definir a porta e iniciar o servidor
 const PORT = process.env.PORT || 3000;

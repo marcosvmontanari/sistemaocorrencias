@@ -1,10 +1,38 @@
 <h2>Gerar Relatórios</h2>
 
+<style>
+    .select2-container--bootstrap5 .select2-selection {
+        min-height: 38px !important;
+        display: flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .select2-container--bootstrap5 .select2-selection__rendered {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+    }
+
+    .select2-selection__arrow {
+        height: 38px !important;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+
+
 <!-- 🔹 Filtros para gerar relatórios -->
 <form id="formRelatorio" class="mb-4">
     <div class="row g-3">
 
-        <!-- Tipo de Infração -->
         <div class="col-md-3">
             <label for="tipo_infracao" class="form-label">Tipo de Infração</label>
             <select class="form-select" id="tipo_infracao" name="tipo_infracao">
@@ -15,7 +43,6 @@
             </select>
         </div>
 
-        <!-- Aluno -->
         <div class="col-md-3">
             <label for="aluno" class="form-label">Aluno</label>
             <select class="form-select" id="aluno" name="aluno">
@@ -23,7 +50,6 @@
             </select>
         </div>
 
-        <!-- Servidor -->
         <div class="col-md-3">
             <label for="servidor" class="form-label">Servidor Responsável</label>
             <select class="form-select" id="servidor" name="servidor">
@@ -31,7 +57,6 @@
             </select>
         </div>
 
-        <!-- Curso -->
         <div class="col-md-3">
             <label for="curso" class="form-label">Curso</label>
             <select class="form-select" id="curso" name="curso">
@@ -39,7 +64,6 @@
             </select>
         </div>
 
-        <!-- Turma -->
         <div class="col-md-3">
             <label for="turma" class="form-label">Turma</label>
             <select class="form-select" id="turma" name="turma">
@@ -47,13 +71,11 @@
             </select>
         </div>
 
-        <!-- Data Início -->
         <div class="col-md-3">
             <label for="data_inicio" class="form-label">Data Início</label>
             <input type="date" class="form-control" id="data_inicio" name="data_inicio">
         </div>
 
-        <!-- Data Fim -->
         <div class="col-md-3">
             <label for="data_fim" class="form-label">Data Fim</label>
             <input type="date" class="form-control" id="data_fim" name="data_fim">

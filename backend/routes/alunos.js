@@ -28,24 +28,17 @@ router.post("/cadastrar", async (req, res) => {
     }
 });
 
-// ✅ Rota para listar alunos com paginação e busca inteligente
-// Rota para listar os alunos com paginação e busca
+// ✅ Rota para listar alunos com paginação e busca
 router.get("/", async (req, res) => {
     try {
         let page = parseInt(req.query.page, 10) || 1;
         let limit = parseInt(req.query.limit, 10) || 10;
         const busca = req.query.busca || "";
 
-        console.log("📌 Parâmetros recebidos:", { page, limit, busca });
-
-        if (isNaN(page) || isNaN(limit)) {
-            return res.status(400).json({ erro: "Parâmetros inválidos!" });
-        }
-
         const offset = (page - 1) * limit;
 
-        let query;
-        let params = [];
+        let query, params = [];
+        let totalQuery, totalParams = [];
 
         if (busca && busca.trim() !== "") {
             query = `
@@ -55,11 +48,14 @@ router.get("/", async (req, res) => {
                 ORDER BY nome ASC
                 LIMIT ${limit} OFFSET ${offset}
             `;
-            params = [
-                `%${busca}%`,
-                `%${busca}%`,
-                `%${busca}%`
-            ];
+            params = [`%${busca}%`, `%${busca}%`, `%${busca}%`];
+
+            totalQuery = `
+                SELECT COUNT(*) as total
+                FROM alunos
+                WHERE nome LIKE ? OR turma LIKE ? OR curso LIKE ?
+            `;
+            totalParams = [`%${busca}%`, `%${busca}%`, `%${busca}%`];
         } else {
             query = `
                 SELECT id, nome, turma, curso
@@ -67,49 +63,21 @@ router.get("/", async (req, res) => {
                 ORDER BY nome ASC
                 LIMIT ${limit} OFFSET ${offset}
             `;
-            params = [];
+            totalQuery = `SELECT COUNT(*) as total FROM alunos`;
         }
 
         const [rows] = await db.execute(query, params);
-
-        // Consulta de contagem total
-        let totalQuery;
-        let totalParams = [];
-
-        if (busca && busca.trim() !== "") {
-            totalQuery = `
-                SELECT COUNT(*) as total
-                FROM alunos
-                WHERE nome LIKE ? OR turma LIKE ? OR curso LIKE ?
-            `;
-            totalParams = [
-                `%${busca}%`,
-                `%${busca}%`,
-                `%${busca}%`
-            ];
-        } else {
-            totalQuery = `
-                SELECT COUNT(*) as total
-                FROM alunos
-            `;
-            totalParams = [];
-        }
-
         const [total] = await db.execute(totalQuery, totalParams);
 
         res.json({
             total: total[0].total,
             alunos: rows
         });
-
     } catch (error) {
         console.error("❌ Erro ao listar alunos:", error);
         res.status(500).json({ erro: "Erro interno ao listar alunos." });
     }
 });
-
-
-
 
 // ✅ Rota para atualizar um aluno
 router.put("/:id", async (req, res) => {
@@ -164,7 +132,7 @@ router.post("/upload-csv/alunos", upload.single("csvFile"), (req, res) => {
         });
 });
 
-// ✅ Função para inserir alunos em lote (sem alterações)
+// ✅ Função para inserir alunos em lote
 async function insertDataBatch(data) {
     let alunosCadastrados = 0;
 
@@ -186,49 +154,70 @@ async function insertDataBatch(data) {
             );
 
             alunosCadastrados++;
-            console.log(`Aluno ${row.nome} cadastrado com sucesso!`);
-
         } catch (error) {
             console.error("Erro ao inserir aluno:", error);
-            continue;
         }
     }
 
     return alunosCadastrados;
 }
 
-// ✅ Rota para listar todos os alunos (sem paginação)
+// ✅ Rota para listar todos os alunos
 router.get("/todos", async (req, res) => {
     try {
         const query = `SELECT id, nome, turma, curso FROM alunos ORDER BY nome ASC`;
         const [rows] = await db.execute(query);
-
-        res.json({
-            total: rows.length,
-            alunos: rows
-        });
+        res.json({ total: rows.length, alunos: rows });
     } catch (error) {
         console.error("❌ Erro ao listar todos os alunos:", error);
         res.status(500).json({ erro: "Erro interno ao listar todos os alunos." });
     }
 });
 
-
-// ✅ Rota para buscar um aluno por ID (turma e curso inclusos)
+// ✅ Rota para buscar um aluno por ID
 router.get("/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const aluno = await buscarAlunoPorId(id);
-
         if (!aluno) {
             return res.status(404).json({ erro: "Aluno não encontrado" });
         }
-
         res.status(200).json(aluno);
-
     } catch (error) {
         console.error("❌ Erro ao buscar aluno:", error);
         res.status(500).json({ erro: "Erro interno ao buscar aluno" });
+    }
+});
+
+// ✅ Rota para listar cursos distintos
+router.get("/cursos", async (req, res) => {
+    try {
+        const [cursos] = await db.execute(`
+            SELECT DISTINCT curso AS nome, curso AS id
+            FROM alunos
+            WHERE curso IS NOT NULL AND curso != ''
+            ORDER BY curso ASC
+        `);
+        res.json(cursos);
+    } catch (error) {
+        console.error("❌ Erro ao buscar cursos:", error);
+        res.status(500).json({ erro: "Erro ao buscar cursos." });
+    }
+});
+
+// ✅ Rota para listar turmas distintas
+router.get("/turmas", async (req, res) => {
+    try {
+        const [turmas] = await db.execute(`
+            SELECT DISTINCT turma AS nome, turma AS id
+            FROM alunos
+            WHERE turma IS NOT NULL AND turma != ''
+            ORDER BY turma ASC
+        `);
+        res.json(turmas);
+    } catch (error) {
+        console.error("❌ Erro ao buscar turmas:", error);
+        res.status(500).json({ erro: "Erro ao buscar turmas." });
     }
 });
 

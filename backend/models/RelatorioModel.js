@@ -1,9 +1,16 @@
 const db = require("../config/db");
 
-// Função para listar ocorrências com filtros aplicados
+// ✅ Função para listar ocorrências com filtros aplicados
 async function listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servidor, curso, turma) {
     let query = `
-        SELECT o.id, a.nome AS aluno, i.tipo AS infracao, o.local, o.descricao, o.data_hora, s.nome AS servidor
+        SELECT 
+            o.id, 
+            a.nome AS aluno, 
+            i.tipo AS infracao, 
+            o.local, 
+            o.descricao, 
+            o.data_hora, 
+            s.nome AS servidor
         FROM ocorrencias o
         JOIN alunos a ON o.aluno_id = a.id
         JOIN infracoes i ON o.infracao_id = i.id
@@ -13,7 +20,6 @@ async function listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servi
 
     const params = [];
 
-    // 🔹 Filtros dinâmicos
     if (tipoInfracao) {
         query += " AND i.tipo = ?";
         params.push(tipoInfracao);
@@ -40,12 +46,12 @@ async function listarOcorrencias(tipoInfracao, dataInicio, dataFim, aluno, servi
     }
 
     if (curso) {
-        query += " AND a.curso_id = ?";
+        query += " AND a.curso = ?";
         params.push(curso);
     }
 
     if (turma) {
-        query += " AND a.turma_id = ?";
+        query += " AND a.turma = ?";
         params.push(turma);
     }
 
