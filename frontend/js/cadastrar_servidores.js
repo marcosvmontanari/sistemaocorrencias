@@ -218,7 +218,16 @@ async function initServidores() {
                 document.getElementById("editNome").value = data.nome;
                 document.getElementById("editEmail").value = data.email;
                 document.getElementById("editSiape").value = data.siape;
-                document.getElementById("editTipo").value = data.tipo;
+
+                const selectTipo = document.getElementById("editTipo");
+                selectTipo.innerHTML = `
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="GESTOR DE OCORRÊNCIAS">GESTOR DE OCORRÊNCIAS</option>
+                    <option value="SERVIDOR">SERVIDOR</option>
+                    <option value="COMISSÃO DISCIPLINAR">COMISSÃO DISCIPLINAR</option>
+                `;
+
+                selectTipo.value = data.tipo;
             })
             .catch(error => {
                 showAlert("error", "❌ Erro ao carregar dados do servidor para edição.");

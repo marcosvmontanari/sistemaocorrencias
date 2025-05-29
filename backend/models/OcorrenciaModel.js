@@ -15,7 +15,9 @@ const db = require("../config/db");
  * @param {string|null} imagem - Nome do arquivo da imagem anexada (ou null)
  */
 async function criarOcorrencia(aluno, infracao, local, descricao, dataHora, servidor, imagem) {
-    const status = "PENDENTE"; // 🔹 Define status inicial
+    const status = "PENDENTE";
+
+    const dataHoraConvertida = moment.tz(dataHora, "America/Sao_Paulo").format("YYYY-MM-DD HH:mm:ss");
 
     const query = `
         INSERT INTO ocorrencias 
@@ -23,7 +25,7 @@ async function criarOcorrencia(aluno, infracao, local, descricao, dataHora, serv
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    await db.execute(query, [aluno, infracao, local, descricao, dataHora, servidor, imagem, status]);
+    await db.execute(query, [aluno, infracao, local, descricao, dataHoraConvertida, servidor, imagem, status]);
 }
 
 /* ======================================================================================
@@ -378,6 +380,32 @@ async function atualizarFeedback(id, feedback, status) {
     await db.execute(query, [feedback, status, id]);
 }
 
+/**
+ * 🔹 Lista todos os casos de alunos que possuem ocorrência GRAVÍSSIMA
+ * e retorna todas as ocorrências associadas a esses alunos.
+ */
+async function listarCasosParaComissao() {
+    const query = `
+        SELECT o.id, a.id AS aluno_id, a.nome AS aluno_nome,
+               i.tipo AS tipo_infracao, i.descricao AS descricao_infracao,
+               o.local, o.descricao, o.data_hora, o.feedback, o.status, s.nome AS servidor_nome
+        FROM ocorrencias o
+        JOIN alunos a ON o.aluno_id = a.id
+        JOIN infracoes i ON o.infracao_id = i.id
+        JOIN servidores s ON o.servidor_id = s.id
+        WHERE o.aluno_id IN (
+            SELECT DISTINCT o2.aluno_id
+            FROM ocorrencias o2
+            JOIN infracoes i2 ON o2.infracao_id = i2.id
+            WHERE i2.tipo = 'GRAVÍSSIMA'
+        )
+        ORDER BY a.nome ASC, o.data_hora DESC
+    `;
+
+    const [result] = await db.execute(query);
+    return result;
+}
+
 /* ======================================================================================
    ✅ EXPORTA TODAS AS FUNÇÕES
 ====================================================================================== */
@@ -392,5 +420,6 @@ module.exports = {
     listarOcorrenciasPaginado,
     gerarQuadroOcorrencias,
     listarOcorrenciasPorServidor,
-    atualizarFeedback // ✅ Nova função exportada
+    atualizarFeedback,
+    listarCasosParaComissao
 };

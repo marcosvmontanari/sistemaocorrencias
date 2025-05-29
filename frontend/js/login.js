@@ -38,12 +38,15 @@ if (loginForm) {
             if (response.ok) {
                 sessionStorage.setItem("usuario", JSON.stringify(data.usuario));
 
+                // ✅ SEMPRE define a página inicial com base no tipo
+                const paginaInicial = data.usuario.tipo === "COMISSÃO DISCIPLINAR" ? "comissao.html" : "";
+                sessionStorage.setItem("paginaInicial", paginaInicial);
+
                 if (data.usuario.alterou_senha == 0) {
                     abrirModalAlterarSenha();
                 } else {
                     window.location.href = "dashboard.html";
                 }
-
             } else {
                 showAlert("error", "Erro", data.erro || "Usuário ou senha inválidos!");
             }
@@ -109,6 +112,8 @@ async function alterarSenha() {
             sessionStorage.setItem("usuario", JSON.stringify(usuario));
 
             setTimeout(() => {
+                const paginaInicial = usuario.tipo === "COMISSÃO DISCIPLINAR" ? "comissao.html" : "";
+                sessionStorage.setItem("paginaInicial", paginaInicial);
                 window.location.href = "dashboard.html";
             }, 2000);
 

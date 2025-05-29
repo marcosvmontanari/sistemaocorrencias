@@ -2,33 +2,32 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const multer = require("multer");
+const moment = require("moment-timezone");
 const OcorrenciaModel = require("../models/OcorrenciaModel");
 const { gerarPdfOcorrencia } = require("../controllers/PdfOcorrenciaController");
 
-// Configuração do armazenamento da imagem
+// 🔸 Configuração do armazenamento da imagem
 const storage = multer.diskStorage({
-    destination: "uploads/", // Pasta onde os arquivos serão salvos
+    destination: "uploads/",
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Renomeia o arquivo para evitar duplicatas
+        cb(null, Date.now() + path.extname(file.originalname));
     }
 });
-
 const upload = multer({ storage: storage });
 
 /* ===============================================================
    🔹 ROTAS EXISTENTES (MANTIDAS)
 =============================================================== */
 
-// 🔹 Rota para cadastrar uma nova ocorrência (agora para múltiplos alunos)
+// 🔸 Rota para cadastrar ocorrência
 router.post("/cadastrar", upload.single("imagem"), async (req, res) => {
     try {
         const { alunos, infracao, local, descricao, dataHora, servidor } = req.body;
         const imagem = req.file ? req.file.filename : null;
 
-        // ✅ Ajuste de horário para formato compatível com MySQL
-        const dataHoraConvertida = new Date(dataHora).toISOString().slice(0, 19).replace('T', ' ');
+        // ✅ Ajuste de horário - converte para horário de Brasília
+        const dataHoraConvertida = moment.tz(dataHora, "America/Sao_Paulo").format("YYYY-MM-DD HH:mm:ss");
 
-        // Se vier só um aluno (por segurança), transforma em array
         const listaAlunos = Array.isArray(alunos) ? alunos : [alunos];
 
         for (const alunoId of listaAlunos) {

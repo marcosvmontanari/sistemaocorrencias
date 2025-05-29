@@ -43,6 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             break;
 
+        case "COMISSÃO DISCIPLINAR":
+            menuItens = `
+                    <a href="#" class="list-group-item" data-page="comissao.html">📋 Casos Encaminhados</a>
+                `;
+                break;
+
         default:
             menuItens = `
                 <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
@@ -50,7 +56,16 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
     }
 
+
     menuDashboard.innerHTML = menuItens;
+
+    // ✅ Carrega página inicial se for COMISSÃO
+    const paginaInicial = sessionStorage.getItem("paginaInicial");
+    if (paginaInicial) {
+        console.log(`🔁 Página inicial detectada: ${paginaInicial}`);
+        carregarPagina(paginaInicial);
+        sessionStorage.removeItem("paginaInicial");
+    }
 
     document.querySelectorAll("#menuDashboard a").forEach(item => {
         item.addEventListener("click", (event) => {
@@ -160,7 +175,7 @@ async function carregarESexecutarModulo(pagina) {
                     console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
                 }
                 break;
-            
+
             case "quadro_ocorrencias.html":
                 modulo = await import(`../js/quadro_ocorrencias.js?cache=${Date.now()}`);
                 if (modulo?.init) {
@@ -180,6 +195,16 @@ async function carregarESexecutarModulo(pagina) {
                     console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
                 }
                 break;
+
+            case "comissao.html":
+                modulo = await import(`../js/comissao.js?cache=${Date.now()}`);
+                if (modulo?.init) {
+                    console.log(`✅ Executando init() de '${pagina}'`);
+                    modulo.init();
+                } else {
+                    console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
+                }
+                    break;
 
             default:
                 console.warn(`⚠️ Página '${pagina}' não possui módulo definido.`);
