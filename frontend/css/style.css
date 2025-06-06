@@ -357,3 +357,30 @@ td i:hover {
     margin: 0 !important;
     padding: 0 !important;
 }
+
+/* Estilo para cards da COMISSÃO com status diferentes */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.bg-warning-subtle {
+    background-color: #fff3cd !important;
+    border-left: 5px solid #ffc107;
+}
+
+.bg-success-subtle {
+    background-color: #d1e7dd !important;
+    border-left: 5px solid #198754;
+}
+
+.border-secondary {
+    border-color: #dee2e6 !important;
+}
+
+.border-warning {
+    border-color: #ffc107 !important;
+}
+
+.border-success {
+    border-color: #198754 !important;
+}

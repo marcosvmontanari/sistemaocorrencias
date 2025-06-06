@@ -1,0 +1,69 @@
+<div class="container-fluid">
+    <h2 class="mb-4">
+        <i class="fas fa-user text-primary me-2"></i> Detalhes do Aluno Encaminhado
+    </h2>
+
+    <!-- 🔄 Informações do Aluno -->
+    <div id="infoAluno" class="alert alert-info">
+        <strong>Nome:</strong> <span id="alunoNome">-</span>
+        <strong class="ms-4">Curso:</strong> <span id="alunoCurso">-</span>
+        <strong class="ms-4">Turma:</strong> <span id="alunoTurma">-</span>
+    </div>
+
+    <!-- 📚 Tabela de ocorrências -->
+    <div class="table-responsive mb-4">
+        <table class="table table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Infração</th>
+                    <th>Descrição</th>
+                    <th>Local</th>
+                    <th>Data/Hora</th>
+                    <th>Servidor</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaOcorrenciasAluno">
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Carregando ocorrências...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 📝 Formulário de feedback -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <i class="fas fa-comment-dots text-primary me-2"></i>
+            <strong>Feedback da Comissão</strong>
+        </div>
+        <div class="card-body">
+            <input type="hidden" id="feedbackOcorrenciaId">
+
+            <div class="mb-3">
+                <label for="feedbackStatus" class="form-label">Status:</label>
+                <select id="feedbackStatus" class="form-select">
+                    <option value="PENDENTE">PENDENTE</option>
+                    <option value="EM ANÁLISE">EM ANÁLISE</option>
+                    <option value="CONCLUÍDO">CONCLUÍDO</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="feedbackTexto" class="form-label">Comentário:</label>
+                <textarea id="feedbackTexto" class="form-control" rows="4"
+                    placeholder="Digite o feedback..."></textarea>
+            </div>
+
+            <div class="mb-3" id="campoUploadDocumento" style="display: none;">
+                <div id="documentoAnexado"></div>
+                <label for="arquivoDocumento" class="form-label">Documento Final (PDF):</label>
+                <input type="file" class="form-control" id="arquivoDocumento" accept="application/pdf">
+                <div class="form-text text-muted">Apenas arquivos PDF com até 5MB.</div>
+            </div>
+
+            <button class="btn btn-primary w-100" onclick="salvarFeedback()">
+                <i class="fas fa-paper-plane me-1"></i> Enviar Feedback
+            </button>
+        </div>
+    </div>
+</div>

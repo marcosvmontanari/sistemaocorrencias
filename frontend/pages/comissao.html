@@ -1,68 +1,15 @@
 <div class="container-fluid">
     <h2 class="mb-4">
-        <i class="fas fa-user-shield text-primary"></i> Comissão Disciplinar - Casos Encaminhados
+        <i class="fas fa-user-shield text-primary"></i> Casos Encaminhados à Comissão Disciplinar
     </h2>
 
     <!-- 🔍 Campo de busca -->
-    <div class="mb-3">
-        <input type="text" id="buscaComissao" class="form-control" placeholder="🔍 Buscar aluno...">
+    <div class="mb-4">
+        <input type="text" id="buscaComissao" class="form-control" placeholder="Buscar aluno por nome...">
     </div>
 
-    <!-- 🔹 Lista de alunos encaminhados para a comissão -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white fw-bold">
-            Alunos com Ocorrência GRAVÍSSIMA
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-striped align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Aluno</th>
-                            <th>Ocorrências GRAVÍSSIMAS</th>
-                            <th class="text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaAlunosEncaminhados">
-                        <tr>
-                            <td colspan="3" class="text-center text-muted">Carregando alunos encaminhados...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🔹 Modal com histórico -->
-    <div class="modal fade" id="modalHistorico" tabindex="-1" aria-labelledby="modalHistoricoLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="modalHistoricoLabel">📚 Histórico do Aluno</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body table-responsive">
-                    <table class="table table-striped align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Infração</th>
-                                <th>Descrição</th>
-                                <th>Local</th>
-                                <th>Data/Hora</th>
-                                <th>Servidor</th>
-                                <th>Status</th>
-                                <th>Feedback da Comissão</th>
-                                <th class="text-center">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelaHistoricoOcorrencias">
-                            <tr>
-                                <td colspan="8" class="text-center">Carregando histórico...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <!-- 📦 Cards de alunos -->
+    <div class="row" id="containerCardsAlunos">
+        <div class="col-12 text-center text-muted">Carregando casos encaminhados...</div>
     </div>
 </div>

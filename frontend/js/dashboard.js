@@ -204,6 +204,16 @@ async function carregarESexecutarModulo(pagina) {
                 } else {
                     console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
                 }
+                break;
+            
+            case "comissao_detalhes.html":
+                modulo = await import(`../js/comissao_detalhes.js?cache=${Date.now()}`);
+                if (modulo?.init) {
+                    console.log(`✅ Executando init() de '${pagina}'`);
+                    modulo.init();
+                } else {
+                    console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
+                }
                     break;
 
             default:
