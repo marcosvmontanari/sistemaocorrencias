@@ -19,8 +19,9 @@ export async function init() {
     const campoUpload = document.getElementById("campoUploadDocumento");
     const inputArquivo = document.getElementById("arquivoDocumento");
     const containerDocumento = document.getElementById("documentoAnexado");
+    const inputIdOcorrencia = document.getElementById("feedbackOcorrenciaId");
 
-    if (!infoAluno || !corpoTabela || !feedbackStatus || !feedbackTexto || !campoUpload || !containerDocumento) {
+    if (!infoAluno || !corpoTabela || !feedbackStatus || !feedbackTexto || !campoUpload || !containerDocumento || !inputIdOcorrencia) {
         console.error("❌ Elementos do DOM ainda não estão prontos.");
         return;
     }
@@ -29,6 +30,10 @@ export async function init() {
 
     try {
         const resposta = await fetch(`${BASE_URL}/comissao/detalhes/${alunoId}`);
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP: ${resposta.status}`);
+        }
+
         const dados = await resposta.json();
 
         if (!dados || !dados.aluno) {
@@ -68,27 +73,26 @@ export async function init() {
                 corpoTabela.appendChild(linha);
             });
 
-            // 🎯 Preenche status e feedback com base na ocorrência mais recente
             const ultima = ocorrencias[0];
-            feedbackStatus.value = ultima.status || "PENDENTE";
-            feedbackTexto.value = ultima.feedback || "";
-            campoUpload.style.display = (ultima.status === "CONCLUÍDO") ? "block" : "none";
+            if (ultima) {
+                feedbackStatus.value = ultima.status || "PENDENTE";
+                feedbackTexto.value = ultima.feedback || "";
+                campoUpload.style.display = (ultima.status === "CONCLUÍDO") ? "block" : "none";
+                inputIdOcorrencia.value = ultima.id;
 
-            // Salva o ID da ocorrência mais recente para o feedback
-            document.getElementById("feedbackOcorrenciaId").value = ultima.id;
-
-            // 📄 Exibe documento se houver
-            if (ultima.status === "CONCLUÍDO" && ultima.documento_final) {
-                containerDocumento.innerHTML = `
-                    <div class="mt-2">
-                        <label class="form-label">Documento Anexado:</label><br>
-                        <a href="${ultima.documento_final}" target="_blank" class="btn btn-sm btn-outline-danger">
-                            <i class="fas fa-file-pdf me-1"></i> Ver Documento Final
-                        </a>
-                    </div>
-                `;
-            } else {
-                containerDocumento.innerHTML = "";
+                // 📄 Exibe documento se houver
+                if (ultima.status === "CONCLUÍDO" && ultima.documento_final) {
+                    containerDocumento.innerHTML = `
+                        <div class="mt-2">
+                            <label class="form-label">Documento Anexado:</label><br>
+                            <a href="${ultima.documento_final}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-file-pdf me-1"></i> Ver Documento Final
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    containerDocumento.innerHTML = "";
+                }
             }
         }
 

@@ -15,7 +15,19 @@ export async function init() {
 
     try {
         const resposta = await fetch(`${BASE_URL}/comissao/alunos`);
+
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP: ${resposta.status}`);
+        }
+
         const dados = await resposta.json();
+
+        // Verificações seguras
+        if (!Array.isArray(dados.graves) || !Array.isArray(dados.gravissimas)) {
+            console.error("❌ Estrutura inesperada recebida da API:", dados);
+            throw new Error("Resposta da API malformada.");
+        }
+
         dadosOriginais = dados;
 
         renderizarCards(dadosOriginais);
@@ -23,8 +35,10 @@ export async function init() {
         if (inputBusca) {
             inputBusca.addEventListener("input", () => {
                 const termo = inputBusca.value.trim().toLowerCase();
+
                 const filtradasGraves = dados.graves.filter(a => a.nome.toLowerCase().includes(termo));
                 const filtradasGravissimas = dados.gravissimas.filter(a => a.nome.toLowerCase().includes(termo));
+
                 renderizarCards({ graves: filtradasGraves, gravissimas: filtradasGravissimas });
             });
         }
@@ -45,8 +59,14 @@ export async function init() {
         }
     }
 
-    function renderizarCards({ graves, gravissimas }) {
+    function renderizarCards({ graves = [], gravissimas = [] }) {
         containerCards.innerHTML = "";
+
+        if (!Array.isArray(gravissimas) || !Array.isArray(graves)) {
+            console.error("❌ Dados inválidos para renderizarCards:", { graves, gravissimas });
+            containerCards.innerHTML = `<div class="col-12 text-center text-danger">Erro ao processar dados.</div>`;
+            return;
+        }
 
         const todos = [...gravissimas, ...graves];
 
