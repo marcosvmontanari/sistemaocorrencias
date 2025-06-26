@@ -38,6 +38,7 @@ const infracoesRoutes = require("./routes/infracoes");
 const cursosRouter = require("./routes/cursos");
 const turmasRouter = require("./routes/turmas");
 const comissaoRoutes = require("./routes/comissao");
+const rotaGestor = require("./routes/gestor");
 
 // ✅ Registro das rotas
 app.use("/upload-csv/alunos", uploadCSVAlunos);
@@ -50,6 +51,7 @@ app.use("/infracoes", infracoesRoutes);
 app.use("/cursos", cursosRouter);
 app.use("/turmas", turmasRouter);
 app.use("/comissao", comissaoRoutes);
+app.use("/gestor", rotaGestor);
 
 // ✅ Definir a porta e iniciar o servidor
 const PORT = process.env.PORT || 3000;

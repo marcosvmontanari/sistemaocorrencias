@@ -36,12 +36,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         case "GESTOR DE OCORRÊNCIAS":
             menuItens = `
-                <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
-                <a href="#" class="list-group-item" data-page="listar_ocorrencias.html">📂 Listar Ocorrências</a>
-                <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
-                <a href="#" class="list-group-item" data-page="quadro_ocorrencias.html">📌 Quadro de Ocorrências</a>
-            `;
-            break;
+                    <a href="#" class="list-group-item" data-page="cadastrar_ocorrencia.html">📝 Cadastrar Ocorrência</a>
+                    <a href="#" class="list-group-item" data-page="listar_ocorrencias.html">📂 Listar Ocorrências</a>
+                    <a href="#" class="list-group-item" data-page="relatorios.html">📊 Gerar Relatórios</a>
+                    <a href="#" class="list-group-item" data-page="quadro_ocorrencias.html">📌 Quadro de Ocorrências</a>
+                    <a href="#" class="list-group-item" data-page="acompanhar_comissao.html">🧭 Acompanhar Comissão</a>
+                `;
+                break;
 
         case "COMISSÃO DISCIPLINAR":
             menuItens = `
@@ -208,6 +209,16 @@ async function carregarESexecutarModulo(pagina) {
             
             case "comissao_detalhes.html":
                 modulo = await import(`../js/comissao_detalhes.js?cache=${Date.now()}`);
+                if (modulo?.init) {
+                    console.log(`✅ Executando init() de '${pagina}'`);
+                    modulo.init();
+                } else {
+                    console.error(`❌ Módulo de '${pagina}' não possui uma função init().`);
+                }
+                break;
+            
+            case "acompanhar_comissao.html":
+                modulo = await import(`../js/gestor_comissao.js?cache=${Date.now()}`);
                 if (modulo?.init) {
                     console.log(`✅ Executando init() de '${pagina}'`);
                     modulo.init();
